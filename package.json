@@ -1,4 +1,5 @@
 {
+  "publisher": "markw65",
   "name": "prettier-extension-monkeyc",
   "displayName": "Prettier-Extension-MonkeyC",
   "description": "A Monkey C extension for the Prettier extension",
@@ -7,7 +8,8 @@
     "vscode": "^1.65.0"
   },
   "categories": [
-    "Other"
+    "Programming Languages",
+    "Formatters"
   ],
   "activationEvents": [
     "onLanguage:monkeyc"
@@ -36,5 +38,10 @@
   "extensionDependencies": [
     "esbenp.prettier-vscode",
     "garmin.monkey-c"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/markw65/prettier-extension-monkeyc.git"
+  },
+  "homepage": "https://github.com/markw65/prettier-extension-monkeyc/blob/main/README.md"
 }
