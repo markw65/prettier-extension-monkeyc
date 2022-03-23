@@ -3,7 +3,7 @@
   "name": "prettier-extension-monkeyc",
   "displayName": "Prettier-Extension-MonkeyC",
   "description": "A Monkey C extension for the Prettier extension",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "engines": {
     "vscode": "^1.65.0"
   },
