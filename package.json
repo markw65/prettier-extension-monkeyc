@@ -1,4 +1,5 @@
 {
+  "type": "commonjs",
   "publisher": "markw65",
   "name": "prettier-extension-monkeyc",
   "displayName": "Prettier-Extension-MonkeyC",
@@ -14,8 +15,39 @@
   "activationEvents": [
     "onLanguage:monkeyc"
   ],
-  "main": "./extension.js",
-  "contributes": {},
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "title": "Generate Optimized Project",
+        "command": "prettiermonkeyc.optimizeCurrentProject",
+        "category": "Prettier Monkey C"
+      },
+      {
+        "title": "Generate api.mir tests (for development)",
+        "command": "prettiermonkeyc.generateApiMirTests",
+        "category": "Prettier Monkey C"
+      }
+    ],
+    "configuration": {
+      "title": "Prettier Monkey C",
+      "type": "object",
+      "properties": {
+        "prettierMonkeyC.outputPath": {
+          "type": "string",
+          "description": "Path to where the optimized project should be generated.",
+          "default": "optimized",
+          "scope": "window"
+        },
+        "prettierMonkeyC.pathsToClone": {
+          "type": "string",
+          "description": "Semicolon separated globs specifying which source dirs should be copied.",
+          "default": "source;source-*;resources;resources-*;monkey.jungle;manifest.xml",
+          "scope": "window"
+        }
+      }
+    }
+  },
   "scripts": {
     "lint": "eslint .",
     "pretest": "npm run lint",
@@ -23,17 +55,18 @@
     "vscode:uninstall": "node ./uninstall.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.65.0",
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.0",
-    "@types/node": "14.x",
+    "@types/node": "16.x",
+    "@types/vscode": "^1.66.0",
+    "@vscode/test-electron": "^2.1.2",
     "eslint": "^8.9.0",
     "glob": "^7.2.0",
     "mocha": "^9.2.1",
-    "typescript": "^4.5.5",
-    "@vscode/test-electron": "^2.1.2"
+    "typescript": "^4.6.3"
   },
   "dependencies": {
+    "@markw65/monkeyc-optimizer": "file:../monkeyc-optimizer",
     "@markw65/prettier-plugin-monkeyc": "^1.0.3"
   },
   "extensionDependencies": [

@@ -2,12 +2,12 @@
 	"env": {
 		"browser": false,
 		"commonjs": true,
-		"es6": true,
+		"es2020": true,
 		"node": true,
 		"mocha": true
 	},
 	"parserOptions": {
-		"ecmaVersion": 2018,
+		"ecmaVersion": 2020,
 		"ecmaFeatures": {
 			"jsx": true
 		},
@@ -18,8 +18,8 @@
 		"no-this-before-super": "warn",
 		"no-undef": "warn",
 		"no-unreachable": "warn",
-		"no-unused-vars": "warn",
 		"constructor-super": "warn",
-		"valid-typeof": "warn"
+		"valid-typeof": "warn",
+		"no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
 	}
 }
