@@ -13,14 +13,30 @@
     "Formatters"
   ],
   "activationEvents": [
-    "onLanguage:monkeyc"
+    "onDebug",
+    "onDebugDynamicConfigurations:omonkeyc",
+    "onLanguage:monkeyc",
+    "onCommand:prettiermonkeyc.generateOptimizedProject",
+    "onCommand:prettiermonkeyc.buildOptimizedProject",
+    "onCommand:prettiermonkeyc.runOptimizedProject",
+    "onCommand:prettiermonkeyc.generateApiMirTests"
   ],
-  "main": "./src/extension.js",
+  "main": "./extension.js",
   "contributes": {
     "commands": [
       {
         "title": "Generate Optimized Project",
-        "command": "prettiermonkeyc.optimizeCurrentProject",
+        "command": "prettiermonkeyc.generateOptimizedProject",
+        "category": "Prettier Monkey C"
+      },
+      {
+        "title": "Build Optimized Project",
+        "command": "prettiermonkeyc.buildOptimizedProject",
+        "category": "Prettier Monkey C"
+      },
+      {
+        "title": "Build and Run Optimized Project",
+        "command": "prettiermonkeyc.runOptimizedProject",
         "category": "Prettier Monkey C"
       },
       {
@@ -36,17 +52,108 @@
         "prettierMonkeyC.outputPath": {
           "type": "string",
           "description": "Path to where the optimized project should be generated.",
-          "default": "optimized",
+          "default": "bin/optimized",
           "scope": "window"
         },
-        "prettierMonkeyC.pathsToClone": {
+        "prettierMonkeyC.ignoredExcludeAnnotations": {
           "type": "string",
-          "description": "Semicolon separated globs specifying which source dirs should be copied.",
-          "default": "source;source-*;resources;resources-*;monkey.jungle;manifest.xml",
+          "description": "Semicolon separated list of excludeAnnotations to ignore.",
+          "default": "",
+          "scope": "window"
+        },
+        "prettierMonkeyC.ignoredAnnotations": {
+          "type": "string",
+          "description": "Semicolon separated list of annotations to ignore.",
+          "default": "",
+          "scope": "window"
+        },
+        "prettierMonkeyC.ignoredSourcePaths": {
+          "type": "string",
+          "description": "Regex of source paths to ignore.",
+          "default": "",
           "scope": "window"
         }
       }
-    }
+    },
+    "taskDefinitions": [
+      {
+        "type": "omonkeyc",
+        "required": [
+          "device"
+        ],
+        "properties": {
+          "device": {
+            "type": "string",
+            "description": "The device to build for."
+          },
+          "simulatorBuild": {
+            "type": "boolean",
+            "description": "Is this build for the simulator."
+          },
+          "releaseBuild": {
+            "type": "boolean",
+            "description": "Is this a release build."
+          },
+          "jungleFiles": {
+            "type": "string",
+            "description": "If present, overrides the `monkeyC.jungleFiles' setting."
+          }
+        }
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "omonkeyc",
+        "label": "Optimized Monkey C",
+        "languages": [
+          "monkeyc",
+          "jungle"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "properties": {
+              "stopAtLaunch": {
+                "type": "boolean",
+                "description": "break immediately when the program launches.",
+                "default": false
+              },
+              "device": {
+                "type": "string",
+                "description": "Device to run or '${command:GetTargetDevice}' to choose a new device each run."
+              },
+              "releaseBuild": {
+                "type": "boolean",
+                "description": "Run a release build."
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "omonkeyc",
+            "request": "launch",
+            "name": "Run Optimized",
+            "stopAtLaunch": false,
+            "device": "${command:GetTargetDevice}"
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Optimized Monkey C: Run Optimized",
+            "body": {
+              "type": "omonkeyc",
+              "request": "launch",
+              "name": "Run Optimized",
+              "stopAtLaunch": false,
+              "device": "^\"\\${command:GetTargetDevice}\""
+            }
+          }
+        ],
+        "variables": {
+          "GetTargetDevice": "monkeyc.getTargetDevice"
+        }
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
