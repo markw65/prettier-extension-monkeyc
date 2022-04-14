@@ -3,24 +3,33 @@
 // Hover to view descriptions of existing attributes.
 // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
 {
-	"version": "0.2.0",
-	"configurations": [
-		{
-			"name": "Run Extension",
-			"type": "extensionHost",
-			"request": "launch",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}"
-			]
-		},
-		{
-			"name": "Extension Tests",
-			"type": "extensionHost",
-			"request": "launch",
-			"args": [
-				"--extensionDevelopmentPath=${workspaceFolder}",
-				"--extensionTestsPath=${workspaceFolder}/test/suite/index"
-			]
-		}
-	]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Extension",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}"]
+    },
+    {
+      "name": "Extension Tests",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/test/suite/index"
+      ]
+    },
+    {
+      "name": "Node build",
+      "type": "pwa-node",
+      "request": "launch",
+      "args": [
+        "/Users/mwilliams/www/git/prettier-extension-monkeyc/bin/build.js",
+        "fenix5x",
+        "{\"workspace\":\"/Users/mwilliams/www/git/HRMultifield\",\"outputPath\":\"bin/optimized\",\"jungleFiles\":\"monkey.jungle;generated/device-specific.jungle\",\"developerKeyPath\":\"/Users/mwilliams/connect-iq/developer_key\",\"typeCheckLevel\":\"Strict\",\"compilerWarnings\":true,\"name\":\"Run Optimized\",\"request\":\"launch\",\"type\":\"omonkeyc\",\"device\":\"fenix5xplus\"}",
+        "{\"workspace\":\"/Users/mwilliams/www/git/garmin-samples/Picker\",\"outputPath\":\"bin/optimized\",\"jungleFiles\":\"monkey.jungle\",\"developerKeyPath\":\"/Users/mwilliams/connect-iq/developer_key\",\"typeCheckLevel\":\"Default\",\"compilerWarnings\":true,\"type\":\"omonkeyc\",\"device\":\"fenix5x\",\"simulatorBuild\":true,\"product\":\"fenix5x\"}"
+      ]
+    }
+  ]
 }

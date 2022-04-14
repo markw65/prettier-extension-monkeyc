@@ -16,10 +16,11 @@
     "onDebug",
     "onDebugDynamicConfigurations:omonkeyc",
     "onLanguage:monkeyc",
+    "onCommand:workbench.action.tasks.runTask",
     "onCommand:prettiermonkeyc.generateOptimizedProject",
     "onCommand:prettiermonkeyc.buildOptimizedProject",
     "onCommand:prettiermonkeyc.runOptimizedProject",
-    "onCommand:prettiermonkeyc.generateApiMirTests"
+    "onCommand:prettiermonkeyc.exportOptimizedProject"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -40,8 +41,8 @@
         "category": "Prettier Monkey C"
       },
       {
-        "title": "Generate api.mir tests (for development)",
-        "command": "prettiermonkeyc.generateApiMirTests",
+        "title": "Export Optimized Project",
+        "command": "prettiermonkeyc.exportOptimizedProject",
         "category": "Prettier Monkey C"
       }
     ],
@@ -84,7 +85,7 @@
         "properties": {
           "device": {
             "type": "string",
-            "description": "The device to build for."
+            "description": "The device to build for. The special value `export' will do an iq build into bin/export"
           },
           "simulatorBuild": {
             "type": "boolean",
@@ -96,7 +97,39 @@
           },
           "jungleFiles": {
             "type": "string",
-            "description": "If present, overrides the `monkeyC.jungleFiles' setting."
+            "description": "If present, overrides the corresponding `monkeyC' setting."
+          },
+          "developerKeyPath": {
+            "type": "string",
+            "description": "If present, overrides the corresponding `monkeyC' setting."
+          },
+          "typeCheckLevel": {
+            "type": "string",
+            "description": "If present, overrides the corresponding `monkeyC' setting."
+          },
+          "compilerOptions": {
+            "type": "string",
+            "description": "If present, overrides the corresponding `monkeyC' setting."
+          },
+          "compilerWarnings": {
+            "type": "string",
+            "description": "If present, overrides the corresponding `monkeyC' setting."
+          },
+          "outputPath": {
+            "type": "string",
+            "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+          },
+          "ignoredExcludeAnnotations": {
+            "type": "string",
+            "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+          },
+          "ignoredAnnotations": {
+            "type": "string",
+            "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+          },
+          "ignoredSourcePaths": {
+            "type": "string",
+            "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
           }
         }
       }
@@ -124,6 +157,42 @@
               "releaseBuild": {
                 "type": "boolean",
                 "description": "Run a release build."
+              },
+              "jungleFiles": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `monkeyC' setting."
+              },
+              "developerKeyPath": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `monkeyC' setting."
+              },
+              "typeCheckLevel": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `monkeyC' setting."
+              },
+              "compilerOptions": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `monkeyC' setting."
+              },
+              "compilerWarnings": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `monkeyC' setting."
+              },
+              "outputPath": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+              },
+              "ignoredExcludeAnnotations": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+              },
+              "ignoredAnnotations": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+              },
+              "ignoredSourcePaths": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
               }
             }
           }

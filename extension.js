@@ -1,15 +1,17 @@
 "use strict";
 
 const vscode = require("vscode");
+const fs = require("fs/promises");
+const path = require("path");
 const {
   generateOptimizedProject,
   buildOptimizedProject,
-  generateApiMirTests,
   copyRecursiveAsNeeded,
   launchSimulator,
 } = require("@markw65/monkeyc-optimizer");
 
 let debugConfigProvider;
+let buildTaskProvider;
 
 const baseDebugConfig = {
   name: "Run Optimized",
@@ -25,7 +27,7 @@ async function activate() {
     "Installing @markw65/prettier-plugin-monkeyc into the esbenp.prettier-vscode extension!"
   );
 
-  const our_extension_dir = __dirname; //.replace(/^(.*[\/\\]).*$/, "$1");
+  const our_extension_dir = __dirname;
   const prettier_dir = vscode.extensions.getExtension(
     "esbenp.prettier-vscode"
   ).extensionPath;
@@ -48,19 +50,39 @@ async function activate() {
     buildOptimizedProject(getOptimizerBaseConfig())
   );
   vscode.commands.registerCommand("prettiermonkeyc.runOptimizedProject", () =>
-    vscode.debug.startDebugging({
+    vscode.debug.startDebugging(vscode.workspace.workspaceFolders[0], {
       ...getOptimizerBaseConfig(),
       ...baseDebugConfig,
     })
   );
-  vscode.commands.registerCommand("prettiermonkeyc.generateApiMirTests", () => {
-    return generateApiMirTests(getOptimizerBaseConfig());
-  });
+  vscode.commands.registerCommand(
+    "prettiermonkeyc.exportOptimizedProject",
+    () => {
+      return vscode.tasks.executeTask(
+        OptimizedMonkeyCBuildTaskProvider.finalizeTask(
+          new vscode.Task(
+            {
+              ...getOptimizerBaseConfig(),
+              type: "omonkeyc",
+              device: "export",
+            },
+            vscode.workspace.workspaceFolders[0],
+            "export",
+            OptimizedMonkeyCBuildTaskProvider.type
+          )
+        )
+      );
+    }
+  );
 
   debugConfigProvider = await vscode.debug.registerDebugConfigurationProvider(
     "omonkeyc",
     new OptimizedMonkeyCDebugConfigProvider(),
     vscode.DebugConfigurationProviderTriggerKind.Dynamic
+  );
+  buildTaskProvider = vscode.tasks.registerTaskProvider(
+    OptimizedMonkeyCBuildTaskProvider.type,
+    new OptimizedMonkeyCBuildTaskProvider()
   );
 }
 
@@ -68,6 +90,8 @@ async function activate() {
 function deactivate() {
   debugConfigProvider && debugConfigProvider.dispose();
   debugConfigProvider = null;
+  buildTaskProvider && buildTaskProvider.dispose();
+  buildTaskProvider = null;
 }
 
 class OptimizedMonkeyCDebugConfigProvider {
@@ -81,16 +105,104 @@ class OptimizedMonkeyCDebugConfigProvider {
     _token
   ) {
     const workspace = folder.uri.fsPath;
-    const buildConfig = { ...getOptimizerBaseConfig(), ...config, workspace };
-    if (!buildConfig.device) return;
-    await buildOptimizedProject(buildConfig.device, buildConfig);
+    const definition = {
+      ...config,
+      workspace,
+      type: OptimizedMonkeyCBuildTaskProvider.type,
+    };
+    if (!definition.device || definition.device === "export") return;
+    try {
+      await Promise.all([
+        vscode.tasks.executeTask(
+          OptimizedMonkeyCBuildTaskProvider.finalizeTask(
+            new vscode.Task(
+              definition,
+              folder,
+              definition.device,
+              OptimizedMonkeyCBuildTaskProvider.type
+            )
+          )
+        ),
+        new Promise((resolve, reject) => {
+          let disposable = vscode.tasks.onDidEndTaskProcess((e) => {
+            if (e.execution.task.definition === definition) {
+              disposable.dispose();
+              if (e.exitCode == 0) {
+                resolve();
+              } else {
+                reject();
+              }
+            }
+          });
+        }),
+      ]);
+    } catch {
+      return;
+    }
+
+    const basePath = path.join(workspace, "bin", `optimized-${folder.name}`);
+    // The monkeyc resolveDebugConfigurationWithSubstitutedVariables
+    // would overwrite prg, prgDebugXml and settingsJson. By creating the config
+    // with type == "omonkeyc", and then switching it here, it goes straight to the
+    // debug adapter, without being munged.
     config.type = "monkeyc";
-    config.prg = `${workspace}/bin/optimized-${folder.name}.prg`;
-    config.prgDebugXml = `${workspace}/bin/optimized-${folder.name}.prg.debug.xml`;
+    config.prg = `${basePath}.prg`;
+    config.prgDebugXml = `${basePath}.prg.debug.xml`;
+    const settingsFile = `${basePath}-settings.json`;
+    if (await fs.stat(settingsFile).catch(() => null)) {
+      config.settingsJson = settingsFile;
+    }
     await launchSimulator();
     return config;
   }
 }
+
+class OptimizedMonkeyCBuildTaskProvider {
+  // Interface function that determines if the given task is valid
+  provideTasks() {
+    return;
+  }
+  static finalizeTask(task) {
+    const options = {
+      ...getOptimizerBaseConfig(),
+      // For now disable typechecking unless explicitly enabled
+      // in the task definition
+      typeCheckLevel: "Off",
+      ...task.definition,
+      workspace: task.scope.uri.fsPath,
+    };
+    const args = [
+      `${__dirname}/bin/build.js`,
+      task.definition.device,
+      JSON.stringify(options),
+    ];
+    const exe = "node";
+    return new vscode.Task(
+      task.definition,
+      task.scope,
+      task.definition.device,
+      OptimizedMonkeyCBuildTaskProvider.type,
+      new vscode.ProcessExecution(exe, args),
+      ["$monkeyc.error", "$monkeyc.fileWarning", "$monkeyc.genericWarning"]
+    );
+  }
+
+  async resolveTask(task) {
+    // Monkey C only works with workspace based tasks
+    if (task.source === "Workspace") {
+      // make sure that this is an Optimized Monkey C task and that the device is available
+      if (
+        task.definition.type === OptimizedMonkeyCBuildTaskProvider.type &&
+        task.definition.device
+      ) {
+        return OptimizedMonkeyCBuildTaskProvider.finalizeTask(task);
+      }
+    }
+    return undefined;
+  }
+}
+
+OptimizedMonkeyCBuildTaskProvider.type = "omonkeyc";
 
 function getOptimizerBaseConfig() {
   const config = { workspace: vscode.workspace.workspaceFolders[0].uri.fsPath };
