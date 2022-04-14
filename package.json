@@ -58,13 +58,13 @@
         },
         "prettierMonkeyC.ignoredExcludeAnnotations": {
           "type": "string",
-          "description": "Semicolon separated list of excludeAnnotations to ignore.",
+          "description": "Semicolon separated list of excludeAnnotations to ignore, or `*' to ignore all",
           "default": "",
           "scope": "window"
         },
         "prettierMonkeyC.ignoredAnnotations": {
           "type": "string",
-          "description": "Semicolon separated list of annotations to ignore.",
+          "description": "Semicolon separated list of annotations to ignore, or `*' to ignore all",
           "default": "",
           "scope": "window"
         },
