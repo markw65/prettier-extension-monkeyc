@@ -209,6 +209,7 @@ function getOptimizerBaseConfig() {
 
   const pmcConfig = vscode.workspace.getConfiguration("prettierMonkeyC");
   for (const i of [
+    "releaseBuild",
     "outputPath",
     "ignoredExcludeAnnotations",
     "ignoredAnnotations",
