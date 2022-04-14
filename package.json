@@ -242,7 +242,7 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@markw65/monkeyc-optimizer": "file:../monkeyc-optimizer",
+    "@markw65/monkeyc-optimizer": "file:../monkeyc-optimizer/markw65-monkeyc-optimizer-1.0.0.tgz",
     "@markw65/prettier-plugin-monkeyc": "^1.0.3"
   },
   "extensionDependencies": [

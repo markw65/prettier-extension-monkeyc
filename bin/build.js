@@ -1,7 +1,18 @@
 const { buildOptimizedProject } = require("@markw65/monkeyc-optimizer");
 const path = require("path");
 
-const options = JSON.parse(process.argv[3]);
+const json = process.argv.slice(4).reduce((json, arg, i) => {
+  arg = JSON.stringify(arg).slice(1, -1);
+  return json.replace(new RegExp("\\$\\$" + (i + 1), "g"), arg);
+}, process.argv[3]);
+// Arguments in launch.json are processed differently on windows/macos.
+// If the string looks lie '{\"', it's over quoted, and must have come
+// from our launch.json (which we had to overquote to make it work on
+// windows), so just remove the quoting here. This will never fire when
+// this is invoked from the extension.
+const options = JSON.parse(
+  json.slice(0, 3) == '{\\"' ? json.replace(/\\"/g, '"') : json
+);
 buildOptimizedProject(
   process.argv[2] == "export" ? null : process.argv[2],
   options
