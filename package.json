@@ -4,7 +4,7 @@
   "name": "prettier-extension-monkeyc",
   "displayName": "Prettier-Extension-MonkeyC",
   "description": "A Monkey C source transformation extension",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "engines": {
     "vscode": "^1.65.0"
   },
@@ -242,8 +242,8 @@
     "typescript": "^4.6.3"
   },
   "dependencies": {
-    "@markw65/monkeyc-optimizer": "^1.0.1",
-    "@markw65/prettier-plugin-monkeyc": "^1.0.9"
+    "@markw65/monkeyc-optimizer": "^1.0.2",
+    "@markw65/prettier-plugin-monkeyc": "^1.0.10"
   },
   "extensionDependencies": [
     "esbenp.prettier-vscode",

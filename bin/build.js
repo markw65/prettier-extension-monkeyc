@@ -30,6 +30,8 @@ buildOptimizedProject(
       console.error(
         `ERROR: ${e.name}: ${source}:${e.location.start.line},${e.location.start.column}: ${e.message}`
       );
+    } else {
+      console.error(`ERROR: Internal: ${e.toString()}`);
     }
     process.exit(1);
   });

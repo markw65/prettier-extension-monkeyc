@@ -93,14 +93,19 @@ This extension depends on the [VSCode Prettier extension](https://marketplace.vi
 
 #### 1.0.0
 
-Initial release of the Formatter
+- Initial release of the Formatter
 
 #### 1.0.1 - 1.0.8
 
-Minor tweaks to the Formatter
+- Minor tweaks to the Formatter
 
 #### 2.0.0
 
-Added the source-to-source optimizer
+- Added the source-to-source optimizer
+
+#### 2.0.1
+
+- Fix an order dependency processing imports
+- Better error reporting when something goes wrong internally
 
 ---
