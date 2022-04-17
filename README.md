@@ -108,4 +108,10 @@ This extension depends on the [VSCode Prettier extension](https://marketplace.vi
 - Fix an order dependency processing imports
 - Better error reporting when something goes wrong internally
 
+#### 2.0.2
+
+- Upgrade to @markw65/monkeyc-optimizer:1.0.4
+- Split the build into release and debug, so we can exclude code based on (:release) and (:debug)
+- Optimize away `if (constant)`, `while (false)` and `constant ? E1 : E2`. Convert `do BODY while(false)` to `BODY`
+
 ---
