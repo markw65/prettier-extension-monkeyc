@@ -32,6 +32,9 @@ buildOptimizedProject(
       );
     } else {
       console.error(`ERROR: Internal: ${e.toString()}`);
+      if (e.stack) {
+        console.error(e.stack);
+      }
     }
     process.exit(1);
   });
