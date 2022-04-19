@@ -19,18 +19,6 @@
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/test/suite/index"
       ]
-    },
-    {
-      "name": "Node build",
-      "type": "pwa-node",
-      "request": "launch",
-      "args": [
-        "${workspaceFolder}/bin/build.js",
-        "fenix5xplus",
-        "{\\\"ignoredExcludeAnnotations\\\":\\\"string_data;json_data\\\",\\\"ignoredSourcePaths\\\":\\\"(source-).*-(\\\\d+x\\\\d+)$\\\",\\\"workspace\\\":\\\"$$1/../HRMultifield\\\",\\\"outputPath\\\":\\\"bin/optimized\\\",\\\"jungleFiles\\\":\\\"monkey.jungle;generated/device-specific.jungle\\\",\\\"developerKeyPath\\\":\\\"$$2\\\",\\\"typeCheckLevel\\\":\\\"Strict\\\",\\\"compilerWarnings\\\":true,\\\"name\\\":\\\"Run Optimized\\\",\\\"request\\\":\\\"launch\\\",\\\"type\\\":\\\"omonkeyc\\\",\\\"device\\\":\\\"fenix5xplus\\\"}",
-        "${workspaceFolder}",
-        "${config:monkeyC.developerKeyPath}"
-      ]
     }
   ]
 }

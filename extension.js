@@ -9,9 +9,11 @@ const {
   copyRecursiveAsNeeded,
   launchSimulator,
 } = require("@markw65/monkeyc-optimizer");
+const { CustomBuildTaskTerminal } = require("./src/custom-build.js");
 
 let debugConfigProvider;
 let buildTaskProvider;
+let diagnosticCollection;
 
 const baseDebugConfig = {
   name: "Run Optimized",
@@ -75,6 +77,7 @@ async function activate() {
     }
   );
 
+  diagnosticCollection = vscode.languages.createDiagnosticCollection();
   debugConfigProvider = await vscode.debug.registerDebugConfigurationProvider(
     "omonkeyc",
     new OptimizedMonkeyCDebugConfigProvider(),
@@ -171,19 +174,23 @@ class OptimizedMonkeyCBuildTaskProvider {
       ...task.definition,
       workspace: task.scope.uri.fsPath,
     };
-    const args = [
-      `${__dirname}/bin/build.js`,
-      task.definition.device,
-      JSON.stringify(options),
-    ];
-    const exe = "node";
     return new vscode.Task(
       task.definition,
       task.scope,
       task.definition.device,
       OptimizedMonkeyCBuildTaskProvider.type,
-      new vscode.ProcessExecution(exe, args),
-      ["$monkeyc.error", "$monkeyc.fileWarning", "$monkeyc.genericWarning"]
+      //new vscode.ProcessExecution(exe, args),
+      new vscode.CustomExecution(() => {
+        // When the task is executed, this callback will run. Here, we setup for running the task.
+        return Promise.resolve(
+          new CustomBuildTaskTerminal(
+            task.definition.device,
+            options,
+            diagnosticCollection
+          )
+        );
+      }),
+      [("$monkeyc.error", "$monkeyc.fileWarning", "$monkeyc.genericWarning")]
     );
   }
 
