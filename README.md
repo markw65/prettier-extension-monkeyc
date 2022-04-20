@@ -114,4 +114,24 @@ This extension depends on the [VSCode Prettier extension](https://marketplace.vi
 - Split the build into release and debug, so we can exclude code based on (:release) and (:debug)
 - Optimize away `if (constant)`, `while (false)` and `constant ? E1 : E2`. Convert `do BODY while(false)` to `BODY`
 
+#### 2.0.4
+
+Upgrade to @markw65/prettier-plugin-monkeyc:1.0.12 to fix various parser issues:
+
+- Allow space after `arg` in `catch ( arg ) {`
+- Allow space after `,` in `for (i = 0 , j = 0; whatever; i++ , j++ ) {`
+- Don't reuse ArrayLiteral for `new [ size ]` because it can
+  confuse the estree printer
+- Ignore "@" at the beginning of an identifier (is this right? It doesn't
+  seem to do anything)
+- Floating point literals need a digit after the point. Otherwise
+  `42.toChar()` gets misparsed by consuming `42.` as a float literal,
+  and then hitting a syntax error.
+- Allow `static class Foo {}` (but ignore the static)
+- Fixup reserved word lists
+- Handle octal literals
+- Parse `new [size]b`
+
+Upgrade to @markw65/monkeyc-optimizer:1.0.4 to fix some optimizer bugs
+
 ---
