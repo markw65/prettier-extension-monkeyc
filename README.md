@@ -134,4 +134,51 @@ Upgrade to @markw65/prettier-plugin-monkeyc:1.0.12 to fix various parser issues:
 
 Upgrade to @markw65/monkeyc-optimizer:1.0.4 to fix some optimizer bugs
 
+#### 2.0.5
+
+Upgrade to @markw65/monkeyc-optimizer:1.0.7 to fix some more optimizer bugs found via open source projects.
+
+- Fix parsing of quoted strings in jungle files
+- Better error messages from the test framework
+- Lazier handling of variables in jungle files
+- Fix handling of negative enums that get completely removed
+- Fix a bug analyzing empty classes
+- Fix a typo that could result in consts being incorrectly eliminated
+- Fix an edge case handling local jungle variables
+- More test options, and add filters for some of the remote projects
+- Try to clean up broken jungles and manifests
+- Fix handling of unnamed callees
+- Drop unrecognized devices
+- Add support for a 'pick-one' device to aid testing
+- Add a flag to remote projects to prevent trying to build them (some projects are broken to start with)
+
+#### 2.0.6
+
+Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open source projects.
+
+- Improvements
+
+  - Update to @markw65/prettier-plugin-monkeyc:1.0.14
+  - Parse and respect \<build\> instructions in resource files
+  - Add minimal barrel support
+  - Better checking for whether the optimized source is up to date
+  - Rename locals which would be marked re-declaring
+
+- Bug Fixes
+
+  - Generate the default jungle dynamically, since sdk/bin/default.jungle is generated lazily, and may not exist in newly installed sdks, or may be out of date after device installations.
+  - Fix a bug generating language settings in optimized jungle
+  - Fix a bug introduced by pick-one: don't modify a shared array
+  - Don't allow src paths to navigate out of the optimized directory
+  - Fix some windows paths issues
+
+- Tests
+  - More parallelism while fetching remote projects for testing
+  - Add option to build the original project, rather than the optimized one
+  - Add support for overriding build options on a per project basis
+  - Add an option so we only 'fix' the manifest when running remote projects
+  - Check the manifest's application id, and throw in a valid one if necessary
+  - Allow project specific overrides for the generated monkey.jungle files, and use it to fix some projects
+  - Add patches for some broken projects
+
 ---
