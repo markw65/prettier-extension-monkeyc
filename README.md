@@ -181,4 +181,10 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Allow project specific overrides for the generated monkey.jungle files, and use it to fix some projects
   - Add patches for some broken projects
 
+#### 2.0.7
+
+- upgrade to @markw65/monkeyc-optimizer:1.0.9 for better barrel support, and minor bug fixes
+- upgrade to @markw65/prettier-plugin-monkeyc:1.0.15 to fix a bug that dropped attributes on module declarations
+- switch to using a CustomExecution for tasks, which keeps everything in-process
+
 ---
