@@ -187,4 +187,8 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - upgrade to @markw65/prettier-plugin-monkeyc:1.0.15 to fix a bug that dropped attributes on module declarations
 - switch to using a CustomExecution for tasks, which keeps everything in-process
 
+#### 2.0.8
+
+- add full support for optimizing barrels
+
 ---
