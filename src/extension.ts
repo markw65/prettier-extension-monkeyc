@@ -8,6 +8,8 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import * as vscode from "vscode";
 import { CustomBuildTaskTerminal } from "./custom-build";
+import { MonkeyCDefinitionProvider } from "./definition-provider";
+import { getOptimizerBaseConfig } from "./project-manager";
 
 let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 
@@ -99,6 +101,10 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.tasks.registerTaskProvider(
       OptimizedMonkeyCBuildTaskProvider.type,
       new OptimizedMonkeyCBuildTaskProvider()
+    ),
+    vscode.languages.registerDefinitionProvider(
+      { scheme: "file", language: "monkeyc" },
+      new MonkeyCDefinitionProvider()
     )
   );
 }
@@ -224,31 +230,4 @@ class OptimizedMonkeyCBuildTaskProvider {
     }
     return undefined;
   }
-}
-
-function getOptimizerBaseConfig() {
-  const config = { workspace: vscode.workspace.workspaceFolders[0].uri.fsPath };
-
-  const pmcConfig = vscode.workspace.getConfiguration("prettierMonkeyC");
-  for (const i of [
-    "releaseBuild",
-    "outputPath",
-    "ignoredExcludeAnnotations",
-    "ignoredAnnotations",
-    "ignoredSourcePaths",
-  ]) {
-    if (pmcConfig[i]) config[i] = pmcConfig[i];
-  }
-
-  const mcConfig = vscode.workspace.getConfiguration("monkeyC");
-  for (const i of [
-    "jungleFiles",
-    "developerKeyPath",
-    "typeCheckLevel",
-    "compilerOptions",
-    "compilerWarnings",
-  ]) {
-    if (mcConfig[i]) config[i] = mcConfig[i];
-  }
-  return config;
 }
