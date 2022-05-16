@@ -231,6 +231,47 @@ export function findDefinition(
   });
 }
 
+export function visitReferences(
+  state: ProgramState,
+  ast: ESTreeProgram,
+  name: string,
+  defn: ProgramStateStack,
+  callback: (node: ESTreeNode) => void
+) {
+  const sameStack = (s1: ProgramStateStack, s2: ProgramStateStack) =>
+    s1.length === s2.length &&
+    s1.every((item, i) =>
+      item.name ? item === s2[i] : item.node === s2[i].node
+    );
+
+  state.pre = (node) => {
+    switch (node.type) {
+      case "Identifier":
+        if (node.name === name) {
+          const [name, , where] = state.lookup!(node);
+          if (name && where && sameStack(where, defn)) {
+            callback(node);
+          }
+        }
+        break;
+      case "MemberExpression":
+        if (!node.computed && node.property.type === "Identifier") {
+          if (node.property.name === name) {
+            const [name, , where] = state.lookup!(node);
+            if (name && where && sameStack(where, defn)) {
+              callback(node);
+            }
+          }
+          return ["object"];
+        }
+        break;
+    }
+    return null;
+  };
+  collectNamespaces(ast, state);
+  delete state.pre;
+}
+
 export function getOptimizerBaseConfig(workspace?: string): BuildConfig {
   if (!workspace) {
     if (

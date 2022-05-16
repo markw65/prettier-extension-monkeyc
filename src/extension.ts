@@ -10,6 +10,7 @@ import * as vscode from "vscode";
 import { CustomBuildTaskTerminal } from "./custom-build";
 import { MonkeyCDefinitionProvider } from "./definition-provider";
 import { getOptimizerBaseConfig } from "./project-manager";
+import { MonkeyCRenameProvider } from "./rename-provider";
 
 let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 
@@ -105,6 +106,10 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerDefinitionProvider(
       { scheme: "file", language: "monkeyc" },
       new MonkeyCDefinitionProvider()
+    ),
+    vscode.languages.registerRenameProvider(
+      { scheme: "file", language: "monkeyc" },
+      new MonkeyCRenameProvider()
     )
   );
 }
