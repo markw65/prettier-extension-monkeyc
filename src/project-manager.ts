@@ -1,9 +1,11 @@
 import {
   Analysis,
+  PreAnalysis,
   getProjectAnalysis,
   get_jungle,
   ESTreeProgram,
   ESTreeNode,
+  ResolvedJungle,
 } from "@markw65/monkeyc-optimizer";
 import {
   collectNamespaces,
@@ -13,10 +15,17 @@ import { existsSync } from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
+type UpdateElem = { file: string; monkeyCSource: string };
+
 class Project {
   private currentAnalysis: Analysis | null = null;
   private junglePromise: Promise<Analysis>;
   private buildRuleDependencies: string[] = [];
+  private jungleResult: ResolvedJungle | null = null;
+  private options: BuildConfig | null = null;
+  private currentTimer: NodeJS.Timeout | null = null;
+  private currentUpdates: Array<UpdateElem> | null = null;
+  private firstUpdateInBatch: number = 0;
 
   constructor(workspaceFolder: vscode.WorkspaceFolder) {
     const workspace = workspaceFolder.uri.fsPath;
@@ -32,12 +41,90 @@ class Project {
     ) {
       throw new Error(`Didn't find a ciq project at '${workspace}'`);
     }
-    this.junglePromise = get_jungle(options.jungleFiles, options)
-      .then(({ manifest, targets, jungles /*xml, annotations */ }) => {
-        this.buildRuleDependencies = [manifest, ...jungles];
-        return getProjectAnalysis(targets, this.currentAnalysis, options);
-      })
-      .then((analysis) => (this.currentAnalysis = analysis));
+    this.options = options;
+    this.junglePromise = get_jungle(options.jungleFiles, options).then(
+      (jungleResult) => {
+        this.jungleResult = jungleResult;
+        return this.runAnalysis(null);
+      }
+    );
+
+    vscode.workspace.onDidChangeTextDocument((e) => {
+      if (!e.contentChanges.length) return;
+      this.onFilesUpdate([
+        { file: e.document.uri.fsPath, monkeyCSource: e.document.getText() },
+      ]);
+    });
+  }
+
+  private runAnalysis(oldAnalysis: PreAnalysis | null) {
+    if (!this.jungleResult || !this.options) {
+      throw new Error("Missing jungleResult/options");
+    }
+    const { manifest, targets, jungles /*xml, annotations */ } =
+      this.jungleResult;
+    this.buildRuleDependencies = [manifest, ...jungles];
+    return getProjectAnalysis(targets, oldAnalysis, this.options).then(
+      (analysis) => (this.currentAnalysis = analysis)
+    );
+  }
+
+  private onFilesUpdate(files: Array<UpdateElem>) {
+    if (!this.currentAnalysis) return;
+    let analysis: PreAnalysis = this.currentAnalysis;
+    files.forEach(({ file, monkeyCSource }) => {
+      const fileInfo = analysis.fnMap[file];
+      if (!fileInfo) {
+        return;
+      }
+      if (monkeyCSource !== fileInfo.monkeyCSource) {
+        if (!this.currentUpdates) {
+          this.firstUpdateInBatch = Date.now();
+          this.currentUpdates = [];
+        }
+        this.currentUpdates.push({ file, monkeyCSource });
+      }
+    });
+    if (this.currentTimer !== null) {
+      clearTimeout(this.currentTimer);
+      this.currentTimer = null;
+    }
+    if (this.currentUpdates) {
+      const now = Date.now();
+      if (now - this.firstUpdateInBatch > 1000) {
+        this.doFilesUpdate();
+      } else {
+        // wait 200ms to collect more updates
+        this.currentTimer = setTimeout(() => {
+          this.currentTimer = null;
+          this.doFilesUpdate();
+        }, 200);
+      }
+    }
+  }
+
+  private doFilesUpdate() {
+    if (!this.currentAnalysis) return;
+    const files = this.currentUpdates;
+    this.currentUpdates = null;
+    if (!files) return;
+    let analysis: PreAnalysis = this.currentAnalysis;
+    files.forEach(({ file, monkeyCSource }) => {
+      const fileInfo = analysis.fnMap[file];
+      if (!fileInfo) {
+        return;
+      }
+      if (monkeyCSource !== fileInfo.monkeyCSource) {
+        if (analysis === this.currentAnalysis) {
+          analysis = { ...analysis, fnMap: { ...analysis.fnMap } };
+        }
+        const { ast, ...rest } = fileInfo;
+        analysis.fnMap[file] = { ...rest, monkeyCSource };
+      }
+    });
+    if (analysis !== this.currentAnalysis) {
+      this.junglePromise = this.runAnalysis(analysis);
+    }
   }
 
   getAnalysis(): Promise<Analysis> {
