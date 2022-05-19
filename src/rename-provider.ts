@@ -2,7 +2,9 @@ import { hasProperty, isStateNode } from "@markw65/monkeyc-optimizer/api.js";
 import * as vscode from "vscode";
 import { findDefinition, visitReferences } from "./project-manager.js";
 
-export class MonkeyCRenameProvider implements vscode.RenameProvider {
+export class MonkeyCRenameRefProvider
+  implements vscode.RenameProvider, vscode.ReferenceProvider
+{
   getRenameInfo(document: vscode.TextDocument, position: vscode.Position) {
     return findDefinition(document, position).then(
       ({ node, name, results, where, analysis }) => {
@@ -95,5 +97,58 @@ export class MonkeyCRenameProvider implements vscode.RenameProvider {
         return edits;
       })
       .catch(() => null);
+  }
+
+  provideReferences(
+    document: vscode.TextDocument,
+    position: vscode.Position,
+    context: vscode.ReferenceContext,
+    token: vscode.CancellationToken
+  ): vscode.ProviderResult<vscode.Location[]> {
+    return findDefinition(document, position).then(
+      ({ node, name: ref_name, results, where, analysis }) => {
+        if (
+          ref_name &&
+          where &&
+          where.length &&
+          results &&
+          (node.type === "Identifier" || node.type === "MemberExpression")
+        ) {
+          const back = where[where.length - 1];
+          const references: vscode.Location[] = [];
+          const files =
+            back.type == "BlockStatement" || back.type === "FunctionDeclaration"
+              ? [document.uri.fsPath]
+              : Object.keys(analysis.fnMap);
+          files.forEach((filepath) => {
+            const file = analysis.fnMap[filepath];
+            visitReferences(
+              analysis.state,
+              file.ast,
+              ref_name,
+              where,
+              (node) => {
+                const n =
+                  node.type === "MemberExpression" ? node.property : node;
+                const loc = n.loc!;
+                references.push(
+                  new vscode.Location(
+                    vscode.Uri.file(filepath),
+                    new vscode.Range(
+                      loc.start.line - 1,
+                      loc.start.column - 1,
+                      loc.end.line - 1,
+                      loc.end.column - 1
+                    )
+                  )
+                );
+              }
+            );
+          });
+          return references;
+        }
+        return null;
+      }
+    );
   }
 }
