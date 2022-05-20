@@ -3,10 +3,10 @@ import {
   PreAnalysis,
   getProjectAnalysis,
   get_jungle,
-  ESTreeProgram,
-  ESTreeNode,
   ResolvedJungle,
 } from "@markw65/monkeyc-optimizer";
+import { mctree } from "@markw65/prettier-plugin-monkeyc";
+
 import {
   collectNamespaces,
   hasProperty,
@@ -15,20 +15,23 @@ import { existsSync } from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
 
-type UpdateElem = { file: string; monkeyCSource: string };
+type UpdateElem = { file: string; content: string | null };
 
-class Project {
-  private currentAnalysis: Analysis | null = null;
-  private junglePromise: Promise<Analysis>;
-  private buildRuleDependencies: string[] = [];
+class Project implements vscode.Disposable {
+  private currentAnalysis: Analysis | PreAnalysis | null = null;
+  private junglePromise: Promise<unknown>;
+  private buildRuleDependencies: Record<string, string> = {};
   private jungleResult: ResolvedJungle | null = null;
-  private options: BuildConfig | null = null;
+  private options: BuildConfig;
   private currentTimer: NodeJS.Timeout | null = null;
-  private currentUpdates: Array<UpdateElem> | null = null;
+  private currentUpdates: Record<string, string | null> | null = null;
   private firstUpdateInBatch: number = 0;
+  private fileSystemWatcher: vscode.FileSystemWatcher;
+  private disposables: vscode.Disposable[] = [];
+  private diagnosticCollection = vscode.languages.createDiagnosticCollection();
 
-  constructor(workspaceFolder: vscode.WorkspaceFolder) {
-    const workspace = workspaceFolder.uri.fsPath;
+  constructor(private workspaceFolder: vscode.WorkspaceFolder) {
+    const workspace = this.workspaceFolder.uri.fsPath;
     const options = getOptimizerBaseConfig(workspace);
     if (!options.jungleFiles || options.jungleFiles === "") {
       options.jungleFiles = "monkey.jungle";
@@ -42,48 +45,138 @@ class Project {
       throw new Error(`Didn't find a ciq project at '${workspace}'`);
     }
     this.options = options;
-    this.junglePromise = get_jungle(options.jungleFiles, options).then(
-      (jungleResult) => {
-        this.jungleResult = jungleResult;
-        return this.runAnalysis(null);
-      }
+    this.reloadJungles(null);
+
+    this.fileSystemWatcher = vscode.workspace.createFileSystemWatcher(
+      "**/*.{mc,jungle,xml}"
     );
 
-    vscode.workspace.onDidChangeTextDocument((e) => {
-      if (!e.contentChanges.length) return;
-      this.onFilesUpdate([
-        { file: e.document.uri.fsPath, monkeyCSource: e.document.getText() },
-      ]);
+    const fileChange = (e: vscode.Uri) => {
+      console.log("File change: " + e.toString());
+      this.onFilesUpdate([{ file: e.fsPath, content: null }]);
+    };
+
+    this.disposables.push(
+      vscode.workspace.onDidChangeTextDocument((e) => {
+        if (!e.contentChanges.length) return;
+        this.onFilesUpdate([
+          { file: e.document.uri.fsPath, content: e.document.getText() },
+        ]);
+      }),
+
+      vscode.workspace.onDidChangeWorkspaceFolders((e) => {
+        if (e.removed.find((w) => w.uri.fsPath === this.options.workspace)) {
+          delete projects[this.workspaceFolder.uri.toString()];
+          this.dispose();
+        }
+      }),
+      this.fileSystemWatcher.onDidChange(fileChange),
+      this.fileSystemWatcher.onDidCreate(fileChange),
+      this.fileSystemWatcher.onDidDelete(fileChange),
+      vscode.workspace.onDidChangeConfiguration((e) => {
+        if (
+          e.affectsConfiguration("monkeyC") ||
+          e.affectsConfiguration("prettierMonkeyC")
+        ) {
+          const old = JSON.stringify(this.options);
+          this.options = getOptimizerBaseConfig(workspace);
+          if (JSON.stringify(this.options) !== old) {
+            this.reloadJungles(this.currentAnalysis);
+          }
+        }
+      })
+    );
+  }
+
+  dispose() {
+    this.disposables.forEach((item) => item.dispose());
+    this.fileSystemWatcher.dispose();
+    this.diagnosticCollection.dispose();
+  }
+
+  private reloadJungles(oldAnalysis: PreAnalysis | null) {
+    this.junglePromise = get_jungle(
+      this.options.jungleFiles!,
+      this.options
+    ).then((jungleResult) => {
+      this.jungleResult = jungleResult;
+      return this.runAnalysis(oldAnalysis);
     });
   }
 
   private runAnalysis(oldAnalysis: PreAnalysis | null) {
-    if (!this.jungleResult || !this.options) {
-      throw new Error("Missing jungleResult/options");
+    if (!this.jungleResult) {
+      throw new Error("Missing jungleResult");
     }
     const { manifest, targets, jungles /*xml, annotations */ } =
       this.jungleResult;
-    this.buildRuleDependencies = [manifest, ...jungles];
+    Promise.all(
+      [manifest, ...jungles].map((f) =>
+        vscode.workspace.fs
+          .readFile(vscode.Uri.file(f))
+          .then((d) => [f, d.toString()] as const)
+      )
+    ).then(
+      (results) => (this.buildRuleDependencies = Object.fromEntries(results))
+    );
     return getProjectAnalysis(targets, oldAnalysis, this.options).then(
-      (analysis) => (this.currentAnalysis = analysis)
+      (analysis) => {
+        this.currentAnalysis = analysis;
+        if ("state" in analysis) {
+          this.diagnosticCollection.clear();
+          return;
+        }
+        Object.entries(analysis.fnMap).forEach(([filepath, info]) => {
+          const diagnostics = [];
+          if (info.parserError) {
+            interface PeggyError extends Error {
+              location: mctree.Node["loc"];
+            }
+            const error = info.parserError as Error | PeggyError;
+            const range =
+              "location" in error && error.location
+                ? new vscode.Range(
+                    error.location.start.line - 1,
+                    error.location.start.column - 1,
+                    error.location.start.line - 1,
+                    error.location.start.column - 1
+                  )
+                : new vscode.Range(0, 0, 0, 0);
+            diagnostics.push(
+              new vscode.Diagnostic(
+                range,
+                error.message,
+                vscode.DiagnosticSeverity.Error
+              )
+            );
+          }
+          this.diagnosticCollection.set(vscode.Uri.file(filepath), diagnostics);
+        });
+      }
     );
   }
 
   private onFilesUpdate(files: Array<UpdateElem>) {
     if (!this.currentAnalysis) return;
     let analysis: PreAnalysis = this.currentAnalysis;
-    files.forEach(({ file, monkeyCSource }) => {
-      const fileInfo = analysis.fnMap[file];
-      if (!fileInfo) {
+    files.forEach(({ file, content }) => {
+      if (hasProperty(analysis.fnMap, file)) {
+        const fileInfo = analysis.fnMap[file];
+        if (!fileInfo || content === fileInfo.monkeyCSource) {
+          return;
+        }
+      } else if (
+        !hasProperty(this.buildRuleDependencies, file) ||
+        content === this.buildRuleDependencies[file]
+      ) {
         return;
       }
-      if (monkeyCSource !== fileInfo.monkeyCSource) {
-        if (!this.currentUpdates) {
-          this.firstUpdateInBatch = Date.now();
-          this.currentUpdates = [];
-        }
-        this.currentUpdates.push({ file, monkeyCSource });
+
+      if (!this.currentUpdates) {
+        this.firstUpdateInBatch = Date.now();
+        this.currentUpdates = {};
       }
+      this.currentUpdates[file] = content;
     });
     if (this.currentTimer !== null) {
       clearTimeout(this.currentTimer);
@@ -109,26 +202,44 @@ class Project {
     this.currentUpdates = null;
     if (!files) return;
     let analysis: PreAnalysis = this.currentAnalysis;
-    files.forEach(({ file, monkeyCSource }) => {
-      const fileInfo = analysis.fnMap[file];
-      if (!fileInfo) {
-        return;
-      }
-      if (monkeyCSource !== fileInfo.monkeyCSource) {
-        if (analysis === this.currentAnalysis) {
-          analysis = { ...analysis, fnMap: { ...analysis.fnMap } };
+    let restart = false;
+    Object.entries(files).forEach(([file, content]) => {
+      if (hasProperty(analysis.fnMap, file)) {
+        const fileInfo = analysis.fnMap[file];
+        if (!fileInfo) {
+          return;
         }
-        const { ast, ...rest } = fileInfo;
-        analysis.fnMap[file] = { ...rest, monkeyCSource };
+        if (content !== fileInfo.monkeyCSource) {
+          if (analysis === this.currentAnalysis) {
+            analysis = { ...analysis, fnMap: { ...analysis.fnMap } };
+          }
+          const { ast, monkeyCSource, ...rest } = fileInfo;
+          analysis.fnMap[file] = rest;
+          if (content != null) {
+            analysis.fnMap[file].monkeyCSource = content;
+          }
+        }
+      } else if (
+        hasProperty(this.buildRuleDependencies, file) &&
+        content !== this.buildRuleDependencies[file]
+      ) {
+        restart = true;
       }
     });
-    if (analysis !== this.currentAnalysis) {
+    if (restart) {
+      this.reloadJungles(analysis);
+    } else if (analysis !== this.currentAnalysis) {
       this.junglePromise = this.runAnalysis(analysis);
     }
   }
 
-  getAnalysis(): Promise<Analysis> {
-    return this.junglePromise.then((analysis) => analysis);
+  getAnalysis(): Promise<Analysis | PreAnalysis | null> {
+    if (this.currentTimer !== null) {
+      clearTimeout(this.currentTimer);
+      this.currentTimer = null;
+      this.doFilesUpdate();
+    }
+    return this.junglePromise.then(() => this.currentAnalysis);
   }
 }
 
@@ -151,11 +262,11 @@ export function findProject(entity: vscode.Uri) {
 
 export function findItemsByRange(
   state: ProgramState,
-  ast: ESTreeProgram,
+  ast: mctree.Program,
   range: vscode.Range
 ) {
-  let result: { node: ESTreeNode; stack: ProgramStateStack }[] = [];
-  state.pre = (node: ESTreeNode) => {
+  let result: { node: mctree.Node; stack: ProgramStateStack }[] = [];
+  state.pre = (node: mctree.Node) => {
     if (!node.loc || node === ast) return null;
     // skip over nodes that end before the range begins
     if (
@@ -190,6 +301,12 @@ export function findDefinition(
   const range = document.getWordRangeAtPosition(position);
   if (!range) return Promise.reject("No symbol found");
   return project.getAnalysis().then((analysis) => {
+    if (!analysis) {
+      return Promise.reject("Project analysis not found");
+    }
+    if (!("state" in analysis)) {
+      return Promise.reject("Project contains errors");
+    }
     const file = analysis.fnMap[document.uri.fsPath];
     if (!file) {
       return Promise.reject(
@@ -233,10 +350,10 @@ export function findDefinition(
 
 export function visitReferences(
   state: ProgramState,
-  ast: ESTreeProgram,
+  ast: mctree.Program,
   name: string,
   defn: ProgramStateStack,
-  callback: (node: ESTreeNode) => void
+  callback: (node: mctree.Node) => void
 ) {
   const sameStack = (s1: ProgramStateStack, s2: ProgramStateStack) =>
     s1.length === s2.length &&
