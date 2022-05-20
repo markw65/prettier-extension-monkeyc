@@ -11,8 +11,6 @@ const {
 } = require("@markw65/monkeyc-optimizer");
 const { CustomBuildTaskTerminal } = require("./src/custom-build.js");
 
-let debugConfigProvider;
-let buildTaskProvider;
 let diagnosticCollection;
 
 const baseDebugConfig = {
@@ -24,7 +22,7 @@ const baseDebugConfig = {
 
 // this method is called when the extension is activated
 // which (as currently configured) is the first time a .mc file is opened.
-async function activate() {
+async function activate(context) {
   console.log(
     "Installing @markw65/prettier-plugin-monkeyc into the esbenp.prettier-vscode extension!"
   );
@@ -44,57 +42,56 @@ async function activate() {
     console.log(`Failed: ${e}`);
   }
 
-  vscode.commands.registerCommand(
-    "prettiermonkeyc.generateOptimizedProject",
-    () => generateOptimizedProject(getOptimizerBaseConfig())
-  );
-  vscode.commands.registerCommand("prettiermonkeyc.buildOptimizedProject", () =>
-    buildOptimizedProject(getOptimizerBaseConfig())
-  );
-  vscode.commands.registerCommand("prettiermonkeyc.runOptimizedProject", () =>
-    vscode.debug.startDebugging(vscode.workspace.workspaceFolders[0], {
-      ...getOptimizerBaseConfig(),
-      ...baseDebugConfig,
-    })
-  );
-  vscode.commands.registerCommand(
-    "prettiermonkeyc.exportOptimizedProject",
-    () => {
-      return vscode.tasks.executeTask(
-        OptimizedMonkeyCBuildTaskProvider.finalizeTask(
-          new vscode.Task(
-            {
-              ...getOptimizerBaseConfig(),
-              type: "omonkeyc",
-              device: "export",
-            },
-            vscode.workspace.workspaceFolders[0],
-            "export",
-            OptimizedMonkeyCBuildTaskProvider.type
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "prettiermonkeyc.generateOptimizedProject",
+      () => generateOptimizedProject(getOptimizerBaseConfig())
+    ),
+    vscode.commands.registerCommand(
+      "prettiermonkeyc.buildOptimizedProject",
+      () => buildOptimizedProject(getOptimizerBaseConfig())
+    ),
+    vscode.commands.registerCommand("prettiermonkeyc.runOptimizedProject", () =>
+      vscode.debug.startDebugging(vscode.workspace.workspaceFolders[0], {
+        ...getOptimizerBaseConfig(),
+        ...baseDebugConfig,
+      })
+    ),
+    vscode.commands.registerCommand(
+      "prettiermonkeyc.exportOptimizedProject",
+      () => {
+        return vscode.tasks.executeTask(
+          OptimizedMonkeyCBuildTaskProvider.finalizeTask(
+            new vscode.Task(
+              {
+                ...getOptimizerBaseConfig(),
+                type: "omonkeyc",
+                device: "export",
+              },
+              vscode.workspace.workspaceFolders[0],
+              "export",
+              OptimizedMonkeyCBuildTaskProvider.type
+            )
           )
-        )
-      );
-    }
-  );
-
-  diagnosticCollection = vscode.languages.createDiagnosticCollection();
-  debugConfigProvider = await vscode.debug.registerDebugConfigurationProvider(
-    "omonkeyc",
-    new OptimizedMonkeyCDebugConfigProvider(),
-    vscode.DebugConfigurationProviderTriggerKind.Dynamic
-  );
-  buildTaskProvider = vscode.tasks.registerTaskProvider(
-    OptimizedMonkeyCBuildTaskProvider.type,
-    new OptimizedMonkeyCBuildTaskProvider()
+        );
+      }
+    ),
+    (diagnosticCollection = vscode.languages.createDiagnosticCollection()),
+    vscode.debug.registerDebugConfigurationProvider(
+      "omonkeyc",
+      new OptimizedMonkeyCDebugConfigProvider(),
+      vscode.DebugConfigurationProviderTriggerKind.Dynamic
+    ),
+    vscode.tasks.registerTaskProvider(
+      OptimizedMonkeyCBuildTaskProvider.type,
+      new OptimizedMonkeyCBuildTaskProvider()
+    )
   );
 }
 
 // this method is called when your extension is deactivated
 function deactivate() {
-  debugConfigProvider && debugConfigProvider.dispose();
-  debugConfigProvider = null;
-  buildTaskProvider && buildTaskProvider.dispose();
-  buildTaskProvider = null;
+  diagnosticCollection = null;
 }
 
 class OptimizedMonkeyCDebugConfigProvider {
