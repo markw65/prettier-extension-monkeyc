@@ -17,6 +17,10 @@ import * as vscode from "vscode";
 
 type UpdateElem = { file: string; content: string | null };
 
+export function normalize(filepath: string) {
+  return filepath.replace(/[\\]/g, "/");
+}
+
 export class Project implements vscode.Disposable {
   private currentAnalysis: Analysis | PreAnalysis | null = null;
   private junglePromise: Promise<unknown>;
@@ -31,7 +35,7 @@ export class Project implements vscode.Disposable {
   private diagnosticCollection = vscode.languages.createDiagnosticCollection();
 
   constructor(private workspaceFolder: vscode.WorkspaceFolder) {
-    const workspace = this.workspaceFolder.uri.fsPath;
+    const workspace = normalize(this.workspaceFolder.uri.fsPath);
     const options = getOptimizerBaseConfig(workspace);
     if (!options.jungleFiles || options.jungleFiles === "") {
       options.jungleFiles = "monkey.jungle";
@@ -52,20 +56,26 @@ export class Project implements vscode.Disposable {
     );
 
     const fileChange = (e: vscode.Uri) => {
-      console.log("File change: " + e.toString());
-      this.onFilesUpdate([{ file: e.fsPath, content: null }]);
+      this.onFilesUpdate([{ file: normalize(e.fsPath), content: null }]);
     };
 
     this.disposables.push(
       vscode.workspace.onDidChangeTextDocument((e) => {
         if (!e.contentChanges.length) return;
         this.onFilesUpdate([
-          { file: e.document.uri.fsPath, content: e.document.getText() },
+          {
+            file: normalize(e.document.uri.fsPath),
+            content: e.document.getText(),
+          },
         ]);
       }),
 
       vscode.workspace.onDidChangeWorkspaceFolders((e) => {
-        if (e.removed.find((w) => w.uri.fsPath === this.options.workspace)) {
+        if (
+          e.removed.find(
+            (w) => normalize(w.uri.fsPath) === this.options.workspace
+          )
+        ) {
           delete projects[this.workspaceFolder.uri.toString()];
           this.dispose();
         }
@@ -307,7 +317,7 @@ export function findDefinition(
     if (!("state" in analysis)) {
       return Promise.reject("Project contains errors");
     }
-    const file = analysis.fnMap[document.uri.fsPath];
+    const file = analysis.fnMap[normalize(document.uri.fsPath)];
     if (!file) {
       return Promise.reject(
         "Document ${document.uri.fsPath} not found in project"
@@ -400,6 +410,7 @@ export function getOptimizerBaseConfig(workspace?: string): BuildConfig {
     }
     workspace = vscode.workspace.workspaceFolders[0].uri.fsPath;
   }
+  workspace = normalize(workspace);
   const config: Record<string, unknown> = { workspace };
   const pmcConfig = vscode.workspace.getConfiguration("prettierMonkeyC");
   for (const i of [

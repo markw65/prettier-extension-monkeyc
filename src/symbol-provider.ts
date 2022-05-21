@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { findProject, Project } from "./project-manager";
+import { findProject, Project, normalize } from "./project-manager";
 import { mctree } from "@markw65/monkeyc-optimizer";
 import {
   traverseAst,
@@ -37,7 +37,7 @@ export class MonkeyCSymbolProvider
       if (!analysis) {
         return Promise.reject("Project analysis not found");
       }
-      const file = analysis.fnMap[document.uri.fsPath];
+      const file = analysis.fnMap[normalize(document.uri.fsPath)];
       if (!file) {
         return Promise.reject(
           "Document ${document.uri.fsPath} not found in project"

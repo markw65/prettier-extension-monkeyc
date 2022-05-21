@@ -1,6 +1,10 @@
 import { hasProperty, isStateNode } from "@markw65/monkeyc-optimizer/api.js";
 import * as vscode from "vscode";
-import { findDefinition, visitReferences } from "./project-manager.js";
+import {
+  findDefinition,
+  visitReferences,
+  normalize,
+} from "./project-manager.js";
 
 export class MonkeyCRenameRefProvider
   implements vscode.RenameProvider, vscode.ReferenceProvider
@@ -83,7 +87,7 @@ export class MonkeyCRenameRefProvider
         const edits = new vscode.WorkspaceEdit();
         const files =
           back.type == "BlockStatement" || back.type === "FunctionDeclaration"
-            ? [document.uri.fsPath]
+            ? [normalize(document.uri.fsPath)]
             : Object.keys(analysis.fnMap);
         files.forEach((name) => {
           const file = analysis.fnMap[name];
@@ -132,7 +136,7 @@ export class MonkeyCRenameRefProvider
           const references: vscode.Location[] = [];
           const files =
             back.type == "BlockStatement" || back.type === "FunctionDeclaration"
-              ? [document.uri.fsPath]
+              ? [normalize(document.uri.fsPath)]
               : Object.keys(analysis.fnMap);
           files.forEach((filepath) => {
             const file = analysis.fnMap[filepath];
