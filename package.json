@@ -26,7 +26,7 @@
     "onCommand:prettiermonkeyc.runOptimizedProject",
     "onCommand:prettiermonkeyc.exportOptimizedProject"
   ],
-  "main": "./extension.js",
+  "main": "./build/extension.js",
   "contributes": {
     "commands": [
       {
@@ -232,12 +232,15 @@
     "lint": "eslint .",
     "pretest": "npm run lint",
     "test": "node ./test/runTest.js",
-    "vscode:uninstall": "node ./uninstall.js"
+    "vscode:uninstall": "node ./uninstall.js",
+    "build": "npx tsc",
+    "watch": "npx tsc --watch"
   },
   "devDependencies": {
     "@types/glob": "^7.2.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "16.x",
+    "@types/prettier": "^2.6.1",
     "@types/vscode": "^1.65.0",
     "@vscode/test-electron": "^2.1.2",
     "eslint": "^8.9.0",

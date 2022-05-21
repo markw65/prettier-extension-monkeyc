@@ -1,21 +1,22 @@
-const vscode = require("vscode");
-const { buildOptimizedProject } = require("@markw65/monkeyc-optimizer");
-const { spawnByLine } = require("@markw65/monkeyc-optimizer/util.js");
-const path = require("path");
-const { hasProperty } = require("@markw65/monkeyc-optimizer/api.js");
+import { buildOptimizedProject } from "@markw65/monkeyc-optimizer";
+import { hasProperty } from "@markw65/monkeyc-optimizer/api.js";
+import { spawnByLine } from "@markw65/monkeyc-optimizer/util.js";
+import * as path from "path";
+import * as vscode from "vscode";
 
-class CustomBuildTaskTerminal {
-  constructor(device, options, diagnosticCollection) {
-    this.device = device;
-    this.options = options;
-    this.writeEmitter = new vscode.EventEmitter();
-    this.onDidWrite = this.writeEmitter.event;
-    this.closeEmitter = new vscode.EventEmitter();
-    this.onDidClose = this.closeEmitter.event;
-    this.diagnosticCollection = diagnosticCollection;
-  }
+export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
+  private writeEmitter = new vscode.EventEmitter<string>();
+  onDidWrite: vscode.Event<string> = this.writeEmitter.event;
+  private closeEmitter = new vscode.EventEmitter<number>();
+  onDidClose?: vscode.Event<number> = this.closeEmitter.event;
 
-  open(_initialDimensions) {
+  constructor(
+    public device: string,
+    public options: BuildConfig,
+    public diagnosticCollection: vscode.DiagnosticCollection
+  ) {}
+
+  open(_initialDimensions: vscode.TerminalDimensions) {
     /*
 		// At this point we can start using the terminal.
 		if (this.flags.indexOf('watch') > -1) {
@@ -39,10 +40,15 @@ class CustomBuildTaskTerminal {
   }
 
   doBuild() {
-    const diagnostics = {};
+    const diagnostics: Record<string, vscode.Diagnostic[]> = {};
     this.diagnosticCollection.clear();
-    const logger = (line) => {
-      let match, type, file, lnum, char, message;
+    const logger = (line: string) => {
+      let match,
+        type,
+        file = "unknown",
+        lnum = "1",
+        char,
+        message = "Unknown error";
       if (
         (match = line.match(
           /^(ERROR|WARNING):\s+\w+:\s+(.*):(\d+)(?:,(\d+))?:\s+(.*)$/
@@ -55,7 +61,6 @@ class CustomBuildTaskTerminal {
         message = match[5];
       } else if ((match = line.match(/^(ERROR|WARNING):\s+(.*)$/))) {
         type = match[1];
-        lnum = 1;
         message = match[2];
       }
       if (type === "ERROR") {
@@ -83,7 +88,7 @@ class CustomBuildTaskTerminal {
         diagnostics[file] = [];
       }
       diagnostics[file].push(diagnostic);
-      const uri = vscode.Uri.file(path.resolve(this.options.workspace, file));
+      const uri = vscode.Uri.file(path.resolve(this.options.workspace!, file));
       this.diagnosticCollection.set(uri, diagnostics[file]);
     };
     logger("Starting optimization step...");
@@ -115,7 +120,7 @@ class CustomBuildTaskTerminal {
       .catch((e) => {
         if (e.name && e.message && e.location) {
           const source = path.relative(
-            this.options.workspace,
+            this.options.workspace!,
             e.location.source
           );
           logger(
@@ -134,5 +139,3 @@ class CustomBuildTaskTerminal {
       });
   }
 }
-
-module.exports = { CustomBuildTaskTerminal };

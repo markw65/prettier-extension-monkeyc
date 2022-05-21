@@ -1,17 +1,15 @@
-"use strict";
-
-const vscode = require("vscode");
-const fs = require("fs/promises");
-const path = require("path");
-const {
-  generateOptimizedProject,
+import {
   buildOptimizedProject,
   copyRecursiveAsNeeded,
+  generateOptimizedProject,
   launchSimulator,
-} = require("@markw65/monkeyc-optimizer");
-const { CustomBuildTaskTerminal } = require("./src/custom-build.js");
+} from "@markw65/monkeyc-optimizer";
+import * as fs from "fs/promises";
+import * as path from "path";
+import * as vscode from "vscode";
+import { CustomBuildTaskTerminal } from "./custom-build";
 
-let diagnosticCollection;
+let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 
 const baseDebugConfig = {
   name: "Run Optimized",
@@ -22,61 +20,77 @@ const baseDebugConfig = {
 
 // this method is called when the extension is activated
 // which (as currently configured) is the first time a .mc file is opened.
-async function activate(context) {
+export async function activate(context: vscode.ExtensionContext) {
   console.log(
     "Installing @markw65/prettier-plugin-monkeyc into the esbenp.prettier-vscode extension!"
   );
 
-  const our_extension_dir = __dirname;
+  const our_extension_dir = path.resolve(__dirname, "..");
   const prettier_dir = vscode.extensions.getExtension(
     "esbenp.prettier-vscode"
-  ).extensionPath;
+  )?.extensionPath;
 
-  const target_dir = `${prettier_dir}/node_modules/@markw65/prettier-plugin-monkeyc`;
-  try {
-    await copyRecursiveAsNeeded(
-      `${our_extension_dir}/node_modules/@markw65/prettier-plugin-monkeyc`,
-      target_dir
-    );
-  } catch (e) {
-    console.log(`Failed: ${e}`);
+  if (prettier_dir) {
+    const target_dir = `${prettier_dir}/node_modules/@markw65/prettier-plugin-monkeyc`;
+    try {
+      await copyRecursiveAsNeeded(
+        `${our_extension_dir}/node_modules/@markw65/prettier-plugin-monkeyc`,
+        target_dir
+      );
+    } catch (e) {
+      console.log(`Failed: ${e}`);
+    }
   }
 
   context.subscriptions.push(
+    (diagnosticCollection = vscode.languages.createDiagnosticCollection()),
     vscode.commands.registerCommand(
       "prettiermonkeyc.generateOptimizedProject",
       () => generateOptimizedProject(getOptimizerBaseConfig())
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.buildOptimizedProject",
-      () => buildOptimizedProject(getOptimizerBaseConfig())
+      () =>
+        vscode.commands
+          .executeCommand("monkeyc.getTargetDevice")
+          .then((device: string) =>
+            buildOptimizedProject(device, getOptimizerBaseConfig())
+          )
     ),
-    vscode.commands.registerCommand("prettiermonkeyc.runOptimizedProject", () =>
-      vscode.debug.startDebugging(vscode.workspace.workspaceFolders[0], {
-        ...getOptimizerBaseConfig(),
-        ...baseDebugConfig,
-      })
+    vscode.commands.registerCommand(
+      "prettiermonkeyc.runOptimizedProject",
+      () =>
+        vscode.workspace.workspaceFolders &&
+        vscode.workspace.workspaceFolders.length &&
+        vscode.debug.startDebugging(vscode.workspace.workspaceFolders[0], {
+          ...getOptimizerBaseConfig(),
+          ...baseDebugConfig,
+        })
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.exportOptimizedProject",
       () => {
-        return vscode.tasks.executeTask(
-          OptimizedMonkeyCBuildTaskProvider.finalizeTask(
-            new vscode.Task(
-              {
-                ...getOptimizerBaseConfig(),
-                type: "omonkeyc",
-                device: "export",
-              },
-              vscode.workspace.workspaceFolders[0],
-              "export",
-              OptimizedMonkeyCBuildTaskProvider.type
-            )
+        if (
+          !vscode.workspace.workspaceFolders ||
+          !vscode.workspace.workspaceFolders.length
+        ) {
+          return null;
+        }
+        const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
+          new vscode.Task(
+            {
+              ...getOptimizerBaseConfig(),
+              type: "omonkeyc",
+              device: "export",
+            },
+            vscode.workspace.workspaceFolders[0],
+            "export",
+            OptimizedMonkeyCBuildTaskProvider.type
           )
         );
+        return task && vscode.tasks.executeTask(task);
       }
     ),
-    (diagnosticCollection = vscode.languages.createDiagnosticCollection()),
     vscode.debug.registerDebugConfigurationProvider(
       "omonkeyc",
       new OptimizedMonkeyCDebugConfigProvider(),
@@ -90,54 +104,56 @@ async function activate(context) {
 }
 
 // this method is called when your extension is deactivated
-function deactivate() {
+export function deactivate() {
   diagnosticCollection = null;
 }
 
 class OptimizedMonkeyCDebugConfigProvider {
-  provideDebugConfigurations(_folder) {
+  provideDebugConfigurations(_folder: vscode.WorkspaceFolder) {
     return [baseDebugConfig];
   }
 
   async resolveDebugConfigurationWithSubstitutedVariables(
-    folder,
-    config,
-    _token
+    folder: vscode.WorkspaceFolder,
+    config: vscode.DebugConfiguration,
+    _token: vscode.CancellationToken
   ) {
     const workspace = folder.uri.fsPath;
     const definition = {
       ...config,
       workspace,
       type: OptimizedMonkeyCBuildTaskProvider.type,
-    };
-    if (!definition.device || definition.device === "export") return;
+    } as vscode.TaskDefinition;
+    if (!definition.device || definition.device === "export") return null;
     try {
+      const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
+        new vscode.Task(
+          definition,
+          folder,
+          definition.device,
+          OptimizedMonkeyCBuildTaskProvider.type
+        )
+      );
+      if (!task) {
+        throw new Error("Internal error: Failed to create Build Task");
+      }
       await Promise.all([
-        vscode.tasks.executeTask(
-          OptimizedMonkeyCBuildTaskProvider.finalizeTask(
-            new vscode.Task(
-              definition,
-              folder,
-              definition.device,
-              OptimizedMonkeyCBuildTaskProvider.type
-            )
-          )
-        ),
-        new Promise((resolve, reject) => {
+        vscode.tasks.executeTask(task),
+        new Promise<void>((resolve, reject) => {
           let disposable = vscode.tasks.onDidEndTaskProcess((e) => {
             if (e.execution.task.definition === definition) {
               disposable.dispose();
               if (e.exitCode == 0) {
                 resolve();
               } else {
-                reject();
+                reject(e.exitCode);
               }
             }
           });
         }),
       ]);
     } catch {
-      return;
+      return null;
     }
 
     const basePath = path.join(workspace, "bin", `optimized-${folder.name}`);
@@ -158,11 +174,15 @@ class OptimizedMonkeyCDebugConfigProvider {
 }
 
 class OptimizedMonkeyCBuildTaskProvider {
+  static type: string = "omonkeyc";
   // Interface function that determines if the given task is valid
-  provideTasks() {
-    return;
+  provideTasks(): vscode.Task[] {
+    return [];
   }
-  static finalizeTask(task) {
+  static finalizeTask(task: vscode.Task) {
+    if (typeof task.scope !== "object" || !("uri" in task.scope)) {
+      return null;
+    }
     const options = {
       ...getOptimizerBaseConfig(),
       // For now disable typechecking unless explicitly enabled
@@ -183,15 +203,15 @@ class OptimizedMonkeyCBuildTaskProvider {
           new CustomBuildTaskTerminal(
             task.definition.device,
             options,
-            diagnosticCollection
+            diagnosticCollection!
           )
         );
       }),
-      [("$monkeyc.error", "$monkeyc.fileWarning", "$monkeyc.genericWarning")]
+      ["$monkeyc.error", "$monkeyc.fileWarning", "$monkeyc.genericWarning"]
     );
   }
 
-  async resolveTask(task) {
+  async resolveTask(task: vscode.Task) {
     // Monkey C only works with workspace based tasks
     if (task.source === "Workspace") {
       // make sure that this is an Optimized Monkey C task and that the device is available
@@ -205,8 +225,6 @@ class OptimizedMonkeyCBuildTaskProvider {
     return undefined;
   }
 }
-
-OptimizedMonkeyCBuildTaskProvider.type = "omonkeyc";
 
 function getOptimizerBaseConfig() {
   const config = { workspace: vscode.workspace.workspaceFolders[0].uri.fsPath };
@@ -234,8 +252,3 @@ function getOptimizerBaseConfig() {
   }
   return config;
 }
-
-module.exports = {
-  activate,
-  deactivate,
-};
