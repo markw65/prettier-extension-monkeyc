@@ -9,6 +9,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { CustomBuildTaskTerminal } from "./custom-build";
 import { MonkeyCDefinitionProvider } from "./definition-provider";
+import { MonkeyCSymbolProvider } from "./symbol-provider";
 import { getOptimizerBaseConfig } from "./project-manager";
 import { MonkeyCRenameRefProvider } from "./rename-provider";
 
@@ -46,6 +47,7 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 
   const renameRefProvider = new MonkeyCRenameRefProvider();
+  const symbolProvider = new MonkeyCSymbolProvider();
 
   context.subscriptions.push(
     (diagnosticCollection = vscode.languages.createDiagnosticCollection()),
@@ -109,6 +111,11 @@ export async function activate(context: vscode.ExtensionContext) {
       { scheme: "file", language: "monkeyc" },
       new MonkeyCDefinitionProvider()
     ),
+    vscode.languages.registerDocumentSymbolProvider(
+      { scheme: "file", language: "monkeyc" },
+      symbolProvider
+    ),
+    vscode.languages.registerWorkspaceSymbolProvider(symbolProvider),
     vscode.languages.registerRenameProvider(
       { scheme: "file", language: "monkeyc" },
       renameRefProvider

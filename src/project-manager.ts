@@ -17,7 +17,7 @@ import * as vscode from "vscode";
 
 type UpdateElem = { file: string; content: string | null };
 
-class Project implements vscode.Disposable {
+export class Project implements vscode.Disposable {
   private currentAnalysis: Analysis | PreAnalysis | null = null;
   private junglePromise: Promise<unknown>;
   private buildRuleDependencies: Record<string, string> = {};
