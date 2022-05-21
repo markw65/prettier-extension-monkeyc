@@ -5,6 +5,12 @@ the [@markw65/prettier-plugin-monkeyc](https://www.npmjs.com/package/@markw65/pr
 
 ## Features
 
+- [Source to Source Optimizer](#source-to-source-optimizer)
+- [Various vscode support features for MonkeyC](#various-support-features-for-monkey-c)
+- [Monkey C Code Formatter](#monkey-c-code-formatter)
+
+---
+
 ### Source to Source Optimizer:
 
 Various constructs in Monkey-C have runtime costs, including `const` and `enum` declarations. This plugin can generate a copy of your program with all `const`s and `enum`s replaced with their values, and also constant fold simple expressions, reducing generated code size, and improving performance. In addition, it removes dead code, and can optionally strip code based on excludeAnnotations.
@@ -53,6 +59,18 @@ By default the optimizer will figure out the excludeAnnotations and sourcePaths 
 
 You can provide more control over the build via `tasks.json` and `launch.json`. You can add configurations with type `omonkeyc` similar to the corresponding `monkeyc` ones that Garmin provides, but you can override any of the build options (so eg, you can create a `Build and run Debug` launch config, and a `Build and run Release` launch config, and switch between them from the `Run and Debug` menu).
 
+---
+
+### Various support features for Monkey C
+
+- `Goto Definition`, and `Peek Definition`
+- `Rename symbol`
+- `Goto References` and `Peek References`
+- `Outline Mode`, `Goto Symbol` (Cmd-Shift-O), and `Open symbol by name` (Cmd-T)
+- Shows parser issues in the `Problems` tab as you type, rather than when you compile
+
+---
+
 ### Monkey C code formatter:
 
 #### Input
@@ -87,7 +105,6 @@ This extension depends on the [VSCode Prettier extension](https://marketplace.vi
 
 - [A type checker bug](https://forums.garmin.com/developer/connect-iq/i/bug-reports/inconsistent-type-checker-errors) makes it hard to know exactly how to replace an enum with the corresponding number without causing type checker errors. As a result, type checking is off by default for optimized builds (but can be enabled explicitly in configured tasks or launch configs).
 - Some of the constants in <sdk>/bin/api.mir are incorrect. In particular, all of the enums/constants that should be negative have the corresponding positive value. I've built a list of exceptions that need fixing which I believe is complete, but its hard to be sure.
-- The optimizer will only re-generate the optimized source if the original source code has changed since the last time it was built. If you change options, but not the source code, you'll need to delete bin/optimized to ensure things are rebuilt.
 
 ## Release Notes
 
@@ -190,5 +207,23 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 #### 2.0.8
 
 - add full support for optimizing barrels
+
+#### 2.0.9
+
+- Bump to @markw65/monkeyc-optimizer@1.0.11
+- Properly handle extension disposables
+  - prevents potential issues when the extension is repeatedly enabled/disabled, or different workspaces are loaded/unloaded.
+- Switch to typescript
+  - The project was getting too complex to manage. typescript helps a little.
+- Implement a definition provider
+  - Supports `Goto Definition`, and `Peek Definition`
+- Add a rename provider
+  - Supports `Rename symbol`
+- Add a reference provider
+  - Supports `Goto References` and `Peek References`
+- Report parser errors
+  - Shows parser issues in the `Problems` tab as you type, rather than when you compile
+- Add Document and Workspace Symbol Providers
+  - Supports `Outline Mode`, `Goto Symbol` (Cmd-Shift-O), and `Open symbol by name` (Cmd-T)
 
 ---
