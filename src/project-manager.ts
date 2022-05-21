@@ -352,21 +352,22 @@ export function visitReferences(
   state: ProgramState,
   ast: mctree.Program,
   name: string,
-  defn: ProgramStateStack,
+  defn: StateNodeDecl[],
   callback: (node: mctree.Node) => void
 ) {
-  const sameStack = (s1: ProgramStateStack, s2: ProgramStateStack) =>
-    s1.length === s2.length &&
-    s1.every((item, i) =>
-      item.name ? item === s2[i] : item.node === s2[i].node
+  const checkResults = (results: StateNodeDecl[] | null) => {
+    return (
+      results &&
+      results.length === defn.length &&
+      results.every((r, i) => r === defn[i])
     );
-
+  };
   state.pre = (node) => {
     switch (node.type) {
       case "Identifier":
         if (node.name === name) {
-          const [name, , where] = state.lookup!(node);
-          if (name && where && sameStack(where, defn)) {
+          const [name, results] = state.lookup!(node);
+          if (name && checkResults(results)) {
             callback(node);
           }
         }
@@ -374,8 +375,8 @@ export function visitReferences(
       case "MemberExpression":
         if (!node.computed && node.property.type === "Identifier") {
           if (node.property.name === name) {
-            const [name, , where] = state.lookup!(node);
-            if (name && where && sameStack(where, defn)) {
+            const [name, results] = state.lookup!(node);
+            if (name && checkResults(results)) {
               callback(node);
             }
           }

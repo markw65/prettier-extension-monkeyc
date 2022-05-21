@@ -5,7 +5,10 @@ import { findDefinition, visitReferences } from "./project-manager.js";
 export class MonkeyCRenameRefProvider
   implements vscode.RenameProvider, vscode.ReferenceProvider
 {
-  getRenameInfo(document: vscode.TextDocument, position: vscode.Position) {
+  private getRenameInfo(
+    document: vscode.TextDocument,
+    position: vscode.Position
+  ) {
     return findDefinition(document, position).then(
       ({ node, name, results, where, analysis }) => {
         if (
@@ -13,7 +16,6 @@ export class MonkeyCRenameRefProvider
           where &&
           where.length &&
           results &&
-          results.length === 1 &&
           (node.type === "Identifier" || node.type === "MemberExpression")
         ) {
           const back = where[where.length - 1];
@@ -37,7 +39,13 @@ export class MonkeyCRenameRefProvider
             const origin = isStateNode(results[0])
               ? results[0].node
               : results[0];
-            return { id, where, analysis, source: origin?.loc?.source };
+            return {
+              id,
+              results,
+              where,
+              analysis,
+              source: origin?.loc?.source,
+            };
           }
         }
         return Promise.reject("No renamable symbol found");
@@ -70,7 +78,7 @@ export class MonkeyCRenameRefProvider
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.WorkspaceEdit> {
     return this.getRenameInfo(document, position)
-      .then(({ id, where, analysis }) => {
+      .then(({ id, results, where, analysis }) => {
         const back = where[where.length - 1];
         const edits = new vscode.WorkspaceEdit();
         const files =
@@ -79,20 +87,26 @@ export class MonkeyCRenameRefProvider
             : Object.keys(analysis.fnMap);
         files.forEach((name) => {
           const file = analysis.fnMap[name];
-          visitReferences(analysis.state, file.ast, id.name, where, (node) => {
-            const n = node.type === "MemberExpression" ? node.property : node;
-            const loc = n.loc!;
-            edits.replace(
-              vscode.Uri.file(name),
-              new vscode.Range(
-                loc.start.line - 1,
-                loc.start.column - 1,
-                loc.end.line - 1,
-                loc.end.column - 1
-              ),
-              newName
-            );
-          });
+          visitReferences(
+            analysis.state,
+            file.ast,
+            id.name,
+            results,
+            (node) => {
+              const n = node.type === "MemberExpression" ? node.property : node;
+              const loc = n.loc!;
+              edits.replace(
+                vscode.Uri.file(name),
+                new vscode.Range(
+                  loc.start.line - 1,
+                  loc.start.column - 1,
+                  loc.end.line - 1,
+                  loc.end.column - 1
+                ),
+                newName
+              );
+            }
+          );
         });
         return edits;
       })
@@ -126,7 +140,7 @@ export class MonkeyCRenameRefProvider
               analysis.state,
               file.ast,
               ref_name,
-              where,
+              results,
               (node) => {
                 const n =
                   node.type === "MemberExpression" ? node.property : node;
