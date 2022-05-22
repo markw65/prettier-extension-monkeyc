@@ -226,4 +226,10 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Add Document and Workspace Symbol Providers
   - Supports `Outline Mode`, `Goto Symbol` (Cmd-Shift-O), and `Open symbol by name` (Cmd-T)
 
+#### 2.0.10
+
+- Bump to @markw65/monkeyc-optimizer@1.0.12
+- Better error handling/reporting when the sdk is missing
+- Use the correct sdk paths on Linux
+
 ---
