@@ -17,27 +17,10 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
   ) {}
 
   open(_initialDimensions: vscode.TerminalDimensions) {
-    /*
-		// At this point we can start using the terminal.
-		if (this.flags.indexOf('watch') > -1) {
-			const pattern = path.join(this.workspaceRoot, 'customBuildFile');
-			this.fileWatcher = vscode.workspace.createFileSystemWatcher(pattern);
-			this.fileWatcher.onDidChange(() => this.doBuild());
-			this.fileWatcher.onDidCreate(() => this.doBuild());
-			this.fileWatcher.onDidDelete(() => this.doBuild());
-		}
-        */
     this.doBuild();
   }
 
-  close() {
-    /*
-		// The terminal has been closed. Shutdown the build.
-		if (this.fileWatcher) {
-			this.fileWatcher.dispose();
-		}
-        */
-  }
+  close() {}
 
   doBuild() {
     const diagnostics: Record<string, vscode.Diagnostic[]> = {};
@@ -92,13 +75,21 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
       this.diagnosticCollection.set(uri, diagnostics[file]);
     };
     logger("Starting optimization step...");
+    const { returnCommand } = this.options;
     return buildOptimizedProject(this.device == "export" ? null : this.device, {
       ...this.options,
       returnCommand: true,
     })
       .then(({ exe, args }) => {
-        logger("Optimization step completed successfully...");
-
+        logger("Optimization step completed successfully...\r\n");
+        if (returnCommand) {
+          return 0;
+        }
+        logger(
+          `> Executing task: ${[exe, ...args]
+            .map((arg) => JSON.stringify(arg))
+            .join(" ")}\r\n`
+        );
         return spawnByLine(exe, args, [logger, logger], {
           cwd: this.options.workspace,
         })
@@ -107,13 +98,14 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
       })
       .then((result) => {
         if (result === 0) {
-          logger(
-            `${process.argv[2] == "export" ? "Export" : "Build"} ${
-              result !== 0
-                ? `failed with error code ${result}`
-                : "completed successfully"
-            }`
-          );
+          returnCommand ||
+            logger(
+              `${this.device == "export" ? "Export" : "Build"} ${
+                result !== 0
+                  ? `failed with error code ${result}`
+                  : "completed successfully"
+              }`
+            );
         }
         this.closeEmitter.fire(result);
       })

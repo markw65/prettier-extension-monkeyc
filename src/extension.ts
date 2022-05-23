@@ -49,20 +49,33 @@ export async function activate(context: vscode.ExtensionContext) {
   const renameRefProvider = new MonkeyCRenameRefProvider();
   const symbolProvider = new MonkeyCSymbolProvider();
 
+  const builderTask = (device: string | null, extra: BuildConfig) => {
+    const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
+      new vscode.Task(
+        {
+          ...extra,
+          type: "omonkeyc",
+          device,
+        },
+        vscode.workspace.workspaceFolders![0],
+        device === "export" ? "export" : "build",
+        OptimizedMonkeyCBuildTaskProvider.type
+      )
+    );
+    return task && vscode.tasks.executeTask(task);
+  };
   context.subscriptions.push(
     (diagnosticCollection = vscode.languages.createDiagnosticCollection()),
     vscode.commands.registerCommand(
       "prettiermonkeyc.generateOptimizedProject",
-      () => generateOptimizedProject(getOptimizerBaseConfig())
+      () => builderTask(null, { returnCommand: true })
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.buildOptimizedProject",
       () =>
         vscode.commands
           .executeCommand("monkeyc.getTargetDevice")
-          .then((device: string) =>
-            buildOptimizedProject(device, getOptimizerBaseConfig())
-          )
+          .then((device: string) => builderTask(device, {}))
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.runOptimizedProject",
@@ -70,7 +83,6 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.workspace.workspaceFolders &&
         vscode.workspace.workspaceFolders.length &&
         vscode.debug.startDebugging(vscode.workspace.workspaceFolders[0], {
-          ...getOptimizerBaseConfig(),
           ...baseDebugConfig,
         })
     ),
@@ -83,19 +95,7 @@ export async function activate(context: vscode.ExtensionContext) {
         ) {
           return null;
         }
-        const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
-          new vscode.Task(
-            {
-              ...getOptimizerBaseConfig(),
-              type: "omonkeyc",
-              device: "export",
-            },
-            vscode.workspace.workspaceFolders[0],
-            "export",
-            OptimizedMonkeyCBuildTaskProvider.type
-          )
-        );
-        return task && vscode.tasks.executeTask(task);
+        return builderTask("export", {});
       }
     ),
     vscode.debug.registerDebugConfigurationProvider(
@@ -218,7 +218,7 @@ class OptimizedMonkeyCBuildTaskProvider {
     return new vscode.Task(
       task.definition,
       task.scope,
-      task.definition.device,
+      task.definition.device || "generate",
       OptimizedMonkeyCBuildTaskProvider.type,
       //new vscode.ProcessExecution(exe, args),
       new vscode.CustomExecution(() => {
