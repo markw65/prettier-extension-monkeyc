@@ -249,7 +249,14 @@ export class Project implements vscode.Disposable {
       this.currentTimer = null;
       this.doFilesUpdate();
     }
-    return this.junglePromise.then(() => this.currentAnalysis);
+    return this.junglePromise
+      .catch((e) => {
+        if (e instanceof Error) {
+          vscode.window.showErrorMessage(e.message);
+        }
+        throw e;
+      })
+      .then(() => this.currentAnalysis);
   }
 }
 
