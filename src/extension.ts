@@ -1,26 +1,16 @@
-import {
-  buildOptimizedProject,
-  copyRecursiveAsNeeded,
-  generateOptimizedProject,
-  launchSimulator,
-} from "@markw65/monkeyc-optimizer";
-import * as fs from "fs/promises";
+import { copyRecursiveAsNeeded } from "@markw65/monkeyc-optimizer";
 import * as path from "path";
 import * as vscode from "vscode";
-import { CustomBuildTaskTerminal } from "./custom-build";
+import {
+  baseDebugConfig,
+  OptimizedMonkeyCDebugConfigProvider,
+} from "./debug-config-provider";
 import { MonkeyCDefinitionProvider } from "./definition-provider";
-import { MonkeyCSymbolProvider } from "./symbol-provider";
-import { getOptimizerBaseConfig } from "./project-manager";
 import { MonkeyCRenameRefProvider } from "./rename-provider";
+import { MonkeyCSymbolProvider } from "./symbol-provider";
+import { OptimizedMonkeyCBuildTaskProvider } from "./task-provider";
 
-let diagnosticCollection: vscode.DiagnosticCollection | null = null;
-
-const baseDebugConfig = {
-  name: "Run Optimized",
-  request: "launch",
-  type: "omonkeyc",
-  device: "${command:GetTargetDevice}",
-};
+export let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 
 // this method is called when the extension is activated
 // which (as currently configured) is the first time a .mc file is opened.
@@ -130,122 +120,4 @@ export async function activate(context: vscode.ExtensionContext) {
 // this method is called when your extension is deactivated
 export function deactivate() {
   diagnosticCollection = null;
-}
-
-class OptimizedMonkeyCDebugConfigProvider {
-  provideDebugConfigurations(_folder: vscode.WorkspaceFolder) {
-    return [baseDebugConfig];
-  }
-
-  async resolveDebugConfigurationWithSubstitutedVariables(
-    folder: vscode.WorkspaceFolder,
-    config: vscode.DebugConfiguration,
-    _token: vscode.CancellationToken
-  ) {
-    const workspace = folder.uri.fsPath;
-    const definition = {
-      ...config,
-      workspace,
-      type: OptimizedMonkeyCBuildTaskProvider.type,
-    } as vscode.TaskDefinition;
-    if (!definition.device || definition.device === "export") return null;
-    try {
-      const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
-        new vscode.Task(
-          definition,
-          folder,
-          definition.device,
-          OptimizedMonkeyCBuildTaskProvider.type
-        )
-      );
-      if (!task) {
-        throw new Error("Internal error: Failed to create Build Task");
-      }
-      await Promise.all([
-        vscode.tasks.executeTask(task),
-        new Promise<void>((resolve, reject) => {
-          let disposable = vscode.tasks.onDidEndTaskProcess((e) => {
-            if (e.execution.task.definition === definition) {
-              disposable.dispose();
-              if (e.exitCode == 0) {
-                resolve();
-              } else {
-                reject(e.exitCode);
-              }
-            }
-          });
-        }),
-      ]);
-    } catch {
-      return null;
-    }
-
-    const basePath = path.join(workspace, "bin", `optimized-${folder.name}`);
-    // The monkeyc resolveDebugConfigurationWithSubstitutedVariables
-    // would overwrite prg, prgDebugXml and settingsJson. By creating the config
-    // with type == "omonkeyc", and then switching it here, it goes straight to the
-    // debug adapter, without being munged.
-    config.type = "monkeyc";
-    config.prg = `${basePath}.prg`;
-    config.prgDebugXml = `${basePath}.prg.debug.xml`;
-    const settingsFile = `${basePath}-settings.json`;
-    if (await fs.stat(settingsFile).catch(() => null)) {
-      config.settingsJson = settingsFile;
-    }
-    await launchSimulator();
-    return config;
-  }
-}
-
-class OptimizedMonkeyCBuildTaskProvider {
-  static type: string = "omonkeyc";
-  // Interface function that determines if the given task is valid
-  provideTasks(): vscode.Task[] {
-    return [];
-  }
-  static finalizeTask(task: vscode.Task) {
-    if (typeof task.scope !== "object" || !("uri" in task.scope)) {
-      return null;
-    }
-    const options = {
-      ...getOptimizerBaseConfig(),
-      // For now disable typechecking unless explicitly enabled
-      // in the task definition
-      typeCheckLevel: "Off",
-      ...task.definition,
-      workspace: task.scope.uri.fsPath,
-    };
-    return new vscode.Task(
-      task.definition,
-      task.scope,
-      task.definition.device || "generate",
-      OptimizedMonkeyCBuildTaskProvider.type,
-      //new vscode.ProcessExecution(exe, args),
-      new vscode.CustomExecution(() => {
-        // When the task is executed, this callback will run. Here, we setup for running the task.
-        return Promise.resolve(
-          new CustomBuildTaskTerminal(
-            task.definition.device,
-            options,
-            diagnosticCollection!
-          )
-        );
-      }),
-      ["$monkeyc.error", "$monkeyc.fileWarning", "$monkeyc.genericWarning"]
-    );
-  }
-
-  async resolveTask(task: vscode.Task) {
-    // Monkey C only works with workspace based tasks
-    if (task.source === "Workspace") {
-      // make sure that this is an Optimized Monkey C task and that the device is available
-      if (
-        task.definition.type === OptimizedMonkeyCBuildTaskProvider.type &&
-        task.definition.device
-      ) {
-        return OptimizedMonkeyCBuildTaskProvider.finalizeTask(task);
-      }
-    }
-    return undefined;
-  }
 }
