@@ -9,6 +9,7 @@ import { MonkeyCDefinitionProvider } from "./definition-provider";
 import { MonkeyCRenameRefProvider } from "./rename-provider";
 import { MonkeyCSymbolProvider } from "./symbol-provider";
 import { OptimizedMonkeyCBuildTaskProvider } from "./task-provider";
+import { initializeProjectManager } from "./project-manager";
 
 export let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 
@@ -113,7 +114,8 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerReferenceProvider(
       { scheme: "file", language: "monkeyc" },
       renameRefProvider
-    )
+    ),
+    ...initializeProjectManager()
   );
 }
 
