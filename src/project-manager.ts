@@ -26,20 +26,32 @@ export class Project implements vscode.Disposable {
   private junglePromise: Promise<void> = Promise.resolve();
   private buildRuleDependencies: Record<string, string | true> = {};
   private jungleResult: ResolvedJungle | null = null;
-  private options: BuildConfig;
   private currentTimer: NodeJS.Timeout | null = null;
   private currentUpdates: Record<string, string | null | false> | null = null;
   private firstUpdateInBatch: number = 0;
   private disposables: vscode.Disposable[] = [];
   private diagnosticCollection = vscode.languages.createDiagnosticCollection();
 
-  constructor(private workspaceFolder: vscode.WorkspaceFolder) {
-    const workspace = normalize(this.workspaceFolder.uri.fsPath);
-    const options = getOptimizerBaseConfig(this.workspaceFolder);
+  static create(workspaceFolder: vscode.WorkspaceFolder) {
+    const options = getOptimizerBaseConfig(workspaceFolder);
     if (!options.jungleFiles || options.jungleFiles === "") {
       options.jungleFiles = "monkey.jungle";
     }
-    this.options = options;
+    const hasAny = options.jungleFiles
+      .split(";")
+      .some((jungleFile) =>
+        existsSync(path.resolve(workspaceFolder.uri.fsPath, jungleFile))
+      );
+
+    if (!hasAny) return null;
+    return new Project(workspaceFolder, options);
+  }
+
+  private constructor(
+    private workspaceFolder: vscode.WorkspaceFolder,
+    private options: BuildConfig
+  ) {
+    const workspace = normalize(this.workspaceFolder.uri.fsPath);
 
     this.disposables.push(
       this.diagnosticCollection,
@@ -291,11 +303,10 @@ export function findProject(entity: vscode.Uri) {
   if (hasProperty(projects, key)) {
     return projects[key];
   }
-  try {
-    return (projects[key] = new Project(workspace));
-  } catch (ex) {
-    return null;
-  }
+  const project = Project.create(workspace);
+  if (!project) return null;
+  projects[key] = project;
+  return project;
 }
 
 export function initializeProjectManager(): vscode.Disposable[] {
