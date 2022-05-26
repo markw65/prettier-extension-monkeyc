@@ -10,7 +10,7 @@ import { MonkeyCRenameRefProvider } from "./rename-provider";
 import { MonkeyCSymbolProvider } from "./symbol-provider";
 import { MonkeyCLinkProvider } from "./link-provider";
 import { OptimizedMonkeyCBuildTaskProvider } from "./task-provider";
-import { initializeProjectManager } from "./project-manager";
+import { currentWorkspace, initializeProjectManager } from "./project-manager";
 
 export let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 
@@ -41,7 +41,21 @@ export async function activate(context: vscode.ExtensionContext) {
   const renameRefProvider = new MonkeyCRenameRefProvider();
   const symbolProvider = new MonkeyCSymbolProvider();
 
+  const workspaceOrNull = () => {
+    try {
+      return currentWorkspace();
+    } catch (ex) {
+      let message = "Unknown error";
+      if (ex instanceof Error) {
+        message = ex.toString();
+      }
+      vscode.window.showErrorMessage(`Unable to find workspace: ${message}`);
+      return null;
+    }
+  };
   const builderTask = (device: string | null, extra: BuildConfig) => {
+    const ws = workspaceOrNull();
+    if (!ws) return null;
     const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
       new vscode.Task(
         {
@@ -49,7 +63,7 @@ export async function activate(context: vscode.ExtensionContext) {
           type: "omonkeyc",
           device,
         },
-        vscode.workspace.workspaceFolders![0],
+        ws,
         device === "export" ? "export" : "build",
         OptimizedMonkeyCBuildTaskProvider.type
       )
@@ -71,22 +85,19 @@ export async function activate(context: vscode.ExtensionContext) {
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.runOptimizedProject",
-      () =>
-        vscode.workspace.workspaceFolders &&
-        vscode.workspace.workspaceFolders.length &&
-        vscode.debug.startDebugging(vscode.workspace.workspaceFolders[0], {
-          ...baseDebugConfig,
-        })
+      () => {
+        const ws = workspaceOrNull();
+        return (
+          ws &&
+          vscode.debug.startDebugging(ws, {
+            ...baseDebugConfig,
+          })
+        );
+      }
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.exportOptimizedProject",
       () => {
-        if (
-          !vscode.workspace.workspaceFolders ||
-          !vscode.workspace.workspaceFolders.length
-        ) {
-          return null;
-        }
         return builderTask("export", {});
       }
     ),
