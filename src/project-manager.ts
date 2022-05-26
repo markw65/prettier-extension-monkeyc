@@ -434,33 +434,34 @@ export function findDefinition(
 export function visitReferences(
   state: ProgramState,
   ast: mctree.Program,
-  name: string,
-  defn: StateNodeDecl[],
-  callback: (node: mctree.Node) => void
+  name: string | null,
+  defn: StateNodeDecl[] | null,
+  callback: (node: mctree.Node, results: StateNodeDecl[]) => void
 ) {
   const checkResults = (results: StateNodeDecl[] | null) => {
     return (
       results &&
-      results.length === defn.length &&
-      results.every((r, i) => r === defn[i])
+      (!defn ||
+        (results.length === defn.length &&
+          results.every((r, i) => r === defn[i])))
     );
   };
   state.pre = (node) => {
     switch (node.type) {
       case "Identifier":
-        if (node.name === name) {
+        if (!name || node.name === name) {
           const [name, results] = state.lookup!(node);
           if (name && checkResults(results)) {
-            callback(node);
+            callback(node, results);
           }
         }
         break;
       case "MemberExpression":
         if (!node.computed && node.property.type === "Identifier") {
-          if (node.property.name === name) {
+          if (!name || node.property.name === name) {
             const [name, results] = state.lookup!(node);
             if (name && checkResults(results)) {
-              callback(node);
+              callback(node, results);
             }
           }
           return ["object"];

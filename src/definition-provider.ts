@@ -16,8 +16,9 @@ export class MonkeyCDefinitionProvider implements vscode.DefinitionProvider {
             if (!r || !r.loc || !r.loc.source) return null;
             if (r.loc.source === "api.mir") {
               // Would be nice to go to the sdk documentation,
-              // but that doesn't seem to be possible (or at least,
-              // doing so opens it as text, not html)
+              // but that doesn't seem to be possible from here.
+              // Instead, we use a DocumentLinkProvider to turn
+              // these into https links.
               return null;
             }
             return new vscode.Location(
