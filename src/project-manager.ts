@@ -23,7 +23,7 @@ export function normalize(filepath: string) {
 
 export class Project implements vscode.Disposable {
   private currentAnalysis: Analysis | PreAnalysis | null = null;
-  private junglePromise: Promise<void>;
+  private junglePromise: Promise<void> = Promise.resolve();
   private buildRuleDependencies: Record<string, string | true> = {};
   private jungleResult: ResolvedJungle | null = null;
   private options: BuildConfig;

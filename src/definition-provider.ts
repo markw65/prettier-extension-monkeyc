@@ -29,7 +29,7 @@ export class MonkeyCDefinitionProvider implements vscode.DefinitionProvider {
               )
             );
           })
-          .filter((r) => r != null);
+          .filter((r): r is vscode.Location => r != null);
       }
       return null;
     });

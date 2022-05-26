@@ -65,7 +65,7 @@ export async function activate(context: vscode.ExtensionContext) {
       "prettiermonkeyc.buildOptimizedProject",
       () =>
         vscode.commands
-          .executeCommand("monkeyc.getTargetDevice")
+          .executeCommand<string>("monkeyc.getTargetDevice")
           .then((device: string) => builderTask(device, {}))
     ),
     vscode.commands.registerCommand(

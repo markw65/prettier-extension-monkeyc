@@ -17,7 +17,7 @@
     "sourceMap": true,
     "noImplicitReturns": true,
     "noImplicitAny": true,
-    "strictNullChecks": true
+    "strict": true
   },
   "include": ["src"],
   "exclude": ["node_modules", "build"]

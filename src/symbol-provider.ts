@@ -213,36 +213,35 @@ export class MonkeyCSymbolProvider
         project.getAnalysis().then(
           (analysis) =>
             analysis &&
-            Object.entries(analysis.fnMap)
-              .map(([filepath, file]) => {
-                if (!file.ast) {
-                  return null;
-                }
-                const symbol = (
-                  name: string,
-                  kind: vscode.SymbolKind,
-                  node: mctree.Node,
-                  selNode: mctree.Node
-                ) => {
-                  if (!search.test(name)) return undefined;
-                  const loc = selNode.loc || node.loc;
-                  if (!loc) return undefined;
-                  return new vscode.SymbolInformation(
-                    name,
-                    kind,
-                    "",
-                    new vscode.Location(vscode.Uri.file(filepath), range(loc))
-                  );
-                };
+            Object.entries(analysis.fnMap).map(([filepath, file]) => {
+              if (!file.ast) {
+                return null;
+              }
+              const symbol = (
+                name: string,
+                kind: vscode.SymbolKind,
+                node: mctree.Node,
+                selNode: mctree.Node
+              ) => {
+                if (!search.test(name)) return undefined;
+                const loc = selNode.loc || node.loc;
+                if (!loc) return undefined;
+                return new vscode.SymbolInformation(
+                  name,
+                  kind,
+                  "",
+                  new vscode.Location(vscode.Uri.file(filepath), range(loc))
+                );
+              };
 
-                return this.getSymbols(file.ast, symbol);
-              })
-              .filter(
-                (fileSymbols): fileSymbols is NonNullable<typeof fileSymbols> =>
-                  fileSymbols != null
-              )
+              return this.getSymbols(file.ast, symbol);
+            })
         )
       )
-    ).then((symbolArrays) => symbolArrays.flat(Infinity));
+    ).then((symbolArrays) =>
+      symbolArrays
+        .flat(3)
+        .filter((s): s is vscode.SymbolInformation => s != null)
+    );
   }
 }
