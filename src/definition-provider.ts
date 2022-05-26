@@ -18,6 +18,7 @@ export class MonkeyCDefinitionProvider implements vscode.DefinitionProvider {
               // Would be nice to go to the sdk documentation,
               // but that doesn't seem to be possible (or at least,
               // doing so opens it as text, not html)
+              return null;
             }
             return new vscode.Location(
               vscode.Uri.file(r.loc.source),
