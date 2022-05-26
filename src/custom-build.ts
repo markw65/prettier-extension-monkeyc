@@ -1,4 +1,7 @@
-import { buildOptimizedProject } from "@markw65/monkeyc-optimizer";
+import {
+  buildOptimizedProject,
+  isErrorWithLocation,
+} from "@markw65/monkeyc-optimizer";
 import { hasProperty } from "@markw65/monkeyc-optimizer/api.js";
 import { spawnByLine } from "@markw65/monkeyc-optimizer/util.js";
 import * as path from "path";
@@ -109,23 +112,27 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         }
         this.closeEmitter.fire(result);
       })
-      .catch((e) => {
-        if (e.name && e.message && e.location) {
-          const source = path.relative(
-            this.options.workspace!,
-            e.location.source
-          );
-          logger(
-            `ERROR: ${e.name}: ${source}:${e.location.start.line},${e.location.start.column}: ${e.message}`
-          );
-        } else {
-          logger(`ERROR: Internal: ${e.toString()}`);
-          if (e.stack) {
-            e.stack
-              .toString()
-              .split(/[\r\n]+/)
-              .forEach(logger);
+      .catch((e: unknown) => {
+        if (e instanceof Error) {
+          if (isErrorWithLocation(e) && e.location) {
+            const source = path.relative(
+              this.options.workspace!,
+              e.location.source || "unknown"
+            );
+            logger(
+              `ERROR: ${e.name}: ${source}:${e.location.start.line},${e.location.start.column}: ${e.message}`
+            );
+          } else {
+            logger(`ERROR: Internal: ${e.toString()}`);
+            if (e.stack) {
+              e.stack
+                .toString()
+                .split(/[\r\n]+/)
+                .forEach(logger);
+            }
           }
+        } else {
+          logger(`ERROR: Internal: ${e}`);
         }
         this.closeEmitter.fire(1);
       });
