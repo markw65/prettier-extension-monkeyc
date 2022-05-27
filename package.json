@@ -2,7 +2,7 @@
   "type": "commonjs",
   "publisher": "markw65",
   "name": "prettier-extension-monkeyc",
-  "displayName": "Prettier-Extension-MonkeyC",
+  "displayName": "Prettier Monkey C",
   "description": "A Monkey C source transformation extension",
   "version": "2.0.10",
   "engines": {
@@ -51,36 +51,50 @@
         "category": "Prettier Monkey C"
       }
     ],
-    "configuration": {
-      "title": "Prettier Monkey C",
-      "type": "object",
-      "properties": {
-        "prettierMonkeyC.outputPath": {
-          "type": "string",
-          "description": "Path to where the optimized project should be generated.",
-          "default": "bin/optimized",
-          "scope": "window"
-        },
-        "prettierMonkeyC.ignoredExcludeAnnotations": {
-          "type": "string",
-          "description": "Semicolon separated list of excludeAnnotations to ignore, or `*' to ignore all",
-          "default": "",
-          "scope": "window"
-        },
-        "prettierMonkeyC.ignoredAnnotations": {
-          "type": "string",
-          "description": "Semicolon separated list of annotations to ignore, or `*' to ignore all",
-          "default": "",
-          "scope": "window"
-        },
-        "prettierMonkeyC.ignoredSourcePaths": {
-          "type": "string",
-          "description": "Regex of source paths to ignore.",
-          "default": "",
-          "scope": "window"
+    "configuration": [
+      {
+        "title": "Optimizer",
+        "type": "object",
+        "properties": {
+          "prettierMonkeyC.outputPath": {
+            "type": "string",
+            "description": "Path to where the optimized project should be generated.",
+            "default": "bin/optimized",
+            "scope": "resource"
+          },
+          "prettierMonkeyC.ignoredExcludeAnnotations": {
+            "type": "string",
+            "description": "Semicolon separated list of excludeAnnotations to ignore, or `*' to ignore all",
+            "default": "",
+            "scope": "resource"
+          },
+          "prettierMonkeyC.ignoredAnnotations": {
+            "type": "string",
+            "description": "Semicolon separated list of annotations to ignore, or `*' to ignore all",
+            "default": "",
+            "scope": "resource"
+          },
+          "prettierMonkeyC.ignoredSourcePaths": {
+            "type": "string",
+            "description": "Regex of source paths to ignore.",
+            "default": "",
+            "scope": "resource"
+          }
+        }
+      },
+      {
+        "title": "Prettier Monkey C",
+        "type": "object",
+        "properties": {
+          "prettierMonkeyC.documentLinks": {
+            "type": "boolean",
+            "description": "Whether to add https links for Toybox entries in .mc files.",
+            "default": true,
+            "scope": "resource"
+          }
         }
       }
-    },
+    ],
     "taskDefinitions": [
       {
         "type": "omonkeyc",

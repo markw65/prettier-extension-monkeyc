@@ -8,6 +8,13 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
     document: vscode.TextDocument,
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.DocumentLink[]> {
+    const config = vscode.workspace.getConfiguration(
+      "prettierMonkeyC",
+      document
+    );
+    if (config && !config.documentLinks) {
+      return null;
+    }
     const project = findProject(document.uri);
     if (!project) return Promise.reject("No project found");
     return project.getAnalysis().then((analysis) => {
