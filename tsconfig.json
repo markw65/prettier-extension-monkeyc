@@ -10,6 +10,9 @@
       "@markw65/monkeyc-optimizer/util.js": [
         "node_modules/@markw65/monkeyc-optimizer/build/src/util.d.ts"
       ],
+      "@markw65/monkeyc-optimizer/sdk-util.js": [
+        "node_modules/@markw65/monkeyc-optimizer/build/src/sdk-util.d.ts"
+      ],
       "@markw65/monkeyc-optimizer/api.js": [
         "node_modules/@markw65/monkeyc-optimizer/build/src/api.d.ts"
       ]

@@ -10,7 +10,11 @@ import { MonkeyCRenameRefProvider } from "./rename-provider";
 import { MonkeyCSymbolProvider } from "./symbol-provider";
 import { MonkeyCLinkProvider } from "./link-provider";
 import { OptimizedMonkeyCBuildTaskProvider } from "./task-provider";
-import { currentWorkspace, initializeProjectManager } from "./project-manager";
+import {
+  currentWorkspace,
+  findProject,
+  initializeProjectManager,
+} from "./project-manager";
 
 export let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 
@@ -78,10 +82,7 @@ export async function activate(context: vscode.ExtensionContext) {
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.buildOptimizedProject",
-      () =>
-        vscode.commands
-          .executeCommand<string>("monkeyc.getTargetDevice")
-          .then((device: string) => builderTask(device, {}))
+      () => builderTask("choose", {})
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.runOptimizedProject",
@@ -97,8 +98,17 @@ export async function activate(context: vscode.ExtensionContext) {
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.exportOptimizedProject",
-      () => {
-        return builderTask("export", {});
+      () => builderTask("export", {})
+    ),
+    vscode.commands.registerCommand(
+      "prettiermonkeyc.getTargetDevice",
+      (args) => {
+        let ws;
+        if (Array.isArray(args) && args.length && typeof args[0] === "string") {
+          ws = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args[0]));
+        }
+        if (!ws) ws = workspaceOrNull();
+        return ws && findProject(ws.uri)?.getDeviceToBuild();
       }
     ),
     vscode.debug.registerDebugConfigurationProvider(

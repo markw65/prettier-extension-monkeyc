@@ -2,6 +2,7 @@ import { launchSimulator } from "@markw65/monkeyc-optimizer";
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as vscode from "vscode";
+import { findProject } from "./project-manager";
 import { OptimizedMonkeyCBuildTaskProvider } from "./task-provider";
 
 export const baseDebugConfig = {
@@ -24,12 +25,20 @@ export class OptimizedMonkeyCDebugConfigProvider
     _token: vscode.CancellationToken
   ) {
     const workspace = folder.uri.fsPath;
+    if (config.device === "choose") {
+      const project = findProject(folder.uri);
+      if (project) {
+        config.device = await project.getDeviceToBuild();
+      } else {
+        return null;
+      }
+    }
+    if (!config.device || config.device === "export") return null;
     const definition = {
       ...config,
       workspace,
       type: OptimizedMonkeyCBuildTaskProvider.type,
     } as vscode.TaskDefinition;
-    if (!definition.device || definition.device === "export") return null;
     try {
       const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
         new vscode.Task(

@@ -4,7 +4,10 @@ import {
   getProjectAnalysis,
   get_jungle,
   ResolvedJungle,
+  manifestProducts,
 } from "@markw65/monkeyc-optimizer";
+import { getDeviceInfo } from "@markw65/monkeyc-optimizer/sdk-util.js";
+
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 
 import {
@@ -31,6 +34,7 @@ export class Project implements vscode.Disposable {
   private firstUpdateInBatch: number = 0;
   private disposables: vscode.Disposable[] = [];
   private diagnosticCollection = vscode.languages.createDiagnosticCollection();
+  private lastDevice: string | null = null;
 
   static create(workspaceFolder: vscode.WorkspaceFolder) {
     const options = getOptimizerBaseConfig(workspaceFolder);
@@ -45,6 +49,48 @@ export class Project implements vscode.Disposable {
 
     if (!hasAny) return null;
     return new Project(workspaceFolder, options);
+  }
+
+  public getDeviceToBuild(): Promise<string | null> {
+    if (!this.jungleResult) {
+      return this.getAnalysis().then(() => {
+        if (this.jungleResult) return this.getDeviceToBuild();
+        return null;
+      });
+    }
+    const { xml } = this.jungleResult;
+
+    const availableDevices: string[] = manifestProducts(xml);
+    if (availableDevices.length === 0) {
+      vscode.window.showErrorMessage(
+        `No devices available to build for ${this.workspaceFolder.name}. Download devices using the SDK Manager.`
+      );
+      return Promise.resolve(null);
+    }
+
+    if (availableDevices.length === 1) {
+      return Promise.resolve(availableDevices[0]);
+    }
+
+    return getDeviceInfo()
+      .then((deviceInfo) => {
+        const quickPickItems: { label: string; description: string }[] = [];
+        availableDevices.forEach((device) => {
+          const item = {
+            label: deviceInfo[device].displayName,
+            description: device,
+          };
+          if (device === this.lastDevice) {
+            quickPickItems.unshift(item);
+          } else {
+            quickPickItems.push(item);
+          }
+        });
+        return vscode.window.showQuickPick(quickPickItems, {
+          matchOnDescription: true,
+        });
+      })
+      .then((item) => (item ? (this.lastDevice = item.description) : null));
   }
 
   private constructor(

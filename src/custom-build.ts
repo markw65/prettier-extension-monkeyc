@@ -6,26 +6,43 @@ import { hasProperty } from "@markw65/monkeyc-optimizer/api.js";
 import { spawnByLine } from "@markw65/monkeyc-optimizer/util.js";
 import * as path from "path";
 import * as vscode from "vscode";
+import { findProject } from "./project-manager";
 
 export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
   private writeEmitter = new vscode.EventEmitter<string>();
   onDidWrite: vscode.Event<string> = this.writeEmitter.event;
   private closeEmitter = new vscode.EventEmitter<number>();
   onDidClose?: vscode.Event<number> = this.closeEmitter.event;
-
+  private devicePromise: Promise<string | null>;
   constructor(
-    public device: string,
+    device: string,
     public options: BuildConfig,
     public diagnosticCollection: vscode.DiagnosticCollection
-  ) {}
+  ) {
+    if (device === "choose") {
+      const project = findProject(vscode.Uri.file(options.workspace!));
+      if (project) {
+        this.devicePromise = project.getDeviceToBuild();
+      } else {
+        this.devicePromise = Promise.resolve(null);
+      }
+    } else {
+      this.devicePromise = Promise.resolve(device);
+    }
+  }
 
   open(_initialDimensions: vscode.TerminalDimensions) {
-    this.doBuild();
+    this.devicePromise.then((device) => this.doBuild(device));
   }
 
   close() {}
 
-  doBuild() {
+  doBuild(device: string | null) {
+    if (!device) {
+      this.closeEmitter.fire(0);
+      return;
+    }
+    this.options.device = device;
     const diagnostics: Record<string, vscode.Diagnostic[]> = {};
     this.diagnosticCollection.clear();
     const logger = (line: string) => {
@@ -79,7 +96,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     };
     logger("Starting optimization step...");
     const { returnCommand } = this.options;
-    return buildOptimizedProject(this.device == "export" ? null : this.device, {
+    return buildOptimizedProject(device == "export" ? null : device, {
       ...this.options,
       returnCommand: true,
     })
@@ -91,7 +108,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         logger(
           `> Executing task: ${[exe, ...args]
             .map((arg) => JSON.stringify(arg))
-            .join(" ")}\r\n`
+            .join(" ")} <\r\n`
         );
         return spawnByLine(exe, args, [logger, logger], {
           cwd: this.options.workspace,
@@ -103,7 +120,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         if (result === 0) {
           returnCommand ||
             logger(
-              `${this.device == "export" ? "Export" : "Build"} ${
+              `${device == "export" ? "Export" : "Build"} ${
                 result !== 0
                   ? `failed with error code ${result}`
                   : "completed successfully"

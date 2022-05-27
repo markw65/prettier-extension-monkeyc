@@ -24,7 +24,8 @@
     "onCommand:prettiermonkeyc.generateOptimizedProject",
     "onCommand:prettiermonkeyc.buildOptimizedProject",
     "onCommand:prettiermonkeyc.runOptimizedProject",
-    "onCommand:prettiermonkeyc.exportOptimizedProject"
+    "onCommand:prettiermonkeyc.exportOptimizedProject",
+    "onCommand:prettiermonkeyc.getTargetDevice"
   ],
   "main": "./build/extension.js",
   "contributes": {
@@ -89,7 +90,7 @@
         "properties": {
           "device": {
             "type": "string",
-            "description": "The device to build for. The special value `export' will do an iq build into bin/export"
+            "description": "The device to build for. The special value `export' will do an iq build into bin/export, and the value `choose' will let you pick the device from a list"
           },
           "simulatorBuild": {
             "type": "boolean",
@@ -156,7 +157,7 @@
               },
               "device": {
                 "type": "string",
-                "description": "Device to run or '${command:GetTargetDevice}' to choose a new device each run."
+                "description": "Device to run or 'choose' or '${command:GetTargetDevice}' to choose a new device each run."
               },
               "releaseBuild": {
                 "type": "boolean",
@@ -223,7 +224,7 @@
           }
         ],
         "variables": {
-          "GetTargetDevice": "monkeyc.getTargetDevice"
+          "GetTargetDevice": "prettiermonkeyc.getTargetDevice"
         }
       }
     ]

@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { CustomBuildTaskTerminal } from "./custom-build";
-import { getOptimizerBaseConfig } from "./project-manager";
+import { findProject, getOptimizerBaseConfig } from "./project-manager";
 import { diagnosticCollection } from "./extension";
 
 export class OptimizedMonkeyCBuildTaskProvider implements vscode.TaskProvider {
@@ -10,11 +10,11 @@ export class OptimizedMonkeyCBuildTaskProvider implements vscode.TaskProvider {
     return [];
   }
   static finalizeTask(task: vscode.Task) {
-    if (typeof task.scope !== "object" || !("uri" in task.scope)) {
+    if (typeof task.scope !== "object") {
       return null;
     }
     const options = {
-      ...getOptimizerBaseConfig(),
+      ...getOptimizerBaseConfig(task.scope),
       // For now disable typechecking unless explicitly enabled
       // in the task definition
       typeCheckLevel: "Off",
@@ -35,21 +35,19 @@ export class OptimizedMonkeyCBuildTaskProvider implements vscode.TaskProvider {
             diagnosticCollection!
           )
         );
-      }),
-      ["$monkeyc.error", "$monkeyc.fileWarning", "$monkeyc.genericWarning"]
+      }) /*,
+      ["$monkeyc.error", "$monkeyc.fileWarning", "$monkeyc.genericWarning"]*/
     );
   }
 
   async resolveTask(task: vscode.Task) {
-    // Monkey C only works with workspace based tasks
-    if (task.source === "Workspace") {
-      // make sure that this is an Optimized Monkey C task and that the device is available
-      if (
-        task.definition.type === OptimizedMonkeyCBuildTaskProvider.type &&
-        task.definition.device
-      ) {
-        return OptimizedMonkeyCBuildTaskProvider.finalizeTask(task);
-      }
+    if (
+      task.source === "Workspace" &&
+      task.scope &&
+      typeof task.scope === "object" &&
+      task.definition.type === OptimizedMonkeyCBuildTaskProvider.type
+    ) {
+      return OptimizedMonkeyCBuildTaskProvider.finalizeTask(task);
     }
     return undefined;
   }
