@@ -237,7 +237,9 @@ export class Project implements vscode.Disposable {
         return;
       }
       if (hasProperty(this.buildRuleDependencies, file)) {
-        if (content === this.buildRuleDependencies[file]) {
+        if (content) {
+          // Ignore in memory changes to TextDocuments, because
+          // get_jungles always reads from the file system.
           return;
         }
       } else if (analysis && hasProperty(analysis.fnMap, file)) {
