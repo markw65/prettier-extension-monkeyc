@@ -232,4 +232,33 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Better error handling/reporting when the sdk is missing
 - Use the correct sdk paths on Linux
 
+#### 2.0.11
+
+- Bug fixes
+
+  - Only create a project if a jungle file is found
+  - Stop returning definitions from api.mir
+  - Handle device selection properly in multi-folder workspaces
+  - Ignore in memory edits of jungle/manifest files, because we always read them from disk
+  - Fix type of task/launch option 'compilerWarnings'
+
+- Code cleanup
+
+  - Move the task provider and debug config provider out of extension.ts
+  - Add vscode:prepublish script so we don't package/publish a stale build
+  - strict type checking
+  - npm upgrade
+
+- Improvements
+  - Better handling of errors in jungles, and better detection of changes in the project
+  - Add a DocumentLinkProvider to turn Toybox references into links to the sdk documentation
+  - Better handling of multi-project workspaces
+  - Better error reporting
+  - Reorganize options, and make document links optional
+  - From @markw65/monkeyc-optimizer
+    - Only generate language configs for languages supported by the device, to avoid unnecessary warnings
+    - Drop comments when the ast node that contains them is deleted
+    - Treat barrel projects with no devices as having all devices
+      - enables analysis to work in such projects.
+
 ---
