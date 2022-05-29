@@ -131,7 +131,7 @@
             "description": "If present, overrides the corresponding `monkeyC' setting."
           },
           "compilerWarnings": {
-            "type": "string",
+            "type": "boolean",
             "description": "If present, overrides the corresponding `monkeyC' setting."
           },
           "outputPath": {
@@ -194,7 +194,7 @@
                 "description": "If present, overrides the corresponding `monkeyC' setting."
               },
               "compilerWarnings": {
-                "type": "string",
+                "type": "boolean",
                 "description": "If present, overrides the corresponding `monkeyC' setting."
               },
               "outputPath": {
