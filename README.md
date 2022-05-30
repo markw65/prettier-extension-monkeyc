@@ -261,4 +261,12 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
     - Treat barrel projects with no devices as having all devices
       - enables analysis to work in such projects.
 
+#### 2.0.12
+
+- Bug fixes
+  - Inject the name of the superclass into the classes namespace, so that lookups for the superclass name work
+  - Fix `Generate Optimized Project` so it works again
+  - Separate out type and value namespaces, and do the correct lookup based on context. Also inject all type names from `import`ed modules into the current namespace.
+  - Fix the Definition and Reference providers so they recognize enum identifiers without initializers (previously, you could find such an identifier by clicking on a reference, and `Go to definition`, but clicking on the definition itself didn't recognize it as a definition).
+
 ---
