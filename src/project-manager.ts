@@ -396,7 +396,11 @@ export function findItemsByRange(
   ast: mctree.Program,
   range: vscode.Range
 ) {
-  let result: { node: mctree.Node; stack: ProgramStateStack }[] = [];
+  let result: {
+    node: mctree.Node;
+    stack: ProgramStateStack;
+    isType: boolean;
+  }[] = [];
   state.pre = (node: mctree.Node) => {
     if (!node.loc || node === ast) return null;
     // skip over nodes that end before the range begins
@@ -412,7 +416,11 @@ export function findItemsByRange(
       (node.loc.start.line == range.start.line + 1 &&
         node.loc.start.column <= range.start.character + 1)
     ) {
-      result.push({ node, stack: state.stack!.slice() });
+      result.push({
+        node,
+        stack: state.stack.slice(),
+        isType: state.inType,
+      });
     } else {
       return [];
     }
@@ -470,11 +478,9 @@ export function findDefinition(
     if (!expr) {
       return Promise.reject("No symbol found");
     }
-    const [name, results, where] = analysis.state.lookup!(
-      expr.node,
-      null,
-      expr.stack
-    );
+    const [name, results, where] = analysis.state[
+      expr.isType ? "lookupType" : "lookupValue"
+    ](expr.node, null, expr.stack);
     return { node: expr.node, name, results, where, analysis };
   });
 }
