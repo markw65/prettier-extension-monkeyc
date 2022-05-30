@@ -392,7 +392,7 @@ export function initializeProjectManager(): vscode.Disposable[] {
 }
 
 export function findItemsByRange(
-  state: ProgramState,
+  state: ProgramStateAnalysis,
   ast: mctree.Program,
   range: vscode.Range
 ) {
@@ -480,7 +480,7 @@ export function findDefinition(
 }
 
 export function visitReferences(
-  state: ProgramState,
+  state: ProgramStateAnalysis,
   ast: mctree.Program,
   name: string | null,
   defn: StateNodeDecl[] | null,
@@ -498,7 +498,7 @@ export function visitReferences(
     switch (node.type) {
       case "Identifier":
         if (!name || node.name === name) {
-          const [name, results] = state.lookup!(node);
+          const [name, results] = state.lookup(node);
           if (name && checkResults(results)) {
             callback(node, results);
           }
@@ -507,7 +507,7 @@ export function visitReferences(
       case "MemberExpression":
         if (!node.computed && node.property.type === "Identifier") {
           if (!name || node.property.name === name) {
-            const [name, results] = state.lookup!(node);
+            const [name, results] = state.lookup(node);
             if (name && checkResults(results)) {
               callback(node, results);
             }
