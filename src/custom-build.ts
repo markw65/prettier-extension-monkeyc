@@ -96,10 +96,13 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     };
     logger("Starting optimization step...");
     const { returnCommand } = this.options;
-    return buildOptimizedProject(device == "export" ? null : device, {
-      ...this.options,
-      returnCommand: true,
-    })
+    return buildOptimizedProject(
+      device == "export" || device == "generate" ? null : device,
+      {
+        ...this.options,
+        returnCommand: true,
+      }
+    )
       .then(({ exe, args }) => {
         logger("Optimization step completed successfully...\r\n");
         if (returnCommand) {

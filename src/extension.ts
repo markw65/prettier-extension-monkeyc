@@ -57,7 +57,7 @@ export async function activate(context: vscode.ExtensionContext) {
       return null;
     }
   };
-  const builderTask = (device: string | null, extra: BuildConfig) => {
+  const builderTask = (device: string, extra: BuildConfig) => {
     const ws = workspaceOrNull();
     if (!ws) return null;
     const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
@@ -68,7 +68,7 @@ export async function activate(context: vscode.ExtensionContext) {
           device,
         },
         ws,
-        device === "export" ? "export" : "build",
+        device === "export" || device === "generate" ? device : "build",
         OptimizedMonkeyCBuildTaskProvider.type
       )
     );
@@ -78,7 +78,7 @@ export async function activate(context: vscode.ExtensionContext) {
     (diagnosticCollection = vscode.languages.createDiagnosticCollection()),
     vscode.commands.registerCommand(
       "prettiermonkeyc.generateOptimizedProject",
-      () => builderTask(null, { returnCommand: true })
+      () => builderTask("generate", { returnCommand: true })
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.buildOptimizedProject",

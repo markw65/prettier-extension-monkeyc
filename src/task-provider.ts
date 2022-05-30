@@ -24,7 +24,7 @@ export class OptimizedMonkeyCBuildTaskProvider implements vscode.TaskProvider {
     return new vscode.Task(
       task.definition,
       task.scope,
-      task.definition.device || "generate",
+      task.definition.device,
       OptimizedMonkeyCBuildTaskProvider.type,
       new vscode.CustomExecution(() => {
         // When the task is executed, this callback will run. Here, we setup for running the task.
