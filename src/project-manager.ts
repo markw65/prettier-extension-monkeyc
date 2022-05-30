@@ -457,6 +457,12 @@ export function findDefinition(
     for (let i = items.length; i--; ) {
       const item = items[i];
       switch (item.node.type) {
+        case "Literal":
+          // enum's with no explict value get a generated literal
+          // node with the same range as the identifier, so just
+          // ignore literals.
+          expr = null;
+          continue;
         case "Identifier":
           expr = item;
           continue;
