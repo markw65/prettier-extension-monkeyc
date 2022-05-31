@@ -58,27 +58,41 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
         ) {
           return;
         }
+        const make_link = (fullName: string, fragment?: string) => {
+          const path = fullName.split(".");
+          return (
+            `https://developer.garmin.com/connect-iq/api-docs/${path
+              .slice(1, fragment ? -1 : undefined)
+              .join("/")}.html` +
+            (fragment ? `#${path.slice(-1)[0]}-${fragment}` : "")
+          );
+        };
         switch (result.type) {
           case "ClassDeclaration":
           case "ModuleDeclaration":
-            push(
-              node,
-              `https://developer.garmin.com/connect-iq/api-docs/${result.fullName
-                .split(".")
-                .slice(1)
-                .join("/")}.html`
-            );
+            push(node, make_link(result.fullName));
             return;
-          case "FunctionDeclaration": {
-            const path = result.fullName.split(".");
-            push(
-              node,
-              `https://developer.garmin.com/connect-iq/api-docs/${path
-                .slice(1, -1)
-                .join("/")}.html#${path.slice(-1)[0]}-instance_function`
-            );
+
+          case "FunctionDeclaration":
+            push(node, make_link(result.fullName, "instance_function"));
             return;
-          }
+
+          case "EnumStringMember":
+            if (
+              result.init.enumType &&
+              typeof result.init.enumType === "string"
+            ) {
+              push(node, make_link("$." + result.init.enumType, "module"));
+            }
+            return;
+
+          case "TypedefDeclaration":
+            push(node, make_link(result.fullName, "named_type"));
+            return;
+
+          case "VariableDeclarator":
+            push(node, make_link(result.fullName, "var"));
+            return;
         }
       });
       return links;
