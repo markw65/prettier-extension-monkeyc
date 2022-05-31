@@ -124,7 +124,19 @@
           },
           "typeCheckLevel": {
             "type": "string",
-            "description": "If present, overrides the corresponding `monkeyC' setting."
+            "description": "If present, overrides the corresponding `monkeyC' setting.",
+            "enum": [
+              "Off",
+              "Gradual",
+              "Informative",
+              "Strict"
+            ],
+            "enumDescriptions": [
+              "Disable type checking",
+              "Type match failures are marked as errors, but ambiguity is ignored",
+              "Type match failures are marked as errors, and ambiguity is marked as a warning",
+              "Type match failures and ambiguity are marked as errors"
+            ]
           },
           "compilerOptions": {
             "type": "string",
@@ -187,7 +199,19 @@
               },
               "typeCheckLevel": {
                 "type": "string",
-                "description": "If present, overrides the corresponding `monkeyC' setting."
+                "description": "If present, overrides the corresponding `monkeyC' setting.",
+                "enum": [
+                  "Off",
+                  "Gradual",
+                  "Informative",
+                  "Strict"
+                ],
+                "enumDescriptions": [
+                  "Disable type checking",
+                  "Type match failures are marked as errors, but ambiguity is ignored",
+                  "Type match failures are marked as errors, and ambiguity is marked as a warning",
+                  "Type match failures and ambiguity are marked as errors"
+                ]
               },
               "compilerOptions": {
                 "type": "string",
