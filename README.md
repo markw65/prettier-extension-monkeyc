@@ -276,10 +276,21 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Adds support for simple inlining
     - Currently limited to functions whose body consists of a single return statement.
     - Suitable functions marked `(:inline)` will be inlined when possible
-    - Suitable functions marked `(:inline_<name>)` will be inlined when possible if <name> is found in the excludeAnnotations for the target device
+    - Suitable functions marked `(:inline_<name>)` will be inlined when possible if `<name>` is found in the excludeAnnotations for the target device
     - Very simple functions will be inlined regardless of `(:inline*)` tags.
 - Provide links for Toybox constants, variables, and types
 - Add intellisense for typeCheckLevel values in tasks.json and launch.json
 - Differentiate const vs var in Outline view
+
+#### 2.0.14
+
+- Update to @markw65/monkeyc-optimizer@1.0.16
+
+  - Fixes a type lookup bug that cause some links to the api docs to go missing.
+  - Adds support for inlining functions whose return value is unused.
+  - Optimizes away side-effect free expression statements, such as `0;x;foo.bar;a+b`
+
+- Bug Fixes
+  - Links to the api docs for enum names (eg Graphics.FontDefinition) are no longer omitted.
 
 ---
