@@ -269,4 +269,17 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Separate out type and value namespaces, and do the correct lookup based on context. Also inject all type names from `import`ed modules into the current namespace.
   - Fix the Definition and Reference providers so they recognize enum identifiers without initializers (previously, you could find such an identifier by clicking on a reference, and `Go to definition`, but clicking on the definition itself didn't recognize it as a definition).
 
+#### 2.0.13
+
+- Update to @markw65/monkeyc-optimizer@1.0.16
+  - Fixes various minor bugs
+  - Adds support for simple inlining
+    - Currently limited to functions whose body consists of a single return statement.
+    - Suitable functions marked `(:inline)` will be inlined when possible
+    - Suitable functions marked `(:inline_<name>)` will be inlined when possible if <name> is found in the excludeAnnotations for the target device
+    - Very simple functions will be inlined regardless of `(:inline*)` tags.
+- Provide links for Toybox constants, variables, and types
+- Add intellisense for typeCheckLevel values in tasks.json and launch.json
+- Differentiate const vs var in Outline view
+
 ---
