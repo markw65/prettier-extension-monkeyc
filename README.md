@@ -293,4 +293,9 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Bug Fixes
   - Links to the api docs for enum names (eg Graphics.FontDefinition) are no longer omitted.
 
+#### 2.0.15
+
+- Bug fixes
+  - The inliner could incorrectly constant propagate a parameter past an assignment to that parameter, generating uncompilable code at the same time.
+
 ---
