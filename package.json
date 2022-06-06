@@ -114,6 +114,10 @@
             "type": "boolean",
             "description": "Is this a release build."
           },
+          "testBuild": {
+            "type": "boolean",
+            "description": "Is this a test build."
+          },
           "jungleFiles": {
             "type": "string",
             "description": "If present, overrides the corresponding `monkeyC' setting."
@@ -188,6 +192,11 @@
               "releaseBuild": {
                 "type": "boolean",
                 "description": "Run a release build."
+              },
+              "runTests": {
+                "type": "boolean",
+                "description": "run test cases.",
+                "default": false
               },
               "jungleFiles": {
                 "type": "string",

@@ -39,6 +39,9 @@ export class OptimizedMonkeyCDebugConfigProvider
       workspace,
       type: OptimizedMonkeyCBuildTaskProvider.type,
     } as vscode.TaskDefinition;
+    if (config.runTests) {
+      definition.testBuild = true;
+    }
     try {
       const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
         new vscode.Task(
