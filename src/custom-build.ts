@@ -45,7 +45,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     this.options.device = device;
     const diagnostics: Record<string, vscode.Diagnostic[]> = {};
     this.diagnosticCollection.clear();
-    const logger = (line: string) => {
+    const logger = (line: string, skip_diagnostics: boolean = false) => {
       let match,
         type,
         file = "unknown",
@@ -54,7 +54,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         message = "Unknown error";
       if (
         (match = line.match(
-          /^(ERROR|WARNING):\s+\w+:\s+(.*):(\d+)(?:,(\d+))?:\s+(.*)$/
+          /^(ERROR|WARNING|INFO):\s+\w+:\s+(.*):(\d+)(?:,(\d+))?:\s+(.*)$/
         ))
       ) {
         type = match[1];
@@ -62,7 +62,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         lnum = match[3];
         char = match[4];
         message = match[5];
-      } else if ((match = line.match(/^(ERROR|WARNING):\s+(.*)$/))) {
+      } else if ((match = line.match(/^(ERROR|WARNING|INFO):\s+(.*)$/))) {
         type = match[1];
         message = match[2];
       }
@@ -70,9 +70,11 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         line = `\x1b[31m${line}\x1b[0m`;
       } else if (type === "WARNING") {
         line = `\x1b[33m${line}\x1b[0m`;
+      } else if (type === "INFO") {
+        line = `\x1b[34m${line}\x1b[0m`;
       }
       this.writeEmitter.fire(`${line}\r\n`);
-      if (!type) return;
+      if (!type || skip_diagnostics) return;
       const range = new vscode.Range(
         parseInt(lnum) - 1,
         char == null ? 0 : parseInt(char) - 1,
@@ -103,8 +105,41 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         returnCommand: true,
       }
     )
-      .then(({ exe, args }) => {
+      .then(({ exe, args, diagnostics: optimizerDiags }) => {
         logger("Optimization step completed successfully...\r\n");
+        if (optimizerDiags) {
+          Object.entries(optimizerDiags).forEach(([file, diags]) => {
+            const rel = path.relative(this.options.workspace!, file);
+            diags.forEach((diag) => {
+              const range = new vscode.Range(
+                diag.loc.start.line - 1,
+                diag.loc.start.column - 1,
+                diag.loc.end.line - 1,
+                diag.loc.end.column - 1
+              );
+              const diagnostic = new vscode.Diagnostic(
+                range,
+                diag.message,
+                diag.type === "ERROR"
+                  ? vscode.DiagnosticSeverity.Error
+                  : diag.type === "WARNING"
+                  ? vscode.DiagnosticSeverity.Warning
+                  : vscode.DiagnosticSeverity.Information
+              );
+
+              if (!hasProperty(diagnostics, rel)) {
+                diagnostics[rel] = [];
+              }
+              diagnostics[rel].push(diagnostic);
+              logger(
+                `${diag.type}: ${device}: ${rel}:${diag.loc.start.line},${diag.loc.start.column}: ${diag.message}`,
+                true
+              );
+            });
+            const uri = vscode.Uri.file(file);
+            this.diagnosticCollection.set(uri, diagnostics[rel]);
+          });
+        }
         if (returnCommand) {
           return 0;
         }
@@ -148,7 +183,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
               e.stack
                 .toString()
                 .split(/[\r\n]+/)
-                .forEach(logger);
+                .forEach((s) => logger(s));
             }
           }
         } else {
