@@ -309,4 +309,10 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Add `runTests` to launch.json options (matching the corresponding monkeyC option) to run any tests in the project.
 - Provide diagnostics when `(:inline)` annotated functions fail to get inlined.
 
+#### 2.0.17
+
+- Update to @markw65/monkeyc-optimizer@1.0.19
+  - Fixes some minor bugs
+  - Ensures that functions that get inlined at all callsites are eliminated from the source.
+
 ---
