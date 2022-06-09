@@ -315,4 +315,11 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Fixes some minor bugs
   - Ensures that functions that get inlined at all callsites are eliminated from the source.
 
+#### 2.0.18
+
+- Update to @markw65/monkeyc-optimizer@1.0.19
+  - Fixes inlining in expression context when the argument to the callee is one of the caller's parameters
+  - Fixes nested inlining
+  - Fixes a crash caused by comments on attributes.
+
 ---
