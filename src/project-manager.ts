@@ -1,19 +1,18 @@
 import {
   Analysis,
-  PreAnalysis,
   getProjectAnalysis,
   get_jungle,
-  ResolvedJungle,
   manifestProducts,
+  PreAnalysis,
+  ResolvedJungle,
 } from "@markw65/monkeyc-optimizer";
-import { getDeviceInfo } from "@markw65/monkeyc-optimizer/sdk-util.js";
-
-import { mctree } from "@markw65/prettier-plugin-monkeyc";
-
 import {
   collectNamespaces,
   hasProperty,
+  sameLookupResult,
 } from "@markw65/monkeyc-optimizer/api.js";
+import { getDeviceInfo } from "@markw65/monkeyc-optimizer/sdk-util.js";
+import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import { existsSync } from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -418,7 +417,7 @@ export function findItemsByRange(
     ) {
       result.push({
         node,
-        stack: state.stack.slice(),
+        stack: state.stackClone(),
         isType: state.inType,
       });
     } else {
@@ -484,10 +483,10 @@ export function findDefinition(
     if (!expr) {
       return Promise.reject("No symbol found");
     }
-    const [name, results, where] = analysis.state[
+    const [name, results] = analysis.state[
       expr.isType ? "lookupType" : "lookupValue"
     ](expr.node, null, expr.stack);
-    return { node: expr.node, name, results, where, analysis };
+    return { node: expr.node, name, results, analysis };
   });
 }
 
@@ -495,16 +494,11 @@ export function visitReferences(
   state: ProgramStateAnalysis,
   ast: mctree.Program,
   name: string | null,
-  defn: StateNodeDecl[] | null,
-  callback: (node: mctree.Node, results: StateNodeDecl[]) => void
+  defn: LookupDefinition[] | null,
+  callback: (node: mctree.Node, results: LookupDefinition[]) => void
 ) {
-  const checkResults = (results: StateNodeDecl[] | null) => {
-    return (
-      results &&
-      (!defn ||
-        (results.length === defn.length &&
-          results.every((r, i) => r === defn[i])))
-    );
+  const checkResults = (results: LookupDefinition[] | null) => {
+    return results && (!defn || sameLookupResult(results, defn));
   };
   state.pre = (node) => {
     switch (node.type) {

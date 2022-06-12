@@ -14,24 +14,34 @@ export class MonkeyCRenameRefProvider
     position: vscode.Position
   ) {
     return findDefinition(document, position).then(
-      ({ node, name, results, where, analysis }) => {
+      ({ node, name, results, analysis }) => {
         if (
           name &&
-          where &&
-          where.length &&
           results &&
           (node.type === "Identifier" || node.type === "MemberExpression")
         ) {
-          const back = where[where.length - 1];
-          // - an identifier defined in a block (a local) or function
-          //   (a parameter) can always be renamed.
-          // - an identifier defined in a module can be renamed unless
-          //   the program uses its symbol in unknown ways.
           if (
-            back.type !== "BlockStatement" &&
-            back.type !== "FunctionDeclaration" &&
-            ((back.type !== "ModuleDeclaration" && back.type !== "Program") ||
-              hasProperty(analysis.state.exposed, name))
+            !results.every(({ parent, results }) => {
+              if (
+                (isStateNode(results[0]) ? results[0].node : results[0])?.loc
+                  ?.source === "api.mir"
+              ) {
+                return false;
+              }
+              // - an identifier defined in a block (a local) or function
+              //   (a parameter) can always be renamed.
+              // - an identifier defined in a module can be renamed unless
+              //   the program uses its symbol in unknown ways.
+              return (
+                (parent &&
+                  (parent.type === "BlockStatement" ||
+                    parent.type === "FunctionDeclaration")) ||
+                ((!parent ||
+                  parent.type === "ModuleDeclaration" ||
+                  parent.type === "Program") &&
+                  !hasProperty(analysis.state.exposed, name))
+              );
+            })
           ) {
             return Promise.reject(`Unable to rename ${name}`);
           }
@@ -40,15 +50,10 @@ export class MonkeyCRenameRefProvider
             if (id.name === "$") {
               return Promise.reject(`Can't rename the global module`);
             }
-            const origin = isStateNode(results[0])
-              ? results[0].node
-              : results[0];
             return {
               id,
               results,
-              where,
               analysis,
-              source: origin?.loc?.source,
             };
           }
         }
@@ -62,10 +67,7 @@ export class MonkeyCRenameRefProvider
     position: vscode.Position,
     _cancellationToken: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Range> {
-    return this.getRenameInfo(document, position).then(({ id, source }) => {
-      if (source == "api.mir") {
-        return Promise.reject("Can't rename Toybox api entities");
-      }
+    return this.getRenameInfo(document, position).then(({ id }) => {
       return new vscode.Range(
         id.loc!.start.line - 1,
         id.loc!.start.column - 1,
@@ -82,13 +84,16 @@ export class MonkeyCRenameRefProvider
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.WorkspaceEdit> {
     return this.getRenameInfo(document, position)
-      .then(({ id, results, where, analysis }) => {
-        const back = where[where.length - 1];
+      .then(({ id, results, analysis }) => {
         const edits = new vscode.WorkspaceEdit();
-        const files =
-          back.type == "BlockStatement" || back.type === "FunctionDeclaration"
-            ? [normalize(document.uri.fsPath)]
-            : Object.keys(analysis.fnMap);
+        const files = results.every(
+          ({ parent }) =>
+            parent &&
+            (parent.type == "BlockStatement" ||
+              parent.type === "FunctionDeclaration")
+        )
+          ? [normalize(document.uri.fsPath)]
+          : Object.keys(analysis.fnMap);
         files.forEach((name) => {
           const file = analysis.fnMap[name];
           visitReferences(
@@ -124,20 +129,21 @@ export class MonkeyCRenameRefProvider
     token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Location[]> {
     return findDefinition(document, position).then(
-      ({ node, name: ref_name, results, where, analysis }) => {
+      ({ node, name: ref_name, results, analysis }) => {
         if (
           ref_name &&
-          where &&
-          where.length &&
           results &&
           (node.type === "Identifier" || node.type === "MemberExpression")
         ) {
-          const back = where[where.length - 1];
           const references: vscode.Location[] = [];
-          const files =
-            back.type == "BlockStatement" || back.type === "FunctionDeclaration"
-              ? [normalize(document.uri.fsPath)]
-              : Object.keys(analysis.fnMap);
+          const files = results.every(
+            ({ parent }) =>
+              parent &&
+              (parent.type == "BlockStatement" ||
+                parent.type === "FunctionDeclaration")
+          )
+            ? [normalize(document.uri.fsPath)]
+            : Object.keys(analysis.fnMap);
           files.forEach((filepath) => {
             const file = analysis.fnMap[filepath];
             visitReferences(

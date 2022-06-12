@@ -47,70 +47,81 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
           )
         );
       };
-      visitReferences(analysis.state, file.ast, null, null, (node, results) => {
-        if (results.length != 1 || !node.loc) return;
-        const result = results[0];
-        const result_node = isStateNode(result) ? result.node : result;
-        if (
-          !result_node ||
-          !result_node.loc ||
-          result_node.loc.source !== "api.mir"
-        ) {
-          return;
+      visitReferences(
+        analysis.state,
+        file.ast,
+        null,
+        null,
+        (node, lookupDefns) => {
+          if (
+            !node.loc ||
+            lookupDefns.length != 1 ||
+            lookupDefns[0].results.length !== 1
+          )
+            return;
+          const result = lookupDefns[0].results[0];
+          const result_node = isStateNode(result) ? result.node : result;
+          if (
+            !result_node ||
+            !result_node.loc ||
+            result_node.loc.source !== "api.mir"
+          ) {
+            return;
+          }
+          const make_link = (fullName: string, fragment?: string) => {
+            const path = fullName.split(".");
+            return (
+              `https://developer.garmin.com/connect-iq/api-docs/${path
+                .slice(1, fragment ? -1 : undefined)
+                .join("/")}.html` +
+              (fragment ? `#${path.slice(-1)[0]}-${fragment}` : "")
+            );
+          };
+          switch (result.type) {
+            case "ClassDeclaration":
+            case "ModuleDeclaration":
+              push(node, make_link(result.fullName));
+              return;
+
+            case "FunctionDeclaration":
+              push(node, make_link(result.fullName, "instance_function"));
+              return;
+
+            case "EnumStringMember":
+              if (
+                result.init.enumType &&
+                typeof result.init.enumType === "string"
+              ) {
+                push(node, make_link("$." + result.init.enumType, "module"));
+              }
+              return;
+
+            case "EnumDeclaration":
+              if (
+                result.id &&
+                result.body.members[0].type === "EnumStringMember" &&
+                result.body.members[0].init?.enumType
+              ) {
+                push(
+                  node,
+                  make_link(
+                    "$." + result.body.members[0].init?.enumType,
+                    "module"
+                  )
+                );
+              }
+              return;
+
+            case "TypedefDeclaration":
+              push(node, make_link(result.fullName, "named_type"));
+              return;
+
+            case "VariableDeclarator":
+              push(node, make_link(result.fullName, "var"));
+              return;
+          }
         }
-        const make_link = (fullName: string, fragment?: string) => {
-          const path = fullName.split(".");
-          return (
-            `https://developer.garmin.com/connect-iq/api-docs/${path
-              .slice(1, fragment ? -1 : undefined)
-              .join("/")}.html` +
-            (fragment ? `#${path.slice(-1)[0]}-${fragment}` : "")
-          );
-        };
-        switch (result.type) {
-          case "ClassDeclaration":
-          case "ModuleDeclaration":
-            push(node, make_link(result.fullName));
-            return;
-
-          case "FunctionDeclaration":
-            push(node, make_link(result.fullName, "instance_function"));
-            return;
-
-          case "EnumStringMember":
-            if (
-              result.init.enumType &&
-              typeof result.init.enumType === "string"
-            ) {
-              push(node, make_link("$." + result.init.enumType, "module"));
-            }
-            return;
-
-          case "EnumDeclaration":
-            if (
-              result.id &&
-              result.body.members[0].type === "EnumStringMember" &&
-              result.body.members[0].init?.enumType
-            ) {
-              push(
-                node,
-                make_link(
-                  "$." + result.body.members[0].init?.enumType,
-                  "module"
-                )
-              );
-            }
-            return;
-
-          case "TypedefDeclaration":
-            push(node, make_link(result.fullName, "named_type"));
-            return;
-
-          case "VariableDeclarator":
-            push(node, make_link(result.fullName, "var"));
-            return;
-        }
-      });
+      );
       return links;
     });
   }

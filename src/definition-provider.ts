@@ -1,4 +1,5 @@
 import { isStateNode } from "@markw65/monkeyc-optimizer/api.js";
+import { lookup } from "dns";
 import * as vscode from "vscode";
 import { findDefinition } from "./project-manager";
 
@@ -11,6 +12,8 @@ export class MonkeyCDefinitionProvider implements vscode.DefinitionProvider {
     return findDefinition(document, position).then(({ name, results }) => {
       if (name && results) {
         return results
+          .map((lookupDefn) => lookupDefn.results)
+          .flat()
           .map((sn) => {
             const r = isStateNode(sn) ? sn.node : sn;
             if (!r || !r.loc || !r.loc.source) return null;
