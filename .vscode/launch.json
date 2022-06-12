@@ -18,13 +18,21 @@
       }
     },
     {
-      "name": "Extension Tests",
+      "name": "Extension Tests (index)",
       "type": "extensionHost",
       "request": "launch",
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
-        "--extensionTestsPath=${workspaceFolder}/test/suite/index"
+        "--extensionTestsPath=${workspaceFolder}/test/suite/index",
+        "${workspaceFolder}/test/IntegrationTests"
       ]
+    },
+    {
+      "name": "Extension Tests (runTests)",
+      "type": "node",
+      "request": "launch",
+      "args": ["${workspaceFolder}/test/runTest.js"],
+      "outputCapture": "std"
     }
   ]
 }

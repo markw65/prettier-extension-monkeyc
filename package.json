@@ -25,7 +25,8 @@
     "onCommand:prettiermonkeyc.buildOptimizedProject",
     "onCommand:prettiermonkeyc.runOptimizedProject",
     "onCommand:prettiermonkeyc.exportOptimizedProject",
-    "onCommand:prettiermonkeyc.getTargetDevice"
+    "onCommand:prettiermonkeyc.getTargetDevice",
+    "onCommand:vscode.executeDocumentSymbolProvider"
   ],
   "main": "./build/extension.js",
   "contributes": {
@@ -305,5 +306,11 @@
     "type": "git",
     "url": "https://github.com/markw65/prettier-extension-monkeyc.git"
   },
-  "homepage": "https://github.com/markw65/prettier-extension-monkeyc/blob/main/README.md"
+  "homepage": "https://github.com/markw65/prettier-extension-monkeyc/blob/main/README.md",
+  "__metadata": {
+    "id": "7038293b-3427-42b7-b381-0c14519b1e02",
+    "publisherDisplayName": "Mark W",
+    "publisherId": "6cee78cc-f1ce-472e-b5e6-a69210aafbad",
+    "isPreReleaseVersion": false
+  }
 }

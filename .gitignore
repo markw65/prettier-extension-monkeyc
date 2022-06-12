@@ -1,3 +1,4 @@
+bin/
 /out*
 /build/
 /node_modules/
