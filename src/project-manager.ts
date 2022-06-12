@@ -462,6 +462,21 @@ export function findDefinition(
           // ignore literals.
           expr = null;
           continue;
+        case "CallExpression":
+          if (item.node.callee.type === "Identifier") {
+            const loc = item.node.callee.loc;
+            if (
+              loc &&
+              loc.start.line === range.start.line + 1 &&
+              loc.start.column === range.start.character + 1 &&
+              loc.end.line === range.end.line + 1 &&
+              loc.end.column === range.end.character + 1
+            ) {
+              expr = item;
+              break;
+            }
+          }
+          break;
         case "Identifier":
           expr = item;
           continue;
@@ -483,9 +498,18 @@ export function findDefinition(
     if (!expr) {
       return Promise.reject("No symbol found");
     }
-    const [name, results] = analysis.state[
-      expr.isType ? "lookupType" : "lookupValue"
-    ](expr.node, null, expr.stack);
+    const [name, results] =
+      expr.node.type === "CallExpression"
+        ? analysis.state.lookupNonlocal(
+            (expr.node = expr.node.callee),
+            null,
+            expr.stack
+          )
+        : analysis.state[expr.isType ? "lookupType" : "lookupValue"](
+            expr.node,
+            null,
+            expr.stack
+          );
     return { node: expr.node, name, results, analysis };
   });
 }
@@ -502,6 +526,21 @@ export function visitReferences(
   };
   state.pre = (node) => {
     switch (node.type) {
+      case "CallExpression":
+        // A call expression whose callee is an identifier is looked
+        // up as a non-local. ie even if there's a same named local,
+        // it will be ignored, and the lookup will start as if the
+        // call had been written self.foo() rather than foo().
+        if (node.callee.type === "Identifier") {
+          if (!name || node.callee.name === name) {
+            const [name, results] = state.lookupNonlocal(node.callee);
+            if (name && checkResults(results)) {
+              callback(node.callee, results);
+            }
+          }
+          return ["arguments"];
+        }
+        break;
       case "Identifier":
         if (!name || node.name === name) {
           const [name, results] = state.lookup(node);
