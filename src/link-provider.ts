@@ -1,7 +1,10 @@
-import { isStateNode } from "@markw65/monkeyc-optimizer/api.js";
+import {
+  isStateNode,
+  visitReferences,
+} from "@markw65/monkeyc-optimizer/api.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import * as vscode from "vscode";
-import { findProject, normalize, visitReferences } from "./project-manager";
+import { findProject, normalize } from "./project-manager";
 
 export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
   provideDocumentLinks(

@@ -1,10 +1,10 @@
-import { hasProperty, isStateNode } from "@markw65/monkeyc-optimizer/api.js";
-import * as vscode from "vscode";
 import {
-  findDefinition,
+  hasProperty,
+  isStateNode,
   visitReferences,
-  normalize,
-} from "./project-manager.js";
+} from "@markw65/monkeyc-optimizer/api.js";
+import * as vscode from "vscode";
+import { findDefinition, normalize } from "./project-manager.js";
 
 export class MonkeyCRenameRefProvider
   implements vscode.RenameProvider, vscode.ReferenceProvider
