@@ -31,7 +31,7 @@
       "name": "Extension Tests (runTests)",
       "type": "node",
       "request": "launch",
-      "args": ["${workspaceFolder}/test/runTest.js"],
+      "args": ["--inspect", "${workspaceFolder}/test/runTest.js"],
       "outputCapture": "std"
     }
   ]
