@@ -1,25 +1,26 @@
 {
-	"env": {
-		"browser": false,
-		"commonjs": true,
-		"es2020": true,
-		"node": true,
-		"mocha": true
-	},
-	"parserOptions": {
-		"ecmaVersion": 2020,
-		"ecmaFeatures": {
-			"jsx": true
-		},
-		"sourceType": "module"
-	},
-	"rules": {
-		"no-const-assign": "warn",
-		"no-this-before-super": "warn",
-		"no-undef": "warn",
-		"no-unreachable": "warn",
-		"constructor-super": "warn",
-		"valid-typeof": "warn",
-		"no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
-	}
+  "env": {
+    "browser": false,
+    "commonjs": true,
+    "es2020": true,
+    "node": true,
+    "mocha": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "sourceType": "module"
+  },
+  "ignorePatterns": "build/**/*",
+  "rules": {
+    "no-const-assign": "warn",
+    "no-this-before-super": "warn",
+    "no-undef": "warn",
+    "no-unreachable": "warn",
+    "constructor-super": "warn",
+    "valid-typeof": "warn",
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  }
 }
