@@ -526,6 +526,35 @@ export function visitReferences(
   };
   state.pre = (node) => {
     switch (node.type) {
+      case "UnaryExpression":
+        // a bare symbol isn't a reference
+        if (node.operator === ":") return [];
+        break;
+      case "BinaryExpression":
+        /*
+         * `expr has :symbol` can be treated as a reference
+         * to expr.symbol.
+         */
+        if (node.operator === "has") {
+          if (
+            node.right.type === "UnaryExpression" &&
+            node.right.operator === ":"
+          ) {
+            if (!name || node.right.argument.name === name) {
+              const [name, results] = state.lookup({
+                type: "MemberExpression",
+                object: node.left,
+                property: node.right.argument,
+                computed: false,
+              });
+              if (name && checkResults(results)) {
+                callback(node.right.argument, results);
+              }
+            }
+          }
+        }
+        break;
+
       case "CallExpression":
         // A call expression whose callee is an identifier is looked
         // up as a non-local. ie even if there's a same named local,
@@ -541,6 +570,7 @@ export function visitReferences(
           return ["arguments"];
         }
         break;
+
       case "Identifier":
         if (!name || node.name === name) {
           const [name, results] = state.lookup(node);
@@ -549,6 +579,7 @@ export function visitReferences(
           }
         }
         break;
+
       case "MemberExpression":
         if (!node.computed && node.property.type === "Identifier") {
           if (!name || node.property.name === name) {
