@@ -60,8 +60,9 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
             !node.loc ||
             lookupDefns.length != 1 ||
             lookupDefns[0].results.length !== 1
-          )
-            return;
+          ) {
+            return undefined;
+          }
           const result = lookupDefns[0].results[0];
           const result_node = isStateNode(result) ? result.node : result;
           if (
@@ -69,7 +70,7 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
             !result_node.loc ||
             result_node.loc.source !== "api.mir"
           ) {
-            return;
+            return undefined;
           }
           const make_link = (fullName: string, fragment?: string) => {
             const path = fullName.split(".");
@@ -84,11 +85,11 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
             case "ClassDeclaration":
             case "ModuleDeclaration":
               push(node, make_link(result.fullName));
-              return;
+              break;
 
             case "FunctionDeclaration":
               push(node, make_link(result.fullName, "instance_function"));
-              return;
+              break;
 
             case "EnumStringMember":
               if (
@@ -97,7 +98,7 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
               ) {
                 push(node, make_link("$." + result.init.enumType, "module"));
               }
-              return;
+              break;
 
             case "EnumDeclaration":
               if (
@@ -113,16 +114,17 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
                   )
                 );
               }
-              return;
+              break;
 
             case "TypedefDeclaration":
               push(node, make_link(result.fullName, "named_type"));
-              return;
+              break;
 
             case "VariableDeclarator":
               push(node, make_link(result.fullName, "var"));
-              return;
+              break;
           }
+          return undefined;
         }
       );
       return links;

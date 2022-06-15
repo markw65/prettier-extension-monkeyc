@@ -170,6 +170,13 @@ export class MonkeyCSymbolProvider
               node.id
             );
             return [];
+          case "CatchClause":
+            if (node.param) {
+              const id =
+                node.param.type === "Identifier" ? node.param : node.param.left;
+              elm.symbol = symbol(id.name, vscode.SymbolKind.Variable, id, id);
+            }
+            return ["body"];
         }
         return null;
       },

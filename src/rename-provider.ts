@@ -114,6 +114,7 @@ export class MonkeyCRenameRefProvider
                 ),
                 newName
               );
+              return undefined;
             }
           );
         });
@@ -166,6 +167,7 @@ export class MonkeyCRenameRefProvider
                     )
                   )
                 );
+                return undefined;
               }
             );
           });
