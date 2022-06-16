@@ -67,8 +67,8 @@ suite("Extension Test Suite", function () {
     const refs = await getRefs(symbol);
     assert.equal(
       refs.length,
-      count
-      //`Expected ${symbol.name} to have ${count} references, but got ${refs.length}`
+      count,
+      `Expected ${symbol.name} to have ${count} references, but got ${refs.length}`
     );
     return symbol;
   };
@@ -114,31 +114,47 @@ suite("Extension Test Suite", function () {
           );
       }, Promise.resolve());
 
-  test("Test Refs and Renames of locals and same-named functions", async function () {
+  test("Test Refs and Renames", async function () {
     this.timeout(0);
-    symbols = null;
-    let fooFunc, fooVar;
-    [fooFunc, fooVar] = await checkFoo("foo", "foo");
-    await doRename(fooFunc, "bar");
-    [fooFunc, fooVar] = await checkFoo("bar", "foo");
-    await doRename(fooVar, "baz");
-    [fooFunc, fooVar] = await checkFoo("bar", "baz");
-    await revertAll();
-  });
-
-  test("Test Refs and Renames of classes", async function () {
-    this.timeout(0);
-    symbols = null;
-    const testsSource = path.resolve(dir, "IntegrationTestsView.mc");
-    const symbol = await checkSymbolRefs(
-      testsSource,
-      ["IntegrationTestsView"],
-      "Class",
-      2
-    );
-    await doRename(symbol, "SomeOtherView");
-    await checkSymbolRefs(testsSource, ["SomeOtherView"], "Class", 2);
-    await revertAll();
+    {
+      symbols = null;
+      let fooFunc, fooVar;
+      [fooFunc, fooVar] = await checkFoo("foo", "foo");
+      await doRename(fooFunc, "bar");
+      [fooFunc, fooVar] = await checkFoo("bar", "foo");
+      await doRename(fooVar, "baz");
+      [fooFunc, fooVar] = await checkFoo("bar", "baz");
+      await revertAll();
+    }
+    {
+      symbols = null;
+      const testsSource = path.resolve(dir, "IntegrationTestsSource.mc");
+      const symbol = await checkSymbolRefs(
+        testsSource,
+        ["buz", "ex"],
+        "Variable",
+        2
+      );
+      await doRename(symbol, "ex2");
+      // There's a second catch variable named ex that shouldn't
+      // have been renamed
+      await checkSymbolRefs(testsSource, ["buz", "ex"], "Variable", 2);
+      await checkSymbolRefs(testsSource, ["buz", "ex2"], "Variable", 2);
+      await revertAll();
+    }
+    {
+      symbols = null;
+      const testsSource = path.resolve(dir, "IntegrationTestsView.mc");
+      const symbol = await checkSymbolRefs(
+        testsSource,
+        ["IntegrationTestsView"],
+        "Class",
+        2
+      );
+      await doRename(symbol, "SomeOtherView");
+      await checkSymbolRefs(testsSource, ["SomeOtherView"], "Class", 2);
+      await revertAll();
+    }
   });
 
   test("Pause after tests", async function () {

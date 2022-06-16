@@ -28,11 +28,19 @@ export class MonkeyCRenameRefProvider
               ) {
                 return false;
               }
+              // - Anything other than a var/const or enum value can be
+              //   renamed wherever its declared.
               // - an identifier defined in a block (a local) or function
               //   (a parameter) can always be renamed.
               // - an identifier defined in a module can be renamed unless
               //   the program uses its symbol in unknown ways.
               return (
+                !results.some(
+                  (r) =>
+                    r.type === "VariableDeclarator" ||
+                    r.type === "EnumStringMember" ||
+                    r.type === "TypedefDeclaration"
+                ) ||
                 (parent &&
                   (parent.type === "BlockStatement" ||
                     parent.type === "FunctionDeclaration")) ||

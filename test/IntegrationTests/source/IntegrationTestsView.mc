@@ -4,7 +4,7 @@ import Toybox.WatchUi;
 class IntegrationTestsView extends WatchUi.View {
   function initialize() {
     View.initialize();
-    bar();
+    buz();
   }
 
   // Load your resources here

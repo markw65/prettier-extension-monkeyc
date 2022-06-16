@@ -5,7 +5,7 @@ function foo(a as String?) as String {
   return foo + " " + (a != null ? a : "Goodbye");
 }
 
-function bar() as Number {
+function buz() as Number {
   try {
     foo("what");
   } catch (ex instanceof Lang.InvalidValueException) {
