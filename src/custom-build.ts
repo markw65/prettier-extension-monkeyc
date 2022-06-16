@@ -6,7 +6,7 @@ import { hasProperty } from "@markw65/monkeyc-optimizer/api.js";
 import { spawnByLine } from "@markw65/monkeyc-optimizer/util.js";
 import * as path from "path";
 import * as vscode from "vscode";
-import { findProject } from "./project-manager";
+import { findProject, processDiagnostics } from "./project-manager";
 
 export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
   private writeEmitter = new vscode.EventEmitter<string>();
@@ -107,39 +107,17 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     )
       .then(({ exe, args, diagnostics: optimizerDiags }) => {
         logger("Optimization step completed successfully...\r\n");
-        if (optimizerDiags) {
-          Object.entries(optimizerDiags).forEach(([file, diags]) => {
-            const rel = path.relative(this.options.workspace!, file);
-            diags.forEach((diag) => {
-              const range = new vscode.Range(
-                diag.loc.start.line - 1,
-                diag.loc.start.column - 1,
-                diag.loc.end.line - 1,
-                diag.loc.end.column - 1
-              );
-              const diagnostic = new vscode.Diagnostic(
-                range,
-                diag.message,
-                diag.type === "ERROR"
-                  ? vscode.DiagnosticSeverity.Error
-                  : diag.type === "WARNING"
-                  ? vscode.DiagnosticSeverity.Warning
-                  : vscode.DiagnosticSeverity.Information
-              );
-
-              if (!hasProperty(diagnostics, rel)) {
-                diagnostics[rel] = [];
-              }
-              diagnostics[rel].push(diagnostic);
-              logger(
-                `${diag.type}: ${device}: ${rel}:${diag.loc.start.line},${diag.loc.start.column}: ${diag.message}`,
-                true
-              );
-            });
-            const uri = vscode.Uri.file(file);
-            this.diagnosticCollection.set(uri, diagnostics[rel]);
-          });
-        }
+        processDiagnostics(
+          optimizerDiags,
+          diagnostics,
+          this.diagnosticCollection,
+          (diag, rel) =>
+            logger(
+              `${diag.type}: ${device}: ${rel}:${diag.loc.start.line},${diag.loc.start.column}: ${diag.message}`,
+              true
+            ),
+          this.options.workspace
+        );
         if (returnCommand) {
           return 0;
         }

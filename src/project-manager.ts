@@ -203,6 +203,11 @@ export class Project implements vscode.Disposable {
         this.currentAnalysis = analysis;
         this.diagnosticCollection.clear();
         if ("state" in analysis) {
+          processDiagnostics(
+            analysis.state.diagnostics,
+            {},
+            this.diagnosticCollection
+          );
           return;
         }
         Object.entries(analysis.fnMap).forEach(([filepath, info]) => {
@@ -576,4 +581,45 @@ export function getOptimizerBaseConfig(
     if (mcConfig[i]) config[i] = mcConfig[i];
   }
   return config;
+}
+
+export function processDiagnostics(
+  optimizerDiags: ProgramState["diagnostics"],
+  diagnostics: Record<string, vscode.Diagnostic[]>,
+  diagnosticCollection: vscode.DiagnosticCollection,
+  callback?: (
+    diagnostic: NonNullable<ProgramState["diagnostics"]>[string][number],
+    rel: string
+  ) => void,
+  workspace?: string
+) {
+  if (!optimizerDiags) return;
+  Object.entries(optimizerDiags).forEach(([file, diags]) => {
+    const rel = workspace ? path.relative(workspace, file) : file;
+    diags.forEach((diag) => {
+      const range = new vscode.Range(
+        diag.loc.start.line - 1,
+        diag.loc.start.column - 1,
+        diag.loc.end.line - 1,
+        diag.loc.end.column - 1
+      );
+      const diagnostic = new vscode.Diagnostic(
+        range,
+        diag.message,
+        diag.type === "ERROR"
+          ? vscode.DiagnosticSeverity.Error
+          : diag.type === "WARNING"
+          ? vscode.DiagnosticSeverity.Warning
+          : vscode.DiagnosticSeverity.Information
+      );
+
+      if (!hasProperty(diagnostics, rel)) {
+        diagnostics[rel] = [];
+      }
+      diagnostics[rel].push(diagnostic);
+      callback && callback(diag, rel);
+    });
+    const uri = vscode.Uri.file(file);
+    diagnosticCollection.set(uri, diagnostics[rel]);
+  });
 }
