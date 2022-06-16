@@ -80,6 +80,24 @@
             "description": "Regex of source paths to ignore.",
             "default": "",
             "scope": "resource"
+          },
+          "prettierMonkeyC.checkInvalidSymbols": {
+            "type": "string",
+            "description": "Whether to check for invalid symbols, and how to report them",
+            "enum": [
+              "OFF",
+              "INFO",
+              "WARNING",
+              "ERROR"
+            ],
+            "enumDescriptions": [
+              "Disable checking",
+              "Generate INFO level diagnostics",
+              "Generate WARNING level diagnostics",
+              "Generate ERROR level diagnostics"
+            ],
+            "default": "WARNING",
+            "scope": "resource"
           }
         }
       },
@@ -142,6 +160,23 @@
               "Type match failures are marked as errors, and ambiguity is marked as a warning",
               "Type match failures and ambiguity are marked as errors"
             ]
+          },
+          "checkInvalidSymbols": {
+            "type": "string",
+            "description": "Whether to check for invalid symbols, and how to report them",
+            "enum": [
+              "OFF",
+              "INFO",
+              "WARNING",
+              "ERROR"
+            ],
+            "enumDescriptions": [
+              "Disable checking",
+              "Generate INFO level diagnostics",
+              "Generate WARNING level diagnostics",
+              "Generate ERROR level diagnostics"
+            ],
+            "default": "WARNING"
           },
           "compilerOptions": {
             "type": "string",
@@ -222,6 +257,23 @@
                   "Type match failures are marked as errors, and ambiguity is marked as a warning",
                   "Type match failures and ambiguity are marked as errors"
                 ]
+              },
+              "checkInvalidSymbols": {
+                "type": "string",
+                "description": "Whether to check for invalid symbols, and how to report them",
+                "enum": [
+                  "OFF",
+                  "INFO",
+                  "WARNING",
+                  "ERROR"
+                ],
+                "enumDescriptions": [
+                  "Disable checking",
+                  "Generate INFO level diagnostics",
+                  "Generate WARNING level diagnostics",
+                  "Generate ERROR level diagnostics"
+                ],
+                "default": "WARNING"
               },
               "compilerOptions": {
                 "type": "string",
