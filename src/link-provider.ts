@@ -84,7 +84,9 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
           switch (result.type) {
             case "ClassDeclaration":
             case "ModuleDeclaration":
-              push(node, make_link(result.fullName));
+              if (result.fullName.startsWith("$.Toybox")) {
+                push(node, make_link(result.fullName));
+              }
               break;
 
             case "FunctionDeclaration":
