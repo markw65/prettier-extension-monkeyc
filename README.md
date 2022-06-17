@@ -328,7 +328,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
   - Major update to the lookup system to match what the device actually does (rather than what the type checker incorrectly thinks it does)
   - Added diagnostics for missing symbols (updated as you type)
-  - Reversed the sense of inline*foo, so now it inlines when foo is \_not* declared as an excludeAnnotation
+  - Reversed the sense of `inline_foo`, so now it inlines when foo is _not_ declared as an excludeAnnotation
 
 - Added checkInvalidSymbols option. This can be set at the project level to control whether diagnostics are generated for missing symbols, and whether they're marked as ERROR, WARNING or INFO. It can also be set in custom tasks/launch configs to override the project default.
 
