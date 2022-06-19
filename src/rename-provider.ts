@@ -28,7 +28,7 @@ export class MonkeyCRenameRefProvider
               ) {
                 return false;
               }
-              // - Anything other than a var/const or enum value can be
+              // - Anything other than a var/const, func or enum value can be
               //   renamed wherever its declared.
               // - an identifier defined in a block (a local) or function
               //   (a parameter) can always be renamed.
@@ -39,7 +39,8 @@ export class MonkeyCRenameRefProvider
                   (r) =>
                     r.type === "VariableDeclarator" ||
                     r.type === "EnumStringMember" ||
-                    r.type === "TypedefDeclaration"
+                    r.type === "TypedefDeclaration" ||
+                    r.type === "FunctionDeclaration"
                 ) ||
                 (parent &&
                   (parent.type === "BlockStatement" ||

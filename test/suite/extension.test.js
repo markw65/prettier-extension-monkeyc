@@ -153,6 +153,28 @@ suite("Extension Test Suite", function () {
       );
       await doRename(symbol, "SomeOtherView");
       await checkSymbolRefs(testsSource, ["SomeOtherView"], "Class", 2);
+      const onShow = await checkSymbolRefs(
+        testsSource,
+        ["SomeOtherView", "onShow"],
+        "Method",
+        1
+      );
+      await doRename(onShow, "onShowRenamed").then(
+        () => {
+          throw new Error("Rename should not succeed!");
+        },
+        () => {
+          // This is supposed to fail, so just ignore the
+          // failure.
+          return;
+        }
+      );
+      await checkSymbolRefs(
+        testsSource,
+        ["SomeOtherView", "onShow"],
+        "Method",
+        1
+      );
       await revertAll();
     }
   });
