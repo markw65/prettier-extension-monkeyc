@@ -334,10 +334,17 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.20
 
-- Update to @markw65/monkeyc-optimizer@1.0.23
+- Update to @markw65/monkeyc-optimizer@1.0.25
 
   - Fixes bug reporting missing symbols for Method parameters
 
 - Don't allow renaming of class methods (because we can't find all the references)
+
+#### 2.0.21
+
+- Update to @markw65/monkeyc-optimizer@1.0.26
+  - Use `self.` rather than `ClassName.` to qualify names that would otherwise collide with locals, since that works with both public and private variables
+  - Fix a bug that caused the inliner to fail to qualify certain names, even if there was a collision with an existing local variables
+  - Fix some name lookup issues relating to whether the lookup is done as a type or a value.
 
 ---

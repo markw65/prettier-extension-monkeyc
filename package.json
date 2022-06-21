@@ -4,7 +4,7 @@
   "name": "prettier-extension-monkeyc",
   "displayName": "Prettier Monkey C",
   "description": "A Monkey C source transformation extension",
-  "version": "2.0.20",
+  "version": "2.0.21",
   "engines": {
     "vscode": "^1.65.0"
   },
