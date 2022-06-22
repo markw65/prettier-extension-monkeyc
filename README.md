@@ -353,4 +353,9 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Update to `@markw65/prettier-plugin-monkeyc@1.0.29` to fix certain obscure comment related bugs in the formatter
   - Update to `@markw65/monkeyc-optimizer@1.0.27` to fix an issue where comments on a call that got inlined could be left dangling, and result in errors when the code was output.
 
+#### 2.0.23
+
+- Bug fixes
+  - Update to `@markw65/monkeyc-optimizer@1.0.27` to fix a bug that prevented inlining certain functions.
+
 ---
