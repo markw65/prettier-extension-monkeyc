@@ -50,6 +50,11 @@
         "title": "Export Optimized Project",
         "command": "prettiermonkeyc.exportOptimizedProject",
         "category": "Prettier Monkey C"
+      },
+      {
+        "title": "Clean Optimized Build",
+        "command": "prettiermonkeyc.cleanOptimizedBuild",
+        "category": "Prettier Monkey C"
       }
     ],
     "configuration": [

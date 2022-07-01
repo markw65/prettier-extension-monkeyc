@@ -1,6 +1,7 @@
 import { copyRecursiveAsNeeded } from "@markw65/monkeyc-optimizer";
 import * as path from "path";
 import * as vscode from "vscode";
+import * as fs from "fs/promises";
 import {
   baseDebugConfig,
   OptimizedMonkeyCDebugConfigProvider,
@@ -13,6 +14,7 @@ import { OptimizedMonkeyCBuildTaskProvider } from "./task-provider";
 import {
   currentWorkspace,
   findProject,
+  getOptimizerBaseConfig,
   initializeProjectManager,
 } from "./project-manager";
 
@@ -99,6 +101,27 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       "prettiermonkeyc.exportOptimizedProject",
       () => builderTask("export", {})
+    ),
+    vscode.commands.registerCommand(
+      "prettiermonkeyc.cleanOptimizedBuild",
+      () => {
+        const config = getOptimizerBaseConfig();
+        if (!config.workspace || !config.outputPath) return;
+        const folder = path.resolve(config.workspace, config.outputPath);
+        return (
+          config.outputPath === "bin/optimized"
+            ? Promise.resolve(true)
+            : vscode.window
+                .showInformationMessage(
+                  `Delete all files at non-default outputPath '${folder}'?`,
+                  "Yes",
+                  "No"
+                )
+                .then((answer) => answer === "Yes")
+        ).then((doit) =>
+          doit ? fs.rm(folder, { recursive: true, force: true }) : undefined
+        );
+      }
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.getTargetDevice",
