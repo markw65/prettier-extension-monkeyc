@@ -356,6 +356,14 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 #### 2.0.23
 
 - Bug fixes
-  - Update to `@markw65/monkeyc-optimizer@1.0.27` to fix a bug that prevented inlining certain functions.
+  - Update to `@markw65/monkeyc-optimizer@1.0.28` to fix a bug that prevented inlining certain functions.
+
+#### 2.0.24
+
+- Update to [@markw65/monkeyc-optimizer@1.0.29](https://github.com/markw65/monkeyc-optimizer#1029) for various new functionality.
+- Add options to the settings, tasks.json and launch.json to control size based PRE.
+- Add "Clean Optimized Build" command to remove all the generated files.
+- Bug fixes
+  - Bogus devices in manifest.xml (such as round_watch) could prevent the device chooser from working. Not a big deal, because the compiler won't build the project either.
 
 ---
