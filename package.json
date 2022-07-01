@@ -98,6 +98,12 @@
             ],
             "default": "WARNING",
             "scope": "resource"
+          },
+          "prettierMonkeyC.sizeBasedPRE": {
+            "type": "boolean",
+            "description": "Whether to enable the size based partial redundancy pass",
+            "default": false,
+            "scope": "resource"
           }
         }
       },
@@ -201,6 +207,12 @@
           "ignoredSourcePaths": {
             "type": "string",
             "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+          },
+          "sizeBasedPRE": {
+            "type": "boolean",
+            "description": "If present, overrides the corresponding `prettierMonkeyC' setting.",
+            "default": false,
+            "scope": "resource"
           }
         }
       }
@@ -297,6 +309,10 @@
               },
               "ignoredSourcePaths": {
                 "type": "string",
+                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+              },
+              "sizeBasedPRE": {
+                "type": "boolean",
                 "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
               }
             }

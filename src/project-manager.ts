@@ -563,6 +563,7 @@ export function getOptimizerBaseConfig(
     "ignoredAnnotations",
     "ignoredSourcePaths",
     "checkInvalidSymbols",
+    "sizeBasedPRE",
   ]) {
     if (pmcConfig[i]) config[i] = pmcConfig[i];
   }
