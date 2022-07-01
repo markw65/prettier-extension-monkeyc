@@ -75,6 +75,7 @@ export class Project implements vscode.Disposable {
       .then((deviceInfo) => {
         const quickPickItems: { label: string; description: string }[] = [];
         availableDevices.forEach((device) => {
+          if (!deviceInfo[device]) return;
           const item = {
             label: deviceInfo[device].displayName,
             description: device,
