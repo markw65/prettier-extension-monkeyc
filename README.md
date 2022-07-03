@@ -366,4 +366,10 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Bug fixes
   - Bogus devices in manifest.xml (such as round_watch) could prevent the device chooser from working. Not a big deal, because the compiler won't build the project either.
 
+#### 2.0.25
+
+- Update to [@markw65/monkeyc-optimizer@1.0.30](https://github.com/markw65/monkeyc-optimizer#1030).
+  - Fixes a couple of inliner issues
+  - Small improvement to heuristics for PRE
+
 ---
