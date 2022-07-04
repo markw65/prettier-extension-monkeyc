@@ -8,6 +8,19 @@
       "problemMatcher": [],
       "label": "npm: build",
       "detail": "npx tsc"
+    },
+    {
+      "type": "npm",
+      "script": "watch",
+      "label": "Auto watch",
+      "group": "none",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "runOptions": {
+        "runOn": "folderOpen"
+      }
     }
   ]
 }
