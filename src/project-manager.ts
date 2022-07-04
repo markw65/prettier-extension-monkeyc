@@ -1,15 +1,18 @@
 import {
   Analysis,
+  BuildConfig,
   getProjectAnalysis,
   get_jungle,
   manifestProducts,
   PreAnalysis,
+  ProgramState,
+  ProgramStateAnalysis,
+  ProgramStateStack,
   ResolvedJungle,
 } from "@markw65/monkeyc-optimizer";
 import {
   collectNamespaces,
   hasProperty,
-  sameLookupResult,
 } from "@markw65/monkeyc-optimizer/api.js";
 import { getDeviceInfo } from "@markw65/monkeyc-optimizer/sdk-util.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
@@ -424,7 +427,7 @@ export function findItemsByRange(
       result.push({
         node,
         stack: state.stackClone(),
-        isType: state.inType,
+        isType: state.inType != 0,
       });
     } else {
       return [];
@@ -488,12 +491,12 @@ export function findDefinition(
           continue;
         case "MemberExpression":
           if (
-            item.node.loc!.end.line !== range.end.line + 1 ||
-            item.node.loc!.end.column != range.end.character + 1
+            item.node.property.loc?.end.line !== range.end.line + 1 ||
+            item.node.property.loc?.end.column !== range.end.character + 1 ||
+            (item.node.computed &&
+              (item.node.property.type !== "UnaryExpression" ||
+                item.node.property.operator !== ":"))
           ) {
-            continue;
-          }
-          if (item.node.computed || item.node.property.type !== "Identifier") {
             continue;
           }
           expr = item;

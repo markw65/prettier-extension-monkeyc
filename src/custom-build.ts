@@ -1,6 +1,7 @@
 import {
   buildOptimizedProject,
   isErrorWithLocation,
+  BuildConfig,
 } from "@markw65/monkeyc-optimizer";
 import { hasProperty } from "@markw65/monkeyc-optimizer/api.js";
 import { spawnByLine } from "@markw65/monkeyc-optimizer/util.js";

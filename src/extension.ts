@@ -1,4 +1,4 @@
-import { copyRecursiveAsNeeded } from "@markw65/monkeyc-optimizer";
+import { BuildConfig, copyRecursiveAsNeeded } from "@markw65/monkeyc-optimizer";
 import * as path from "path";
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
