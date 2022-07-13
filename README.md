@@ -372,4 +372,12 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Fixes a couple of inliner issues
   - Small improvement to heuristics for PRE
 
+#### 2.0.26
+
+- Update to [@markw65/monkeyc-optimizer@1.0.32](https://github.com/markw65/monkeyc-optimizer#1031). Highlights include:
+  - Adds an unused variable cleanup pass
+  - Improves function side-effect analysis, which gets better results for inlining and size-based PRE.
+  - Fixes a bug that caused size-based PRE to miss a lot of opportunities.
+  - Adds "Clean Optimized Build" to the activation events, so that it works when the extension hasn't yet been activated.
+
 ---
