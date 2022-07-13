@@ -25,6 +25,7 @@
     "onCommand:prettiermonkeyc.buildOptimizedProject",
     "onCommand:prettiermonkeyc.runOptimizedProject",
     "onCommand:prettiermonkeyc.exportOptimizedProject",
+    "onCommand:prettiermonkeyc.cleanOptimizedBuild",
     "onCommand:prettiermonkeyc.getTargetDevice",
     "onCommand:vscode.executeDocumentSymbolProvider"
   ],
