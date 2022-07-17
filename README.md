@@ -380,4 +380,10 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Fixes a bug that caused size-based PRE to miss a lot of opportunities.
   - Adds "Clean Optimized Build" to the activation events, so that it works when the extension hasn't yet been activated.
 
+#### 2.0.27
+
+- Update to [@markw65/monkeyc-optimizer@1.0.33](https://github.com/markw65/monkeyc-optimizer#1033).
+  - Fixes a bug where PRE could combine Float and Doubles with the same value, or Number and Longs with the same value.
+  - Adds support for `(:keep)` to prevent removing a function that appears to be unused.
+
 ---
