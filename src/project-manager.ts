@@ -556,6 +556,7 @@ export function getOptimizerBaseConfig(
   const workspaceFolder = currentWorkspace(ws);
   const workspace = normalize(workspaceFolder.uri.fsPath);
   const config: Record<string, unknown> = { workspace };
+  let prettier: Record<string, unknown> | null = null;
   const pmcConfig = vscode.workspace.getConfiguration(
     "prettierMonkeyC",
     workspaceFolder
@@ -584,6 +585,30 @@ export function getOptimizerBaseConfig(
     "compilerWarnings",
   ] as const) {
     if (mcConfig[i]) config[i] = mcConfig[i];
+  }
+
+  const prettierConfig = vscode.workspace.getConfiguration(
+    "prettier",
+    workspaceFolder
+  );
+  for (const i of [
+    "printWidth",
+    "tabWidth",
+    "useTabs",
+    "trailingComma",
+    "bracketSpacing",
+    "requirePragma",
+    "insertPragma",
+  ]) {
+    if (prettierConfig[i]) {
+      if (!prettier) {
+        prettier = {};
+      }
+      prettier[i] = prettierConfig[i];
+    }
+  }
+  if (prettier) {
+    config.prettier = prettier;
   }
   return config;
 }
