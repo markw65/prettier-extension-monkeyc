@@ -386,4 +386,12 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Fixes a bug where PRE could combine Float and Doubles with the same value, or Number and Longs with the same value.
   - Adds support for `(:keep)` to prevent removing a function that appears to be unused.
 
+#### 2.0.28
+
+- Update to [@markw65/monkeyc-optimizer@1.0.34](https://github.com/markw65/monkeyc-optimizer#1034).
+
+  - Optimized files use prettier options when formatting
+
+- Update to [@markw65/prettier-plugin-monkeyc@1.0.34](https://github.com/markw65/prettier-plugin-monkeyc#1034).
+
 ---
