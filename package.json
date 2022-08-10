@@ -14,7 +14,8 @@
   },
   "categories": [
     "Programming Languages",
-    "Formatters"
+    "Formatters",
+    "Linters"
   ],
   "activationEvents": [
     "onDebug",
