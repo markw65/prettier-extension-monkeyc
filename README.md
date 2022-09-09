@@ -399,4 +399,10 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Update to [@markw65/monkeyc-optimizer@1.0.35](https://github.com/markw65/monkeyc-optimizer#1035).
   - Fixes a bug that prevented the optimizer from working in some cases.
 
+#### 2.0.30
+
+- Update to [@markw65/prettier-plugin-monkeyc@1.0.35](https://github.com/markw65/prettier-plugin-monkeyc#1035) and [@markw65/monkeyc-optimizer@1.0.36](https://github.com/markw65/monkeyc-optimizer#1036).
+  - Fixes [prettier-plugin-monkeyc#1](https://github.com/markw65/prettier-plugin-monkeyc/issues/1)
+  - Fixes [monkeyc-optimizer#1](https://github.com/markw65/monkeyc-optimizer/issues/1)
+
 ---
