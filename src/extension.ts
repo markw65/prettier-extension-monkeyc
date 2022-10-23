@@ -19,10 +19,13 @@ import {
 } from "./project-manager";
 
 export let diagnosticCollection: vscode.DiagnosticCollection | null = null;
+export let extensionVersion: string | null = null;
 
 // this method is called when the extension is activated
 // which (as currently configured) is the first time a .mc file is opened.
 export async function activate(context: vscode.ExtensionContext) {
+  extensionVersion = context.extension.packageJSON.version;
+
   console.log(
     "Installing @markw65/prettier-plugin-monkeyc into the esbenp.prettier-vscode extension!"
   );

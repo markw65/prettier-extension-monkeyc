@@ -19,6 +19,7 @@ import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import { existsSync } from "fs";
 import * as path from "path";
 import * as vscode from "vscode";
+import { extensionVersion } from "./extension";
 
 type UpdateElem = { file: string; content: string | null | false };
 
@@ -610,6 +611,7 @@ export function getOptimizerBaseConfig(
   if (prettier) {
     config.prettier = prettier;
   }
+  config.extensionVersion = extensionVersion;
   return config;
 }
 
