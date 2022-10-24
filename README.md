@@ -405,4 +405,11 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Fixes [prettier-plugin-monkeyc#1](https://github.com/markw65/prettier-plugin-monkeyc/issues/1)
   - Fixes [monkeyc-optimizer#1](https://github.com/markw65/monkeyc-optimizer/issues/1)
 
+#### 2.0.31
+
+- Update to [@markw65/monkeyc-optimizer@1.0.37](https://github.com/markw65/monkeyc-optimizer#1037).
+  - Embeds extensionVersion and optimizerVersion in the generated build-info.json
+- Look for a project local @markw65/monkeyc-optimizer, and use it for builds if found.
+- Add binary size info (code and data size) to build output.
+
 ---
