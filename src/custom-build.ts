@@ -7,6 +7,7 @@ import { hasProperty } from "@markw65/monkeyc-optimizer/api.js";
 import { spawnByLine } from "@markw65/monkeyc-optimizer/util.js";
 import * as path from "path";
 import * as vscode from "vscode";
+import * as fs from "fs/promises";
 import { findProject, processDiagnostics } from "./project-manager";
 
 export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
@@ -37,6 +38,35 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
   }
 
   close() {}
+
+  getBuildFunction(
+    logger: (line: string) => void
+  ): Promise<typeof buildOptimizedProject> {
+    const optimizerPath = path.resolve(
+      this.options.workspace!,
+      "node_modules",
+      "@markw65",
+      "monkeyc-optimizer"
+    );
+    return fs
+      .access(optimizerPath)
+      .then(() => delete require.cache[require.resolve(optimizerPath)])
+      .then(() => require(optimizerPath))
+      .then((mco) => {
+        return fs
+          .readFile(path.resolve(optimizerPath, "package.json"))
+          .then((data) => {
+            logger(
+              `Using project-local @markw65/monkeyc-optimizer@${
+                JSON.parse(data.toString()).version
+              }`
+            );
+            return mco.buildOptimizedProject;
+          })
+          .catch(() => mco.buildOptimizedProject);
+      })
+      .catch(() => buildOptimizedProject);
+  }
 
   doBuild(device: string | null) {
     if (!device) {
@@ -99,13 +129,13 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     };
     logger("Starting optimization step...");
     const { returnCommand } = this.options;
-    return buildOptimizedProject(
-      device == "export" || device == "generate" ? null : device,
-      {
-        ...this.options,
-        returnCommand: true,
-      }
-    )
+    return this.getBuildFunction(logger)
+      .then((buildFn) =>
+        buildFn(device == "export" || device == "generate" ? null : device, {
+          ...this.options,
+          returnCommand: true,
+        })
+      )
       .then(({ exe, args, diagnostics: optimizerDiags }) => {
         logger("Optimization step completed successfully...\r\n");
         processDiagnostics(
