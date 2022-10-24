@@ -5,6 +5,8 @@ import {
 } from "@markw65/monkeyc-optimizer";
 import { hasProperty } from "@markw65/monkeyc-optimizer/api.js";
 import { spawnByLine } from "@markw65/monkeyc-optimizer/util.js";
+import { readPrg, SectionKinds } from "@markw65/monkeyc-optimizer/sdk-util.js";
+
 import * as path from "path";
 import * as vscode from "vscode";
 import * as fs from "fs/promises";
@@ -136,7 +138,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
           returnCommand: true,
         })
       )
-      .then(({ exe, args, diagnostics: optimizerDiags }) => {
+      .then(({ exe, args, program, diagnostics: optimizerDiags }) => {
         logger("Optimization step completed successfully...\r\n");
         processDiagnostics(
           optimizerDiags,
@@ -160,6 +162,19 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         return spawnByLine(exe, args, [logger, logger], {
           cwd: this.options.workspace,
         })
+          .then(() =>
+            program
+              ? readPrg(program)
+                  .then((info) => {
+                    logger(
+                      `\r\n> Sizes for ${path.basename(program)}: code: ${
+                        info[SectionKinds.TEXT]
+                      } data: ${info[SectionKinds.DATA]} <\r\n`
+                    );
+                  })
+                  .catch(() => {})
+              : Promise.resolve()
+          )
           .then(() => 0)
           .catch((e) => e);
       })
