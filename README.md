@@ -412,4 +412,9 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Look for a project local @markw65/monkeyc-optimizer, and use it for builds if found.
 - Add binary size info (code and data size) to build output.
 
+#### 2.0.32
+
+- Update to [@markw65/monkeyc-optimizer@1.0.38](https://github.com/markw65/monkeyc-optimizer#1037).
+  - Improves inlining heuristics, to allow inlining the condition of an if-statement, and to allow the inline function to be embedded in a more complex expression. See [The @markw65/monkeyc-optimizer wiki](https://github.com/markw65/monkeyc-optimizer/wiki/Inlining) for more details of inlining.
+
 ---
