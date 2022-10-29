@@ -254,6 +254,12 @@ export class Project implements vscode.Disposable {
       } else if (analysis && hasProperty(analysis.fnMap, file)) {
         const fileInfo = analysis.fnMap[file];
         if (!fileInfo || content === fileInfo.monkeyCSource) {
+          if (this.currentUpdates) {
+            // if there was an update to the file, and then this
+            // change reverts that, we should delete the original
+            // update.
+            delete this.currentUpdates[file];
+          }
           return;
         }
       } else if (content === false) {
