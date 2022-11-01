@@ -85,7 +85,7 @@ export class OptimizedMonkeyCDebugConfigProvider
     if (await fs.stat(settingsFile).catch(() => null)) {
       config.settingsJson = settingsFile;
     }
-    await launchSimulator();
+    await launchSimulator(!config.runTests);
     return config;
   }
 }
