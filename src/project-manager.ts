@@ -164,6 +164,7 @@ export class Project implements vscode.Disposable {
           this.options
             .jungleFiles!.split(";")
             .concat("barrels.jungle")
+            .concat("manifest.xml")
             .map((file) => [
               normalize(path.resolve(this.options!.workspace!, file)),
               true,
