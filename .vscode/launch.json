@@ -15,7 +15,12 @@
         "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
         "webpack://?:*/*": "${workspaceFolder}/*",
         "webpack://./src/*": "${workspaceFolder:monkeyc-optimizer}/src/*"
-      }
+      },
+      "resolveSourceMapLocations": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder:monkeyc-optimizer}/**",
+        "!**/node_modules/**"
+      ]
     },
     {
       "name": "Extension Tests (index)",
