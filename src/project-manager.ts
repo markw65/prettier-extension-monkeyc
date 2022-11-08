@@ -14,6 +14,7 @@ import {
   collectNamespaces,
   hasProperty,
 } from "@markw65/monkeyc-optimizer/api.js";
+import { JungleResourceMap } from "@markw65/monkeyc-optimizer/build/src/jungles";
 import { getDeviceInfo } from "@markw65/monkeyc-optimizer/sdk-util.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import { existsSync } from "fs";
@@ -30,6 +31,7 @@ export function normalize(filepath: string) {
 export class Project implements vscode.Disposable {
   private currentAnalysis: Analysis | PreAnalysis | null = null;
   private junglePromise: Promise<void> = Promise.resolve();
+  private resources: JungleResourceMap | null | undefined;
   private buildRuleDependencies: Record<string, string | true> = {};
   private jungleResult: ResolvedJungle | null = null;
   private currentTimer: NodeJS.Timeout | null = null;
@@ -160,6 +162,7 @@ export class Project implements vscode.Disposable {
     this.currentAnalysis = null;
     this.junglePromise = get_jungle(this.options.jungleFiles!, this.options)
       .catch((e) => {
+        this.resources = null;
         this.buildRuleDependencies = Object.fromEntries(
           this.options
             .jungleFiles!.split(";")
@@ -193,7 +196,7 @@ export class Project implements vscode.Disposable {
     if (!this.jungleResult) {
       throw new Error("Missing jungleResult");
     }
-    const { manifest, targets, jungles /*xml, annotations */ } =
+    const { manifest, targets, jungles, resources /*xml, annotations */ } =
       this.jungleResult;
     Promise.all(
       [manifest, ...jungles].map((f) =>
@@ -201,13 +204,20 @@ export class Project implements vscode.Disposable {
           .readFile(vscode.Uri.file(f))
           .then((d) => [f, d.toString()] as const)
       )
-    ).then(
-      (results) => (this.buildRuleDependencies = Object.fromEntries(results))
-    );
+    ).then((results) => {
+      this.buildRuleDependencies = Object.fromEntries(results);
+      this.resources = resources;
+    });
     return getProjectAnalysis(targets, oldAnalysis, this.options)
       .then((analysis) => {
         this.currentAnalysis = analysis;
         this.diagnosticCollection.clear();
+        Object.entries(resources).forEach(
+          ([file, rez_or_err]) =>
+            rez_or_err instanceof Error &&
+            this.diagnosticFromError(rez_or_err, file)
+        );
+
         if ("state" in analysis) {
           processDiagnostics(
             analysis.state.diagnostics,
@@ -246,7 +256,13 @@ export class Project implements vscode.Disposable {
         // workspace. Ignore it.
         return;
       }
-      if (hasProperty(this.buildRuleDependencies, file)) {
+      if (hasProperty(this.resources, file)) {
+        if (content) {
+          // Ignore in memory changes to TextDocuments, because
+          // resources are always re-read from the file system.
+          return;
+        }
+      } else if (hasProperty(this.buildRuleDependencies, file)) {
         if (content) {
           // Ignore in memory changes to TextDocuments, because
           // get_jungles always reads from the file system.
@@ -309,7 +325,9 @@ export class Project implements vscode.Disposable {
     let analysis: PreAnalysis | null = this.currentAnalysis;
     let restart = false;
     Object.entries(files).forEach(([file, content]) => {
-      if (
+      if (hasProperty(this.resources, file)) {
+        restart = true;
+      } else if (
         hasProperty(this.buildRuleDependencies, file) &&
         content !== this.buildRuleDependencies[file]
       ) {
