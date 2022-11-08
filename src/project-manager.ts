@@ -38,6 +38,7 @@ export class Project implements vscode.Disposable {
   private currentUpdates: Record<string, string | null | false> | null = null;
   private firstUpdateInBatch: number = 0;
   private disposables: vscode.Disposable[] = [];
+  private extraWatchers: vscode.Disposable[] = [];
   private diagnosticCollection = vscode.languages.createDiagnosticCollection();
   private lastDevice: string | null = null;
 
@@ -124,8 +125,14 @@ export class Project implements vscode.Disposable {
     this.reloadJungles(null);
   }
 
+  clearExtraWatchers() {
+    this.extraWatchers.forEach((item) => item.dispose());
+    this.extraWatchers.length = 0;
+  }
+
   dispose() {
     this.disposables.forEach((item) => item.dispose());
+    this.clearExtraWatchers();
   }
 
   diagnosticFromError(e: Error, filepath: string) {
@@ -160,6 +167,7 @@ export class Project implements vscode.Disposable {
 
   private reloadJungles(oldAnalysis: PreAnalysis | null) {
     this.currentAnalysis = null;
+    this.clearExtraWatchers();
     this.junglePromise = get_jungle(this.options.jungleFiles!, this.options)
       .catch((e) => {
         this.resources = null;
@@ -193,6 +201,7 @@ export class Project implements vscode.Disposable {
 
   private runAnalysis(oldAnalysis: PreAnalysis | null) {
     this.currentAnalysis = null;
+    this.clearExtraWatchers();
     if (!this.jungleResult) {
       throw new Error("Missing jungleResult");
     }
@@ -217,7 +226,45 @@ export class Project implements vscode.Disposable {
             rez_or_err instanceof Error &&
             this.diagnosticFromError(rez_or_err, file)
         );
+        if (this.options.workspace) {
+          Object.keys(analysis.fnMap)
+            .concat(this.resources ? Object.keys(this.resources) : [])
+            .map((file) => path.relative(this.options.workspace!, file))
+            .filter((file) => file.startsWith("."))
+            .map((file) =>
+              normalize(
+                path.dirname(path.resolve(this.options.workspace!, file))
+              )
+            )
+            .sort()
+            // uniquify, but also drop subfolders.
+            // ie given foo and foo/bar, only keep foo.
+            .reduce((result, dir) => {
+              const i = result.length;
+              if (
+                !i ||
+                (dir !== result[i - 1] && !dir.startsWith(result[i - 1] + "/"))
+              ) {
+                result.push(dir);
+              }
+              return result;
+            }, [] as string[])
+            .forEach((dir, i, arr) => {
+              const watcher = vscode.workspace.createFileSystemWatcher(
+                new vscode.RelativePattern(dir, "**/*")
+              );
+              const fileChange = (uri: vscode.Uri, content: false | null) => {
+                this.onFilesUpdate([{ file: normalize(uri.fsPath), content }]);
+              };
 
+              this.extraWatchers.push(
+                watcher,
+                watcher.onDidChange((e) => fileChange(e, null)),
+                watcher.onDidCreate((e) => fileChange(e, null)),
+                watcher.onDidDelete((e) => fileChange(e, false))
+              );
+            });
+        }
         if ("state" in analysis) {
           processDiagnostics(
             analysis.state.diagnostics,
@@ -247,15 +294,6 @@ export class Project implements vscode.Disposable {
     if (!this.buildRuleDependencies) return;
     let analysis: PreAnalysis | null = this.currentAnalysis;
     files.forEach(({ file, content }) => {
-      if (
-        normalize(
-          path.relative(this.workspaceFolder.uri.fsPath, file)
-        ).startsWith(".")
-      ) {
-        // This file belongs to another project in the same
-        // workspace. Ignore it.
-        return;
-      }
       if (hasProperty(this.resources, file)) {
         if (content) {
           // Ignore in memory changes to TextDocuments, because
@@ -288,6 +326,14 @@ export class Project implements vscode.Disposable {
           .filter((f) => !normalize(path.relative(file, f)).startsWith("."))
           .map((f) => ({ file: f, content }));
         update.length && this.onFilesUpdate(update);
+        return;
+      } else if (
+        normalize(
+          path.relative(this.workspaceFolder.uri.fsPath, file)
+        ).startsWith(".")
+      ) {
+        // This file belongs to another project in the same
+        // workspace. Ignore it.
         return;
       } else if (analysis && !file.endsWith(".mc")) {
         return;
@@ -373,6 +419,17 @@ export class Project implements vscode.Disposable {
     }
     return this.junglePromise.then(() => this.currentAnalysis);
   }
+
+  isWatching(file: string): boolean {
+    return (this.currentAnalysis &&
+      hasProperty(this.currentAnalysis.fnMap, file) &&
+      this.currentAnalysis.fnMap[file]) ||
+      (this.resources &&
+        hasProperty(this.resources, file) &&
+        this.resources[file])
+      ? true
+      : false;
+  }
 }
 
 const projects: Record<string, Project> = {};
@@ -380,7 +437,13 @@ const projects: Record<string, Project> = {};
 // MonkeyC project.
 export function findProject(entity: vscode.Uri) {
   const workspace = vscode.workspace.getWorkspaceFolder(entity);
-  if (!workspace) return null;
+  if (!workspace) {
+    // barrel files will often be outside the workspace of the file
+    // that's using them; in that case, search the projects to see
+    // if this is one of those files.
+    const fsPath = normalize(entity.fsPath);
+    return Object.values(projects).find((p) => p.isWatching(fsPath));
+  }
   const key = workspace.uri.toString();
   if (hasProperty(projects, key)) {
     return projects[key];
