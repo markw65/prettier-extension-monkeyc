@@ -1,6 +1,7 @@
 import {
   isStateNode,
   visitReferences,
+  visitorNode,
 } from "@markw65/monkeyc-optimizer/api.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import * as vscode from "vscode";
@@ -35,8 +36,7 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
       }
       const links: vscode.DocumentLink[] = [];
       const push = (node: mctree.Node, link: string) => {
-        const loc =
-          node.type === "MemberExpression" ? node.property.loc : node.loc;
+        const loc = visitorNode(node).loc;
         if (!loc) return;
         links.push(
           new vscode.DocumentLink(

@@ -2,6 +2,7 @@ import {
   hasProperty,
   isStateNode,
   visitReferences,
+  visitorNode,
 } from "@markw65/monkeyc-optimizer/api.js";
 import * as vscode from "vscode";
 import { findDefinition, normalize } from "./project-manager.js";
@@ -111,7 +112,7 @@ export class MonkeyCRenameRefProvider
             id.name,
             results,
             (node) => {
-              const n = node.type === "MemberExpression" ? node.property : node;
+              const n = visitorNode(node);
               const loc = n.loc!;
               edits.replace(
                 vscode.Uri.file(name),
@@ -162,8 +163,7 @@ export class MonkeyCRenameRefProvider
               ref_name,
               results,
               (node) => {
-                const n =
-                  node.type === "MemberExpression" ? node.property : node;
+                const n = visitorNode(node);
                 const loc = n.loc!;
                 references.push(
                   new vscode.Location(
