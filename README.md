@@ -414,7 +414,18 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.32
 
-- Update to [@markw65/monkeyc-optimizer@1.0.38](https://github.com/markw65/monkeyc-optimizer#1037).
+- Update to [@markw65/monkeyc-optimizer@1.0.38](https://github.com/markw65/monkeyc-optimizer#1038).
   - Improves inlining heuristics, to allow inlining the condition of an if-statement, and to allow the inline function to be embedded in a more complex expression. See [The @markw65/monkeyc-optimizer wiki](https://github.com/markw65/monkeyc-optimizer/wiki/Inlining) for more details of inlining.
+
+#### 2.0.33
+
+- Update to [@markw65/monkeyc-optimizer@1.0.39](https://github.com/markw65/monkeyc-optimizer#1039). Amongst other things:
+  - Better optimization of `x has :y` when `x` definitely doesn't have `y`
+  - Better analysis of projects using barrels (no change to the actual build), so that `Goto definition` etc will take you to a definition in a barrel.
+  - Finds all symbols defined in resource files, so that `Goto definition` will take you to the resource definition (or list all of them if there's more than one). Currently `Goto References` won't find references in resource files, but will find all .mc file references to the resources. Also at present you can't click on the definition to find the .mc file references. I'm planning to fix this in a future release.
+- Update all other npm dependencies
+- Fix various issues watching files for changes:
+  - If a file was changed, and then very quickly reverted, the revert wasn't always analyzed, potentially resulting in incorrect reports of syntax errors etc until the next change triggered a new analysis run.
+  - Now that barrels are included in the analysis, they need to be watched for changes too.
 
 ---
