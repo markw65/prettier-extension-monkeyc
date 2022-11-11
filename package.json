@@ -354,13 +354,15 @@
     ]
   },
   "scripts": {
-    "lint": "eslint .",
-    "pretest": "npm run lint",
+    "watch": "npx tsc --watch",
     "test": "node --inspect ./test/runTest.js",
+    "build": "npx tsc",
+    "mc-live": "test -z \"$(git status --untracked-files=no --porcelain || echo dirty)\" && npm install ../monkeyc-optimizer && git commit -am 'monkeyc-optimizer-live'",
+    "prettier-live": "test -z \"$(git status --untracked-files=no --porcelain || echo dirty)\" && npm install ../prettier-plugin-monkeyc && git commit -am 'prettier-plugin-monkeyc-live'",
     "vscode:uninstall": "node ./uninstall.js",
     "vscode:prepublish": "rm -rf build; npm run build",
-    "build": "npx tsc",
-    "watch": "npx tsc --watch"
+    "lint": "eslint .",
+    "pretest": "npm run lint"
   },
   "devDependencies": {
     "@types/glob": "^8.0.0",
