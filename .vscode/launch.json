@@ -14,11 +14,11 @@
         "meteor://💻app/*": "${workspaceFolder}/*",
         "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
         "webpack://?:*/*": "${workspaceFolder}/*",
-        "webpack://./src/*": "${workspaceFolder:monkeyc-optimizer}/src/*"
+        "webpack://./src/*": "${workspaceFolder}/../monkeyc-optimizer/src/*"
       },
       "resolveSourceMapLocations": [
         "${workspaceFolder}/**",
-        "${workspaceFolder:monkeyc-optimizer}/**",
+        "${workspaceFolder}/../monkeyc-optimizer/**",
         "!**/node_modules/**"
       ]
     },
