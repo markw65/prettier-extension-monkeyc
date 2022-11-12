@@ -1,0 +1,31 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../monkeyc-optimizer"
+    },
+    {
+      "name": "OptimizerTests",
+      "path": "../monkeyc-optimizer/test/OptimizerTests"
+    },
+    {
+      "name": "IntegrationTests",
+      "path": "test/IntegrationTests"
+    },
+    {
+      "path": "../prettier-plugin-monkeyc"
+    }
+  ],
+  "settings": {
+    "javascript.validate.enable": true,
+    "typescript.validate.enable": true,
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    "editor.formatOnSave": true,
+    "task.allowAutomaticTasks": "on",
+    "files.associations": {
+      ".pegjs": ".peggy"
+    }
+  }
+}
