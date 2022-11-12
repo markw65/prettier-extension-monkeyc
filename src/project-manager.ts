@@ -15,7 +15,7 @@ import {
   hasProperty,
 } from "@markw65/monkeyc-optimizer/api.js";
 import { JungleResourceMap } from "@markw65/monkeyc-optimizer/build/src/jungles";
-import { getDeviceInfo } from "@markw65/monkeyc-optimizer/sdk-util.js";
+import { getDeviceInfo, xmlUtil } from "@markw65/monkeyc-optimizer/sdk-util.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import { existsSync } from "fs";
 import * as path from "path";
@@ -116,13 +116,13 @@ export class Project implements vscode.Disposable {
           const old = JSON.stringify(this.options);
           this.options = getOptimizerBaseConfig(this.workspaceFolder);
           if (JSON.stringify(this.options) !== old) {
-            this.reloadJungles(this.currentAnalysis);
+            this.reloadJungles(this.currentAnalysis, this.resources);
           }
         }
       })
     );
 
-    this.reloadJungles(null);
+    this.reloadJungles(null, null);
   }
 
   clearExtraWatchers() {
@@ -165,10 +165,17 @@ export class Project implements vscode.Disposable {
     this.diagnosticCollection.set(vscode.Uri.file(filepath), diagnostics);
   }
 
-  private reloadJungles(oldAnalysis: PreAnalysis | null) {
+  private reloadJungles(
+    oldAnalysis: PreAnalysis | null,
+    resources: JungleResourceMap | undefined | null
+  ) {
     this.currentAnalysis = null;
     this.clearExtraWatchers();
-    this.junglePromise = get_jungle(this.options.jungleFiles!, this.options)
+    this.junglePromise = get_jungle(
+      this.options.jungleFiles!,
+      this.options,
+      resources || undefined
+    )
       .catch((e) => {
         this.resources = null;
         this.buildRuleDependencies = Object.fromEntries(
@@ -296,9 +303,19 @@ export class Project implements vscode.Disposable {
     files.forEach(({ file, content }) => {
       if (hasProperty(this.resources, file)) {
         if (content) {
-          // Ignore in memory changes to TextDocuments, because
-          // resources are always re-read from the file system.
-          return;
+          const rez = this.resources[file];
+          if (
+            !rez ||
+            (rez instanceof xmlUtil.Document && rez.source === content)
+          ) {
+            if (this.currentUpdates) {
+              // if there was an update to the file, and then this
+              // change reverts that, we should delete the original
+              // update.
+              delete this.currentUpdates[file];
+            }
+            return;
+          }
         }
       } else if (hasProperty(this.buildRuleDependencies, file)) {
         if (content) {
@@ -323,8 +340,9 @@ export class Project implements vscode.Disposable {
         // So check that here...
         const update = Object.keys(analysis ? analysis.fnMap : {})
           .concat(Object.keys(this.buildRuleDependencies))
+          .concat(this.resources ? Object.keys(this.resources) : [])
           .filter((f) => !normalize(path.relative(file, f)).startsWith("."))
-          .map((f) => ({ file: f, content }));
+          .map((f) => ({ file: f, content: false } as const));
         update.length && this.onFilesUpdate(update);
         return;
       } else if (
@@ -369,9 +387,36 @@ export class Project implements vscode.Disposable {
     this.currentUpdates = null;
     if (!files) return;
     let analysis: PreAnalysis | null = this.currentAnalysis;
+    let resources: JungleResourceMap | null = this.resources || null;
     let restart = false;
     Object.entries(files).forEach(([file, content]) => {
-      if (hasProperty(this.resources, file)) {
+      if (hasProperty(resources, file)) {
+        const rez = resources[file];
+        if (
+          !rez ||
+          (rez instanceof xmlUtil.Document && content === rez.source)
+        ) {
+          return;
+        }
+        if (resources === this.resources) {
+          resources = { ...resources };
+        }
+        if (!content) {
+          // the file was deleted, or we don't know what
+          // its contents are. Either way, just remove it
+          // from the cache
+          delete resources[file];
+        } else {
+          try {
+            resources[file] = xmlUtil.parseXml(content, file);
+          } catch (e) {
+            if (!(e instanceof Error)) {
+              e = new Error("Unknown error parsing resource file");
+            }
+            resources[file] = e as Error;
+          }
+        }
+
         restart = true;
       } else if (
         hasProperty(this.buildRuleDependencies, file) &&
@@ -405,7 +450,7 @@ export class Project implements vscode.Disposable {
       }
     });
     if (restart) {
-      this.reloadJungles(analysis);
+      this.reloadJungles(analysis, resources);
     } else if (analysis !== this.currentAnalysis) {
       this.junglePromise = this.runAnalysis(analysis);
     }
