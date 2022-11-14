@@ -623,6 +623,39 @@ export function findDefinition(
         case "Identifier":
           expr = item;
           continue;
+        case "ModuleDeclaration":
+        case "ClassDeclaration":
+        case "FunctionDeclaration":
+          if (expr && expr.node === item.node.id) {
+            // If the symbol whose definition we're looking for
+            // is the id of a module, class or function, then the
+            // module, class or function is its definition (!).
+            // But using/import could cause lookup to find a different
+            // definition. eg:
+            //
+            // 1.  using Toybox.Lang;
+            // 2.  module Lang {
+            // 3.    function foo() { return Lang.ENDIAN_BIG; }
+            // 4.  }
+            //
+            // without special handling, a lookup of Lang on line 2
+            // would find Toybox.Lang; but obviously we want it to find
+            // the user module defined on line 2. The Lang on line 3,
+            // however is *supposed* to find Toybox.Lang.
+            const results = [
+              {
+                parent: item.stack[item.stack.length - 2],
+                results: [item.stack[item.stack.length - 1]],
+              },
+            ];
+            return {
+              node: expr.node,
+              name: item.node.id.name,
+              results,
+              analysis,
+            };
+          }
+          break;
         case "MemberExpression":
           if (
             item.node.property.loc?.end.line !== range.end.line + 1 ||
