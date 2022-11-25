@@ -112,6 +112,51 @@
             "description": "Whether to enable the size based partial redundancy pass",
             "default": false,
             "scope": "resource"
+          },
+          "prettierMonkeyC.enforceStatic": {
+            "type": "string",
+            "description": "Whether to perform lookups in static methods as if they were invoked statically",
+            "enum": [
+              "NO",
+              "YES"
+            ],
+            "enumDescriptions": [
+              "Assume static functions may be invoked non-statically",
+              "Assume static functions will always be invoked statically"
+            ],
+            "default": "YES"
+          },
+          "prettierMonkeyC.compilerLookupRules": {
+            "type": "string",
+            "description": "Whether to perform lookups as compiler1, compiler2, or based on the currently selected sdk",
+            "enum": [
+              "COMPILER1",
+              "COMPILER2",
+              "DEFAULT"
+            ],
+            "enumDescriptions": [
+              "Match compiler1's behavior when performing lookups",
+              "Match compiler2's behavior when performing lookups",
+              "Match the currently selected compiler's behavior"
+            ],
+            "default": "DEFAULT"
+          },
+          "prettierMonkeyC.checkCompilerLookupRules": {
+            "type": "string",
+            "description": "Whether to report differences in your code's behavior between compiler1 and compiler2",
+            "enum": [
+              "OFF",
+              "INFO",
+              "WARNING",
+              "ERROR"
+            ],
+            "enumDescriptions": [
+              "Disable checking",
+              "Generate INFO level diagnostics",
+              "Generate WARNING level diagnostics",
+              "Generate ERROR level diagnostics"
+            ],
+            "default": "WARNING"
           }
         }
       },
@@ -221,6 +266,51 @@
             "description": "If present, overrides the corresponding `prettierMonkeyC' setting.",
             "default": false,
             "scope": "resource"
+          },
+          "enforceStatic": {
+            "type": "string",
+            "description": "Whether to perform lookups in static methods as if they were invoked statically",
+            "enum": [
+              "NO",
+              "YES"
+            ],
+            "enumDescriptions": [
+              "Assume static functions may be invoked non-statically",
+              "Assume static functions will always be invoked statically"
+            ],
+            "default": "YES"
+          },
+          "compilerLookupRules": {
+            "type": "string",
+            "description": "Whether to perform lookups as compiler1, compiler2, or based on the currently selected sdk",
+            "enum": [
+              "COMPILER1",
+              "COMPILER2",
+              "DEFAULT"
+            ],
+            "enumDescriptions": [
+              "Match compiler1's behavior when performing lookups",
+              "Match compiler2's behavior when performing lookups",
+              "Match the currently selected sdk's compiler"
+            ],
+            "default": "DEFAULT"
+          },
+          "checkCompilerLookupRules": {
+            "type": "string",
+            "description": "Whether to report differences in your code's behavior between compiler1 and compiler2",
+            "enum": [
+              "OFF",
+              "INFO",
+              "WARNING",
+              "ERROR"
+            ],
+            "enumDescriptions": [
+              "Disable checking",
+              "Generate INFO level diagnostics",
+              "Generate WARNING level diagnostics",
+              "Generate ERROR level diagnostics"
+            ],
+            "default": "WARNING"
           }
         }
       }
@@ -322,6 +412,51 @@
               "sizeBasedPRE": {
                 "type": "boolean",
                 "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+              },
+              "enforceStatic": {
+                "type": "string",
+                "description": "Whether to perform lookups in static methods as if they were invoked statically",
+                "enum": [
+                  "NO",
+                  "YES"
+                ],
+                "enumDescriptions": [
+                  "Assume static functions may be invoked non-statically",
+                  "Assume static functions will always be invoked statically"
+                ],
+                "default": "YES"
+              },
+              "compilerLookupRules": {
+                "type": "string",
+                "description": "Whether to perform lookups as compiler1, compiler2, or based on the currently selected sdk",
+                "enum": [
+                  "COMPILER1",
+                  "COMPILER2",
+                  "DEFAULT"
+                ],
+                "enumDescriptions": [
+                  "Match compiler1's behavior when performing lookups",
+                  "Match compiler2's behavior when performing lookups",
+                  "Match the currently selected compiler's behavior"
+                ],
+                "default": "DEFAULT"
+              },
+              "checkCompilerLookupRules": {
+                "type": "string",
+                "description": "Whether to report differences in your code's behavior between compiler1 and compiler2",
+                "enum": [
+                  "OFF",
+                  "INFO",
+                  "WARNING",
+                  "ERROR"
+                ],
+                "enumDescriptions": [
+                  "Disable checking",
+                  "Generate INFO level diagnostics",
+                  "Generate WARNING level diagnostics",
+                  "Generate ERROR level diagnostics"
+                ],
+                "default": "WARNING"
               }
             }
           }

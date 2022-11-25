@@ -736,6 +736,9 @@ export function getOptimizerBaseConfig(
     "ignoredSourcePaths",
     "checkInvalidSymbols",
     "sizeBasedPRE",
+    "enforceStatic",
+    "compilerLookupRules",
+    "checkCompilerLookupRules",
   ]) {
     if (pmcConfig[i]) config[i] = pmcConfig[i];
   }
