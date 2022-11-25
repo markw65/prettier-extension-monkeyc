@@ -1,5 +1,4 @@
 import { isStateNode } from "@markw65/monkeyc-optimizer/api.js";
-import { lookup } from "dns";
 import * as vscode from "vscode";
 import { findDefinition } from "./project-manager";
 
