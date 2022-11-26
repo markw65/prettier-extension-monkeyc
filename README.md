@@ -428,4 +428,17 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - If a file was changed, and then very quickly reverted, the revert wasn't always analyzed, potentially resulting in incorrect reports of syntax errors etc until the next change triggered a new analysis run.
   - Now that barrels are included in the analysis, they need to be watched for changes too.
 
+#### 2.0.33
+
+- Update to [@markw65/monkeyc-optimizer@1.0.40](https://github.com/markw65/monkeyc-optimizer#1040). Amongst other things:
+
+  - Fixes a bug that could cause `and` and `or` to be incorrectly optimized
+  - Fixes a bug that could prevent `has` from being optimized to false
+  - Updates symbol lookup to match the current sdk (by default, but you can explicitly force compiler1 or compiler2)
+  - Updates symbol lookup to match the behavior of static functions when invoked statically. Note that static functions can be invoked non-statically(!) and when you do the lookup behavior at runtime matches that of a non-static function. This means that the optimizer could start to report missing symbols in static functions that would actually work at runtime - but in that case, the function shouldn't have been declared static in the first place. This matches the behavior of the typechecker in the just released 4.1.7. Setting the `enforceStatic` option to `NO` will revert to the old behavior.
+
+- Diagnostics relating to resource files are updated as you type, rather then when you save the resource file
+- Added options controlling compiler1 vs compiler2 behavior, and related diagnostics
+- Updates project analysis when the sdk version changes
+
 ---
