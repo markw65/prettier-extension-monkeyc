@@ -30,9 +30,7 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
       }
       const file = analysis.fnMap[normalize(document.uri.fsPath)];
       if (!file) {
-        return Promise.reject(
-          "Document ${document.uri.fsPath} not found in project"
-        );
+        return Promise.resolve([]);
       }
       const links: vscode.DocumentLink[] = [];
       const push = (node: mctree.Node, link: string) => {

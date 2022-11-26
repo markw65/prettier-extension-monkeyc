@@ -35,8 +35,8 @@ export function normalize(filepath: string) {
 export class Project implements vscode.Disposable {
   private currentAnalysis: Analysis | PreAnalysis | null = null;
   private junglePromise: Promise<void> = Promise.resolve();
-  private resources: JungleResourceMap | null | undefined;
-  private buildRuleDependencies: Record<string, string | true> = {};
+  public resources: JungleResourceMap | null | undefined;
+  public buildRuleDependencies: Record<string, string | true> = {};
   private jungleResult: ResolvedJungle | null = null;
   private currentTimer: NodeJS.Timeout | null = null;
   private currentUpdates: Record<string, string | null | false> | null = null;
@@ -600,10 +600,14 @@ export function findDefinition(
     if (!("state" in analysis)) {
       return Promise.reject("Project contains errors");
     }
-    const file = analysis.fnMap[normalize(document.uri.fsPath)];
+    const fileName = normalize(document.uri.fsPath);
+    const file = analysis.fnMap[fileName];
     if (!file) {
       return Promise.reject(
-        "Document ${document.uri.fsPath} not found in project"
+        hasProperty(project.resources, fileName) ||
+          hasProperty(project.buildRuleDependencies, fileName)
+          ? "Symbols can only be looked up in the project's monkeyc files"
+          : "Document ${document.uri.fsPath} not found in project"
       );
     }
     const items = findItemsByRange(analysis.state, file.ast, range);

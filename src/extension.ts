@@ -79,6 +79,11 @@ export async function activate(context: vscode.ExtensionContext) {
     );
     return task && vscode.tasks.executeTask(task);
   };
+  const projectFiles = [
+    { scheme: "file", language: "monkeyc" },
+    { scheme: "file", language: "xml" },
+    { scheme: "file", language: "jungle" },
+  ];
   context.subscriptions.push(
     (diagnosticCollection = vscode.languages.createDiagnosticCollection()),
     vscode.commands.registerCommand(
@@ -147,24 +152,18 @@ export async function activate(context: vscode.ExtensionContext) {
       new OptimizedMonkeyCBuildTaskProvider()
     ),
     vscode.languages.registerDefinitionProvider(
-      { scheme: "file", language: "monkeyc" },
+      projectFiles,
       new MonkeyCDefinitionProvider()
     ),
     vscode.languages.registerDocumentSymbolProvider(
-      { scheme: "file", language: "monkeyc" },
+      projectFiles,
       symbolProvider
     ),
     vscode.languages.registerWorkspaceSymbolProvider(symbolProvider),
-    vscode.languages.registerRenameProvider(
-      { scheme: "file", language: "monkeyc" },
-      renameRefProvider
-    ),
-    vscode.languages.registerReferenceProvider(
-      { scheme: "file", language: "monkeyc" },
-      renameRefProvider
-    ),
+    vscode.languages.registerRenameProvider(projectFiles, renameRefProvider),
+    vscode.languages.registerReferenceProvider(projectFiles, renameRefProvider),
     vscode.languages.registerDocumentLinkProvider(
-      { scheme: "file", language: "monkeyc" },
+      projectFiles,
       new MonkeyCLinkProvider()
     ),
     ...initializeProjectManager()

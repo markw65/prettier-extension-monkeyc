@@ -39,9 +39,7 @@ export class MonkeyCSymbolProvider
       }
       const file = analysis.fnMap[normalize(document.uri.fsPath)];
       if (!file) {
-        return Promise.reject(
-          "Document ${document.uri.fsPath} not found in project"
-        );
+        return Promise.resolve([]);
       }
       if (!file.ast) {
         return Promise.reject(
