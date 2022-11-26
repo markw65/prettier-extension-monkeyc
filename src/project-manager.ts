@@ -15,7 +15,11 @@ import {
   hasProperty,
 } from "@markw65/monkeyc-optimizer/api.js";
 import { JungleResourceMap } from "@markw65/monkeyc-optimizer/build/src/jungles";
-import { getDeviceInfo, xmlUtil } from "@markw65/monkeyc-optimizer/sdk-util.js";
+import {
+  connectiq,
+  getDeviceInfo,
+  xmlUtil,
+} from "@markw65/monkeyc-optimizer/sdk-util.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import { existsSync } from "fs";
 import * as path from "path";
@@ -106,6 +110,10 @@ export class Project implements vscode.Disposable {
   ) {
     const workspace = normalize(this.workspaceFolder.uri.fsPath);
 
+    const watcher = vscode.workspace.createFileSystemWatcher(
+      new vscode.RelativePattern(connectiq, "current-sdk.cfg")
+    );
+
     this.disposables.push(
       this.diagnosticCollection,
       vscode.workspace.onDidChangeConfiguration((e) => {
@@ -119,6 +127,10 @@ export class Project implements vscode.Disposable {
             this.reloadJungles(this.currentAnalysis, this.resources);
           }
         }
+      }),
+      watcher,
+      watcher.onDidChange((e) => {
+        this.reloadJungles(this.currentAnalysis, this.resources);
       })
     );
 
