@@ -30,6 +30,21 @@ suite("Extension Test Suite", function () {
     );
     return refs;
   };
+  const getDefs = async (docSym) => {
+    const defs = await vscode.commands.executeCommand(
+      "vscode.executeDefinitionProvider",
+      docSym.location.uri,
+      new vscode.Position(
+        docSym.selectionRange.start.line,
+        docSym.selectionRange.start.character
+      )
+    );
+    assert(
+      Array.isArray(defs),
+      `Expected an array of references to ${docSym.name}`
+    );
+    return defs;
+  };
 
   let symbols;
   const getSymbols = async (source) => {
@@ -62,13 +77,19 @@ suite("Extension Test Suite", function () {
     assert.equal(symbol.kind, vscode.SymbolKind[kind], `Expected a ${kind}`);
     return symbol;
   };
-  const checkSymbolRefs = async (source, path, kind, count) => {
+  const checkSymbolRefs = async (source, path, kind, refsCount, defsCount) => {
     const symbol = await findSymbol(source, path, kind);
     const refs = await getRefs(symbol);
     assert.equal(
       refs.length,
-      count,
-      `Expected ${symbol.name} to have ${count} references, but got ${refs.length}`
+      refsCount,
+      `Expected ${symbol.name} to have ${refsCount} references, but got ${refs.length}`
+    );
+    const defs = await getDefs(symbol);
+    assert.equal(
+      defs.length,
+      defsCount,
+      `Expected ${symbol.name} to have ${defsCount} definitions, but got ${defs.length}`
     );
     return symbol;
   };
@@ -78,13 +99,15 @@ suite("Extension Test Suite", function () {
       testsSource,
       [funcName],
       "Function",
-      3
+      2,
+      1
     );
     const fooVar = await checkSymbolRefs(
       testsSource,
       [funcName, varName],
       "Variable",
-      2
+      1,
+      1
     );
     return [fooFunc, fooVar];
   };
@@ -133,13 +156,14 @@ suite("Extension Test Suite", function () {
         testsSource,
         ["buz", "ex"],
         "Variable",
-        2
+        1,
+        1
       );
       await doRename(symbol, "ex2");
       // There's a second catch variable named ex that shouldn't
       // have been renamed
-      await checkSymbolRefs(testsSource, ["buz", "ex"], "Variable", 2);
-      await checkSymbolRefs(testsSource, ["buz", "ex2"], "Variable", 2);
+      await checkSymbolRefs(testsSource, ["buz", "ex"], "Variable", 1, 1);
+      await checkSymbolRefs(testsSource, ["buz", "ex2"], "Variable", 1, 1);
       await revertAll();
     }
     {
@@ -149,14 +173,16 @@ suite("Extension Test Suite", function () {
         testsSource,
         ["IntegrationTestsView"],
         "Class",
-        2
+        1,
+        1
       );
       await doRename(symbol, "SomeOtherView");
-      await checkSymbolRefs(testsSource, ["SomeOtherView"], "Class", 2);
+      await checkSymbolRefs(testsSource, ["SomeOtherView"], "Class", 1, 1);
       const onShow = await checkSymbolRefs(
         testsSource,
         ["SomeOtherView", "onShow"],
         "Method",
+        0,
         1
       );
       await doRename(onShow, "onShowRenamed").then(
@@ -173,6 +199,7 @@ suite("Extension Test Suite", function () {
         testsSource,
         ["SomeOtherView", "onShow"],
         "Method",
+        0,
         1
       );
       await revertAll();

@@ -125,7 +125,8 @@ export class MonkeyCRenameRefProvider
                 newName
               );
               return undefined;
-            }
+            },
+            true
           );
         });
         return edits;
