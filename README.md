@@ -430,7 +430,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.33
 
-- Update to [@markw65/monkeyc-optimizer@1.0.40](https://github.com/markw65/monkeyc-optimizer#1040). Amongst other things:
+- Update to [@markw65/monkeyc-optimizer@1.0.41](https://github.com/markw65/monkeyc-optimizer#1041). Amongst other things:
 
   - Fixes a bug that could cause `and` and `or` to be incorrectly optimized
   - Fixes a bug that could prevent `has` from being optimized to false
