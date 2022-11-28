@@ -4,7 +4,9 @@ import { mctree } from "@markw65/monkeyc-optimizer";
 import {
   traverseAst,
   variableDeclarationName,
+  visit_resources,
 } from "@markw65/monkeyc-optimizer/api.js";
+import { xmlUtil } from "@markw65/monkeyc-optimizer/sdk-util.js";
 
 type SymbolInfo = vscode.DocumentSymbol | vscode.SymbolInformation;
 type SymbolElem<T extends SymbolInfo> = {
@@ -37,20 +39,11 @@ export class MonkeyCSymbolProvider
       if (!analysis) {
         return Promise.reject("Project analysis not found");
       }
-      const file = analysis.fnMap[normalize(document.uri.fsPath)];
-      if (!file) {
-        return Promise.resolve([]);
-      }
-      if (!file.ast) {
-        return Promise.reject(
-          "Document ${document.uri.fsPath} did not parse correctly"
-        );
-      }
       const symbol = (
         name: string,
         kind: vscode.SymbolKind,
-        node: mctree.Node,
-        selNode: mctree.Node
+        node: mctree.Node | xmlUtil.Content,
+        selNode: mctree.Node | xmlUtil.Content
       ) => {
         const loc1 = node.loc || selNode.loc;
         if (!loc1) return undefined;
@@ -63,11 +56,93 @@ export class MonkeyCSymbolProvider
           range(loc2!)
         );
       };
+      const fsPath = normalize(document.uri.fsPath);
+      const file = analysis.fnMap[fsPath];
+      if (file) {
+        if (!file.ast) {
+          return Promise.reject(
+            `Document ${document.uri.fsPath} did not parse correctly`
+          );
+        }
 
-      return this.getSymbols(file.ast, symbol);
+        return this.getSymbolsForMC(file.ast, symbol);
+      }
+      const rez = project.resources && project.resources[fsPath];
+      if (rez) {
+        if (!(rez.body instanceof xmlUtil.Nodes)) {
+          return Promise.reject(
+            `Document ${document.uri.fsPath} did not parse correctly`
+          );
+        }
+        return this.getSymbolsForRez(rez.body, symbol);
+      }
+      return Promise.resolve([]);
     });
   }
-  getSymbols<T extends SymbolInfo>(
+
+  provideWorkspaceSymbols(
+    query: string,
+    _token: vscode.CancellationToken
+  ): vscode.ProviderResult<vscode.SymbolInformation[]> {
+    const projects = vscode.workspace.workspaceFolders
+      ?.map((ws) => findProject(ws.uri))
+      .filter((p): p is Project => p != null);
+    if (!projects) return Promise.reject("No projects found");
+    const search = new RegExp(
+      query
+        .split("")
+        .map((s) => s.replace(/[-/\\^$*+?.()|[\]{}]/, "\\$&"))
+        .join(".*"),
+      "i"
+    );
+    const symbol = (
+      name: string,
+      kind: vscode.SymbolKind,
+      node: mctree.Node | xmlUtil.Content,
+      selNode: mctree.Node | xmlUtil.Content
+    ) => {
+      if (!search.test(name)) return undefined;
+      const loc = selNode.loc || node.loc;
+      if (!loc || !loc.source) return undefined;
+      return new vscode.SymbolInformation(
+        name,
+        kind,
+        "",
+        new vscode.Location(vscode.Uri.file(loc.source), range(loc))
+      );
+    };
+    return Promise.all(
+      projects.map((project) =>
+        project.getAnalysis().then((analysis) =>
+          (analysis
+            ? Object.values(analysis.fnMap).map((file) => {
+                if (!file.ast) {
+                  return null;
+                }
+
+                return this.getSymbolsForMC(file.ast, symbol);
+              })
+            : []
+          ).concat(
+            project.resources
+              ? Object.values(project.resources).map((resources) => {
+                  if (!(resources.body instanceof xmlUtil.Nodes)) {
+                    return null;
+                  }
+                  return this.getSymbolsForRez(resources.body, symbol);
+                })
+              : []
+          )
+        )
+      )
+    ).then((symbolArrays) =>
+      symbolArrays
+        .flat(3)
+        .filter((s): s is vscode.SymbolInformation => s != null)
+    );
+  }
+
+  getSymbolsForMC<T extends SymbolInfo>(
     ast: mctree.Program,
     symbol: (
       name: string,
@@ -77,21 +152,6 @@ export class MonkeyCSymbolProvider
     ) => T | undefined
   ) {
     const stack: SymbolElem<T>[] = [{ type: "" }];
-    const appendChildren = (symbol: T, children: T[]) => {
-      if (symbol instanceof vscode.DocumentSymbol) {
-        symbol.children.push(...(children as vscode.DocumentSymbol[]));
-      } else {
-        children.forEach(
-          (child) =>
-            ((child as vscode.SymbolInformation).containerName = symbol.name)
-        );
-        if (!stack[0].children) {
-          stack[0].children = children;
-        } else {
-          stack[0].children.push(...children);
-        }
-      }
-    };
     traverseAst(
       ast,
       (node) => {
@@ -178,77 +238,105 @@ export class MonkeyCSymbolProvider
         }
         return null;
       },
-      () => {
-        const elm = stack.pop()!;
-        const back = stack[stack.length - 1];
-        if (elm.children && elm.symbol) {
-          appendChildren(elm.symbol, elm.children);
-          elm.children = undefined;
-        }
-        const symbols = elm.symbol ? [elm.symbol] : elm.children;
-        if (symbols) {
-          if (back.symbol) {
-            appendChildren(back.symbol, symbols);
-          } else if (back.children) {
-            back.children.push(...symbols);
-          } else {
-            back.children = symbols;
-          }
-        }
-      }
+      () => this.postTraverse(stack)
     );
     return stack[0].children;
   }
 
-  provideWorkspaceSymbols(
-    query: string,
-    _token: vscode.CancellationToken
-  ): vscode.ProviderResult<vscode.SymbolInformation[]> {
-    const projects = vscode.workspace.workspaceFolders
-      ?.map((ws) => findProject(ws.uri))
-      .filter((p): p is Project => p != null);
-    if (!projects) return Promise.reject("No projects found");
-    const search = new RegExp(
-      query
-        .split("")
-        .map((s) => s.replace(/[-/\\^$*+?.()|[\]{}]/, "\\$&"))
-        .join(".*"),
-      "i"
-    );
-    return Promise.all(
-      projects.map((project) =>
-        project.getAnalysis().then(
-          (analysis) =>
-            analysis &&
-            Object.entries(analysis.fnMap).map(([filepath, file]) => {
-              if (!file.ast) {
-                return null;
-              }
-              const symbol = (
-                name: string,
-                kind: vscode.SymbolKind,
-                node: mctree.Node,
-                selNode: mctree.Node
-              ) => {
-                if (!search.test(name)) return undefined;
-                const loc = selNode.loc || node.loc;
-                if (!loc) return undefined;
-                return new vscode.SymbolInformation(
-                  name,
-                  kind,
-                  "",
-                  new vscode.Location(vscode.Uri.file(filepath), range(loc))
-                );
-              };
+  private appendChildren<T extends SymbolInfo>(
+    symbol: T,
+    children: T[],
+    stack: SymbolElem<T>[]
+  ) {
+    if (symbol instanceof vscode.DocumentSymbol) {
+      symbol.children.push(...(children as vscode.DocumentSymbol[]));
+    } else {
+      children.forEach(
+        (child) =>
+          ((child as vscode.SymbolInformation).containerName = symbol.name)
+      );
+      if (!stack[0].children) {
+        stack[0].children = children;
+      } else {
+        stack[0].children.push(...children);
+      }
+    }
+  }
 
-              return this.getSymbols(file.ast, symbol);
-            })
-        )
-      )
-    ).then((symbolArrays) =>
-      symbolArrays
-        .flat(3)
-        .filter((s): s is vscode.SymbolInformation => s != null)
-    );
+  private postTraverse<T extends SymbolInfo>(stack: SymbolElem<T>[]) {
+    const elm = stack.pop()!;
+    const back = stack[stack.length - 1];
+    if (elm.children && elm.symbol) {
+      this.appendChildren(elm.symbol, elm.children, stack);
+      elm.children = undefined;
+    }
+    const symbols = elm.symbol ? [elm.symbol] : elm.children;
+    if (symbols) {
+      if (back.symbol) {
+        this.appendChildren(back.symbol, symbols, stack);
+      } else if (back.children) {
+        back.children.push(...symbols);
+      } else {
+        back.children = symbols;
+      }
+    }
+  }
+
+  getSymbolsForRez<T extends SymbolInfo>(
+    body: xmlUtil.Nodes,
+    symbol: (
+      name: string,
+      kind: vscode.SymbolKind,
+      node: xmlUtil.Element,
+      selNode: xmlUtil.Element
+    ) => T | undefined
+  ) {
+    const stack: SymbolElem<T>[] = [{ type: "" }];
+    visit_resources(body.elements, null, {
+      pre(node: xmlUtil.Content) {
+        if (node.type !== "element") return false;
+        const elm: SymbolElem<T> = { type: node.name };
+        stack.push(elm);
+        switch (node.name) {
+          case "resources":
+          case "strings":
+          case "fonts":
+          case "animations":
+          case "bitmaps":
+          case "layouts":
+          case "menus":
+          case "drawables":
+          case "properties":
+          case "settings":
+          case "fitContributions":
+          case "jsonDataResources":
+          case "complications":
+            elm.symbol = symbol(
+              node.name,
+              vscode.SymbolKind.Namespace,
+              node,
+              node
+            );
+            break;
+        }
+        return true;
+      },
+      visit(node: xmlUtil.Element) {
+        if (node.attr.id) {
+          const elm = stack[stack.length - 1];
+          elm.symbol = symbol(
+            node.attr.id.value.value,
+            vscode.SymbolKind.Constant,
+            node,
+            node
+          );
+        }
+        return null;
+      },
+      post: () => {
+        this.postTraverse(stack);
+      },
+    });
+    return stack[0].children;
   }
 }

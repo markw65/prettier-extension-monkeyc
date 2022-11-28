@@ -509,6 +509,10 @@ export class Project implements vscode.Disposable {
     return this.junglePromise.then(() => this.currentAnalysis);
   }
 
+  getResources(): Promise<JungleResourceMap | null> {
+    return this.getAnalysis().then(() => this.resources || null);
+  }
+
   isWatching(file: string): boolean {
     return (this.currentAnalysis &&
       hasProperty(this.currentAnalysis.fnMap, file) &&
