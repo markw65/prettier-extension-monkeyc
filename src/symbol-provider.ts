@@ -27,7 +27,7 @@ export class MonkeyCSymbolProvider
 {
   provideDocumentSymbols(
     document: vscode.TextDocument,
-    token: vscode.CancellationToken
+    _token: vscode.CancellationToken
   ): vscode.ProviderResult<
     vscode.SymbolInformation[] | vscode.DocumentSymbol[]
   > {
@@ -213,7 +213,7 @@ export class MonkeyCSymbolProvider
     const search = new RegExp(
       query
         .split("")
-        .map((s) => s.replace(/[-\/\\^$*+?.()|[\]{}]/, "\\$&"))
+        .map((s) => s.replace(/[-/\\^$*+?.()|[\]{}]/, "\\$&"))
         .join(".*"),
       "i"
     );

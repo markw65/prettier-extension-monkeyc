@@ -40,7 +40,7 @@ export class Project implements vscode.Disposable {
   private jungleResult: ResolvedJungle | null = null;
   private currentTimer: NodeJS.Timeout | null = null;
   private currentUpdates: Record<string, string | null | false> | null = null;
-  private firstUpdateInBatch: number = 0;
+  private firstUpdateInBatch = 0;
   private disposables: vscode.Disposable[] = [];
   private extraWatchers: vscode.Disposable[] = [];
   private diagnosticCollection = vscode.languages.createDiagnosticCollection();
@@ -108,8 +108,6 @@ export class Project implements vscode.Disposable {
     private workspaceFolder: vscode.WorkspaceFolder,
     private options: BuildConfig
   ) {
-    const workspace = normalize(this.workspaceFolder.uri.fsPath);
-
     const watcher = vscode.workspace.createFileSystemWatcher(
       new vscode.RelativePattern(connectiq, "current-sdk.cfg")
     );
@@ -129,7 +127,7 @@ export class Project implements vscode.Disposable {
         }
       }),
       watcher,
-      watcher.onDidChange((e) => {
+      watcher.onDidChange(() => {
         this.reloadJungles(this.currentAnalysis, this.resources);
       })
     );
@@ -268,7 +266,7 @@ export class Project implements vscode.Disposable {
               }
               return result;
             }, [] as string[])
-            .forEach((dir, i, arr) => {
+            .forEach((dir) => {
               const watcher = vscode.workspace.createFileSystemWatcher(
                 new vscode.RelativePattern(dir, "**/*")
               );
@@ -311,7 +309,7 @@ export class Project implements vscode.Disposable {
 
   public onFilesUpdate(files: Array<UpdateElem>) {
     if (!this.buildRuleDependencies) return;
-    let analysis: PreAnalysis | null = this.currentAnalysis;
+    const analysis: PreAnalysis | null = this.currentAnalysis;
     files.forEach(({ file, content }) => {
       if (hasProperty(this.resources, file)) {
         if (content) {
@@ -422,10 +420,12 @@ export class Project implements vscode.Disposable {
           try {
             resources[file] = xmlUtil.parseXml(content, file);
           } catch (e) {
-            if (!(e instanceof Error)) {
-              e = new Error("Unknown error parsing resource file");
-            }
-            resources[file] = e as Error;
+            const err =
+              e instanceof Error
+                ? e
+                : new Error("Unknown error parsing resource file");
+
+            resources[file] = err;
           }
         }
 
@@ -449,7 +449,7 @@ export class Project implements vscode.Disposable {
               delete analysis.fnMap[file];
               restart = true;
             } else {
-              const { ast, monkeyCSource, ...rest } = fileInfo;
+              const { ast: _a, monkeyCSource: _m, ...rest } = fileInfo;
               analysis.fnMap[file] = rest;
               if (content != null) {
                 analysis.fnMap[file].monkeyCSource = content;
@@ -550,7 +550,7 @@ export function findItemsByRange(
   ast: mctree.Program,
   range: vscode.Range
 ) {
-  let result: {
+  const result: {
     node: mctree.Node;
     stack: ProgramStateStack;
     isType: boolean;

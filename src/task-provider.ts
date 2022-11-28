@@ -1,10 +1,10 @@
 import * as vscode from "vscode";
 import { CustomBuildTaskTerminal } from "./custom-build";
-import { findProject, getOptimizerBaseConfig } from "./project-manager";
+import { getOptimizerBaseConfig } from "./project-manager";
 import { diagnosticCollection } from "./extension";
 
 export class OptimizedMonkeyCBuildTaskProvider implements vscode.TaskProvider {
-  static type: string = "omonkeyc";
+  static type = "omonkeyc";
   // Interface function that determines if the given task is valid
   provideTasks(): vscode.Task[] {
     return [];

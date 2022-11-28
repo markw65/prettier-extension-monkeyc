@@ -39,7 +39,9 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     this.devicePromise.then((device) => this.doBuild(device));
   }
 
-  close() {}
+  close() {
+    /* nothing to do */
+  }
 
   getBuildFunction(
     logger: (line: string) => void
@@ -78,7 +80,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     this.options.device = device;
     const diagnostics: Record<string, vscode.Diagnostic[]> = {};
     this.diagnosticCollection.clear();
-    const logger = (line: string, skip_diagnostics: boolean = false) => {
+    const logger = (line: string, skip_diagnostics = false) => {
       let match,
         type,
         file = "unknown",
@@ -172,7 +174,9 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
                       } data: ${info[SectionKinds.DATA]} <\r\n`
                     );
                   })
-                  .catch(() => {})
+                  .catch(() => {
+                    /* empty */
+                  })
               : Promise.resolve()
           )
           .then(() => 0)

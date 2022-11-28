@@ -10,7 +10,7 @@ import { findProject, normalize } from "./project-manager";
 export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
   provideDocumentLinks(
     document: vscode.TextDocument,
-    token: vscode.CancellationToken
+    _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.DocumentLink[]> {
     const config = vscode.workspace.getConfiguration(
       "prettierMonkeyC",

@@ -57,7 +57,7 @@ export class OptimizedMonkeyCDebugConfigProvider
       await Promise.all([
         vscode.tasks.executeTask(task),
         new Promise<void>((resolve, reject) => {
-          let disposable = vscode.tasks.onDidEndTaskProcess((e) => {
+          const disposable = vscode.tasks.onDidEndTaskProcess((e) => {
             if (e.execution.task.definition === definition) {
               disposable.dispose();
               if (e.exitCode == 0) {

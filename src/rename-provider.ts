@@ -137,8 +137,8 @@ export class MonkeyCRenameRefProvider
   provideReferences(
     document: vscode.TextDocument,
     position: vscode.Position,
-    context: vscode.ReferenceContext,
-    token: vscode.CancellationToken
+    _context: vscode.ReferenceContext,
+    _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Location[]> {
     return findDefinition(document, position).then(
       ({ node, name: ref_name, results, analysis }) => {
