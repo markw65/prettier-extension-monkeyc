@@ -24,8 +24,13 @@
     "typescript.tsdk": "./node_modules/typescript/lib",
     "editor.formatOnSave": true,
     "task.allowAutomaticTasks": "on",
-    "files.associations": {
-      "*.pegjs": "pegjs"
-    }
+    "debug.javascript.terminalOptions": {
+      "sourceMapPathOverrides": {
+        "webpack://./build/*": "${workspaceFolder}/build/*",
+        "webpack://./src/*": "${workspaceFolder}/src/*"
+      }
+    },
+    "peggyLanguageServer.markInfo": false,
+    "prettier.documentSelectors": ["*.peggy"]
   }
 }
