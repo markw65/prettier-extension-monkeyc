@@ -276,11 +276,11 @@ export class Project implements vscode.Disposable {
     if (!this.jungleResult) {
       throw new Error("Missing jungleResult");
     }
-    const { targets, resources, buildDependencies /*xml, annotations */ } =
+    const { targets, resources, buildDependencies, xml /*, annotations */ } =
       this.jungleResult;
     this.buildRuleDependencies = buildDependencies;
     this.resources = resources;
-    return getProjectAnalysis(targets, oldAnalysis, this.options)
+    return getProjectAnalysis(targets, oldAnalysis, xml, this.options)
       .then((analysis) => {
         this.currentAnalysis = analysis;
         this.diagnosticCollection.clear();
@@ -581,9 +581,10 @@ export function initializeProjectManager(): vscode.Disposable[] {
   ];
 }
 
-export function findItemsByRange(
+function findItemsByRange(
   state: ProgramStateAnalysis,
   ast: mctree.Program,
+  filename: string,
   range: vscode.Range
 ) {
   const result: {
@@ -593,6 +594,9 @@ export function findItemsByRange(
   }[] = [];
   state.pre = (node: mctree.Node) => {
     if (!node.loc || node === ast) return null;
+    if (node.loc.source && node.loc.source !== filename) {
+      return [];
+    }
     // skip over nodes that end before the range begins
     if (
       node.loc.end.line <= range.start.line ||
@@ -637,16 +641,19 @@ export function findDefinition(
       return Promise.reject("Project contains errors");
     }
     const fileName = normalize(document.uri.fsPath);
-    const file = analysis.fnMap[fileName];
-    if (!file) {
+    const ast = hasProperty(analysis.fnMap, fileName)
+      ? analysis.fnMap[fileName]?.ast
+      : (hasProperty(project.resources, fileName) ||
+          fileName === analysis.state?.manifestXML?.prolog?.loc?.source) &&
+        analysis.state.rezAst;
+    if (!ast) {
       return Promise.reject(
-        hasProperty(project.resources, fileName) ||
-          hasProperty(project.buildRuleDependencies, fileName)
+        hasProperty(project.buildRuleDependencies, fileName)
           ? "Symbols can only be looked up in the project's monkeyc files"
           : "Document ${document.uri.fsPath} not found in project"
       );
     }
-    const items = findItemsByRange(analysis.state, file.ast, range);
+    const items = findItemsByRange(analysis.state, ast, fileName, range);
     let expr = null;
     for (let i = items.length; i--; ) {
       const item = items[i];
