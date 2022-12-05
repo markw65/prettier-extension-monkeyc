@@ -48,7 +48,7 @@ suite("Extension Test Suite", function () {
 
   let symbols;
   const getSymbols = async (source) => {
-    for (let i = 0; !symbols && i < 3; i++) {
+    for (let i = 0; !symbols && i < 10; i++) {
       symbols = await vscode.workspace
         .openTextDocument(source)
         .then((doc) => vscode.window.showTextDocument(doc))
