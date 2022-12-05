@@ -15,12 +15,8 @@ export class MonkeyCRenameRefProvider
     position: vscode.Position
   ) {
     return findDefinition(document, position).then(
-      ({ node, name, results, analysis }) => {
-        if (
-          name &&
-          results &&
-          (node.type === "Identifier" || node.type === "MemberExpression")
-        ) {
+      ({ node, results, analysis }) => {
+        if (node && results) {
           if (
             !results.every(({ parent, results }) => {
               if (
@@ -49,23 +45,20 @@ export class MonkeyCRenameRefProvider
                 ((!parent ||
                   parent.type === "ModuleDeclaration" ||
                   parent.type === "Program") &&
-                  !hasProperty(analysis.state.exposed, name))
+                  !hasProperty(analysis.state.exposed, node.name))
               );
             })
           ) {
-            return Promise.reject(`Unable to rename ${name}`);
+            return Promise.reject(`Unable to rename ${node.name}`);
           }
-          const id = node.type === "Identifier" ? node : node.property;
-          if (id.type === "Identifier") {
-            if (id.name === "$") {
-              return Promise.reject(`Can't rename the global module`);
-            }
-            return {
-              id,
-              results,
-              analysis,
-            };
+          if (node.name === "$") {
+            return Promise.reject(`Can't rename the global module`);
           }
+          return {
+            id: node,
+            results,
+            analysis,
+          };
         }
         return Promise.reject("No renamable symbol found");
       }
@@ -142,12 +135,8 @@ export class MonkeyCRenameRefProvider
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Location[]> {
     return findDefinition(document, position).then(
-      ({ node, name: ref_name, results, analysis }) => {
-        if (
-          ref_name &&
-          results &&
-          (node.type === "Identifier" || node.type === "MemberExpression")
-        ) {
+      ({ node, results, analysis }) => {
+        if (node && results) {
           const references: vscode.Location[] = [];
           const asts = results.every(
             ({ parent }) =>
@@ -160,7 +149,7 @@ export class MonkeyCRenameRefProvider
                 .map(({ ast }) => ast)
                 .concat(analysis.state.rezAst ? [analysis.state.rezAst] : []);
           asts.forEach((ast) => {
-            visitReferences(analysis.state, ast, ref_name, results, (node) => {
+            visitReferences(analysis.state, ast, node.name, results, (node) => {
               const n = visitorNode(node);
               const loc = n.loc!;
               references.push(

@@ -6,16 +6,17 @@ import {
   JungleBuildDependencies,
   JungleError,
   JungleResourceMap,
+  LookupDefinition,
   manifestProducts,
   PreAnalysis,
   ProgramState,
   ProgramStateAnalysis,
-  ProgramStateStack,
   ResolvedJungle,
 } from "@markw65/monkeyc-optimizer";
 import {
-  collectNamespaces,
   hasProperty,
+  visitorNode,
+  visitReferences,
 } from "@markw65/monkeyc-optimizer/api.js";
 import {
   connectiq,
@@ -589,40 +590,44 @@ function findItemsByRange(
 ) {
   const result: {
     node: mctree.Node;
-    stack: ProgramStateStack;
-    isType: boolean;
+    results: LookupDefinition[];
   }[] = [];
-  state.pre = (node: mctree.Node) => {
-    if (!node.loc || node === ast) return null;
-    if (node.loc.source && node.loc.source !== filename) {
-      return [];
+  visitReferences(
+    state,
+    ast,
+    null,
+    false,
+    (node, results, error) => {
+      if (node.loc && !error && results.length) {
+        result.push({
+          node,
+          results,
+        });
+      }
+      return undefined;
+    },
+    true,
+    (node) => {
+      if (!node.loc || node === ast) return true;
+      if (node.loc.source && node.loc.source !== filename) {
+        return false;
+      }
+      // skip over nodes that end before the range begins
+      if (
+        node.loc.end.line <= range.start.line ||
+        (node.loc.end.line == range.start.line + 1 &&
+          node.loc.end.column <= range.start.character)
+      ) {
+        return false;
+      }
+      return (
+        node.loc.start.line <= range.start.line ||
+        (node.loc.start.line == range.start.line + 1 &&
+          node.loc.start.column <= range.start.character + 1)
+      );
     }
-    // skip over nodes that end before the range begins
-    if (
-      node.loc.end.line <= range.start.line ||
-      (node.loc.end.line == range.start.line + 1 &&
-        node.loc.end.column <= range.start.character)
-    ) {
-      return [];
-    }
-    if (
-      node.loc.start.line <= range.start.line ||
-      (node.loc.start.line == range.start.line + 1 &&
-        node.loc.start.column <= range.start.character + 1)
-    ) {
-      result.push({
-        node,
-        stack: state.stackClone(),
-        isType: state.inType != 0,
-      });
-    } else {
-      return [];
-    }
-    return null;
-  };
-  collectNamespaces(ast, state);
-  delete state.pre;
-  return result;
+  );
+  return result.length ? result[result.length - 1] : null;
 }
 
 export function findDefinition(
@@ -653,99 +658,19 @@ export function findDefinition(
           : "Document ${document.uri.fsPath} not found in project"
       );
     }
-    const items = findItemsByRange(analysis.state, ast, fileName, range);
-    let expr = null;
-    for (let i = items.length; i--; ) {
-      const item = items[i];
-      switch (item.node.type) {
-        case "Literal":
-          // enum's with no explict value get a generated literal
-          // node with the same range as the identifier, so just
-          // ignore literals.
-          expr = null;
-          continue;
-        case "CallExpression":
-          if (item.node.callee.type === "Identifier") {
-            const loc = item.node.callee.loc;
-            if (
-              loc &&
-              loc.start.line === range.start.line + 1 &&
-              loc.start.column === range.start.character + 1 &&
-              loc.end.line === range.end.line + 1 &&
-              loc.end.column === range.end.character + 1
-            ) {
-              expr = item;
-              break;
-            }
-          }
-          break;
-        case "Identifier":
-          expr = item;
-          continue;
-        case "ModuleDeclaration":
-        case "ClassDeclaration":
-        case "FunctionDeclaration":
-          if (expr && expr.node === item.node.id) {
-            // If the symbol whose definition we're looking for
-            // is the id of a module, class or function, then the
-            // module, class or function is its definition (!).
-            // But using/import could cause lookup to find a different
-            // definition. eg:
-            //
-            // 1.  using Toybox.Lang;
-            // 2.  module Lang {
-            // 3.    function foo() { return Lang.ENDIAN_BIG; }
-            // 4.  }
-            //
-            // without special handling, a lookup of Lang on line 2
-            // would find Toybox.Lang; but obviously we want it to find
-            // the user module defined on line 2. The Lang on line 3,
-            // however is *supposed* to find Toybox.Lang.
-            const results = [
-              {
-                parent: item.stack[item.stack.length - 2],
-                results: [item.stack[item.stack.length - 1]],
-              },
-            ];
-            return {
-              node: expr.node,
-              name: item.node.id.name,
-              results,
-              analysis,
-            };
-          }
-          break;
-        case "MemberExpression":
-          if (
-            item.node.property.loc?.end.line !== range.end.line + 1 ||
-            item.node.property.loc?.end.column !== range.end.character + 1 ||
-            (item.node.computed &&
-              (item.node.property.type !== "UnaryExpression" ||
-                item.node.property.operator !== ":"))
-          ) {
-            continue;
-          }
-          expr = item;
-          continue;
-      }
-      break;
-    }
-    if (!expr) {
+    const result = findItemsByRange(analysis.state, ast, fileName, range);
+    if (!result) {
       return Promise.reject("No symbol found");
     }
-    const [name, results] =
-      expr.node.type === "CallExpression"
-        ? analysis.state.lookupNonlocal(
-            (expr.node = expr.node.callee),
-            null,
-            expr.stack
-          )
-        : analysis.state[expr.isType ? "lookupType" : "lookupValue"](
-            expr.node,
-            null,
-            expr.stack
-          );
-    return { node: expr.node, name, results, analysis };
+    const node = visitorNode(result.node);
+    if (node.type !== "Identifier") {
+      return Promise.reject(`Unexpected node type '${node.type}'`);
+    }
+    return {
+      node,
+      results: result.results,
+      analysis,
+    };
   });
 }
 
