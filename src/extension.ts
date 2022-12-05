@@ -40,7 +40,11 @@ export async function activate(context: vscode.ExtensionContext) {
     try {
       await copyRecursiveAsNeeded(
         `${our_extension_dir}/node_modules/@markw65/prettier-plugin-monkeyc`,
-        target_dir
+        target_dir,
+        (src) => {
+          const base = path.basename(src);
+          return base !== "node_modules" && !base.startsWith(".");
+        }
       );
     } catch (e) {
       console.log(`Failed: ${e}`);
