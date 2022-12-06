@@ -31,6 +31,6 @@
       }
     },
     "peggyLanguageServer.markInfo": false,
-    "prettier.documentSelectors": ["*.peggy"]
+    "prettier.documentSelectors": ["*.peggy", "*.mc"]
   }
 }
