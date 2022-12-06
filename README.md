@@ -428,7 +428,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - If a file was changed, and then very quickly reverted, the revert wasn't always analyzed, potentially resulting in incorrect reports of syntax errors etc until the next change triggered a new analysis run.
   - Now that barrels are included in the analysis, they need to be watched for changes too.
 
-#### 2.0.33
+#### 2.0.34
 
 - Update to [@markw65/monkeyc-optimizer@1.0.41](https://github.com/markw65/monkeyc-optimizer#1041). Amongst other things:
 
@@ -440,5 +440,11 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Diagnostics relating to resource files are updated as you type, rather then when you save the resource file
 - Added options controlling compiler1 vs compiler2 behavior, and related diagnostics
 - Updates project analysis when the sdk version changes
+
+#### 2.0.35
+
+- Update to [@markw65/monkeyc-optimizer@1.0.42](https://github.com/markw65/monkeyc-optimizer#1042). Amongst other things:
+  - Much faster code analysis, resulting in snappier updates when editing .mc files
+  - Better resource file support, so that Refs and Defs work seamlessly across `monkeyc`, `resource` and `manifest` files
 
 ---
