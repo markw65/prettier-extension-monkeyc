@@ -89,6 +89,25 @@
             "default": "",
             "scope": "resource"
           },
+          "prettierMonkeyC.typeCheckLevel": {
+            "type": "string",
+            "description": "Unless set to 'Default', overrides the corresponding `monkeyC' setting.",
+            "default": "Off",
+            "enum": [
+              "Off",
+              "Default",
+              "Gradual",
+              "Informative",
+              "Strict"
+            ],
+            "enumDescriptions": [
+              "Disable type checking",
+              "Inherit the Garmin Extension's typeCheckLevel",
+              "Type match failures are marked as errors, but ambiguity is ignored",
+              "Type match failures are marked as errors, and ambiguity is marked as a warning",
+              "Type match failures and ambiguity are marked as errors"
+            ]
+          },
           "prettierMonkeyC.checkInvalidSymbols": {
             "type": "string",
             "description": "Whether to check for invalid symbols, and how to report them",

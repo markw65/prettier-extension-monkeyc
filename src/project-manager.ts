@@ -708,6 +708,21 @@ export function getOptimizerBaseConfig(
   const workspace = normalize(workspaceFolder.uri.fsPath);
   const config: Record<string, unknown> = { workspace };
   let prettier: Record<string, unknown> | null = null;
+
+  const mcConfig = vscode.workspace.getConfiguration(
+    "monkeyC",
+    workspaceFolder
+  );
+  for (const i of [
+    "jungleFiles",
+    "developerKeyPath",
+    "typeCheckLevel",
+    "compilerOptions",
+    "compilerWarnings",
+  ] as const) {
+    if (mcConfig[i]) config[i] = mcConfig[i];
+  }
+
   const pmcConfig = vscode.workspace.getConfiguration(
     "prettierMonkeyC",
     workspaceFolder
@@ -723,22 +738,13 @@ export function getOptimizerBaseConfig(
     "enforceStatic",
     "compilerLookupRules",
     "checkCompilerLookupRules",
-  ]) {
-    if (pmcConfig[i]) config[i] = pmcConfig[i];
-  }
-
-  const mcConfig = vscode.workspace.getConfiguration(
-    "monkeyC",
-    workspaceFolder
-  );
-  for (const i of [
-    "jungleFiles",
-    "developerKeyPath",
     "typeCheckLevel",
-    "compilerOptions",
-    "compilerWarnings",
-  ] as const) {
-    if (mcConfig[i]) config[i] = mcConfig[i];
+  ]) {
+    if (pmcConfig[i]) {
+      if (i !== "typeCheckLevel" || pmcConfig[i] !== "Default") {
+        config[i] = pmcConfig[i];
+      }
+    }
   }
 
   const prettierConfig = vscode.workspace.getConfiguration(

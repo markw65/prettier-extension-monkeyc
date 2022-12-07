@@ -15,9 +15,6 @@ export class OptimizedMonkeyCBuildTaskProvider implements vscode.TaskProvider {
     }
     const options = {
       ...getOptimizerBaseConfig(task.scope),
-      // For now disable typechecking unless explicitly enabled
-      // in the task definition
-      typeCheckLevel: "Off",
       ...task.definition,
       workspace: task.scope.uri.fsPath,
     };
