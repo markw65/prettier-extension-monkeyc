@@ -739,8 +739,9 @@ export function getOptimizerBaseConfig(
     "compilerLookupRules",
     "checkCompilerLookupRules",
     "typeCheckLevel",
+    "useLocalOptimizer",
   ]) {
-    if (pmcConfig[i]) {
+    if (pmcConfig[i] !== undefined) {
       if (i !== "typeCheckLevel" || pmcConfig[i] !== "Default") {
         config[i] = pmcConfig[i];
       }

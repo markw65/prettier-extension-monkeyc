@@ -46,6 +46,9 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
   getBuildFunction(
     logger: (line: string) => void
   ): Promise<typeof buildOptimizedProject> {
+    if (this.options.useLocalOptimizer === false) {
+      return Promise.resolve(buildOptimizedProject);
+    }
     const optimizerPath = path.resolve(
       this.options.workspace!,
       "node_modules",

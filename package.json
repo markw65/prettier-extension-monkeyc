@@ -176,6 +176,12 @@
               "Generate ERROR level diagnostics"
             ],
             "default": "WARNING"
+          },
+          "prettierMonkeyC.useLocalOptimizer": {
+            "type": "boolean",
+            "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds",
+            "default": true,
+            "scope": "resource"
           }
         }
       },
@@ -330,6 +336,12 @@
               "Generate ERROR level diagnostics"
             ],
             "default": "WARNING"
+          },
+          "useLocalOptimizer": {
+            "type": "boolean",
+            "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds",
+            "default": true,
+            "scope": "resource"
           }
         }
       }
@@ -476,6 +488,12 @@
                   "Generate ERROR level diagnostics"
                 ],
                 "default": "WARNING"
+              },
+              "useLocalOptimizer": {
+                "type": "boolean",
+                "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds",
+                "default": true,
+                "scope": "resource"
               }
             }
           }
