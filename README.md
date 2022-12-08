@@ -447,4 +447,15 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Much faster code analysis, resulting in snappier updates when editing .mc files
   - Better resource file support, so that Refs and Defs work seamlessly across `monkeyc`, `resource` and `manifest` files
 
+#### 2.0.36
+
+- Update to [@markw65/monkeyc-optimizer@1.0.43](https://github.com/markw65/monkeyc-optimizer#1043). Amongst other things:
+
+  - Fixes a couple of windows issues, introduced in 2.0.35
+  - Fixes some issues jumping between refs and defs
+  - Propagates `:typecheck(false)` when inlining
+
+- Adds new setting `prettierMonkeyC.useLocalOptimizer` which can be used to prevent a locally installed copy of @markw65/monkeyc-optimizer from being used (this could be useful if you wanted an export task that uses a pinned version of the optimizer, for reproducibility, while all other build tasks used the latest version of the optimizer)
+- Adds new setting `prettierMonkeyC.typeCheckLevel` which can be used to set the level to use for optimized code independently of `monkeyC.typeCheckLevel`
+
 ---
