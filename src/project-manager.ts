@@ -586,7 +586,7 @@ function findItemsByRange(
   state: ProgramStateAnalysis,
   ast: mctree.Program,
   filename: string,
-  range: vscode.Range
+  position: vscode.Position
 ) {
   const result: {
     node: mctree.Node;
@@ -614,16 +614,16 @@ function findItemsByRange(
       }
       // skip over nodes that end before the range begins
       if (
-        node.loc.end.line <= range.start.line ||
-        (node.loc.end.line == range.start.line + 1 &&
-          node.loc.end.column <= range.start.character)
+        node.loc.end.line <= position.line ||
+        (node.loc.end.line == position.line + 1 &&
+          node.loc.end.column <= position.character)
       ) {
         return false;
       }
       return (
-        node.loc.start.line <= range.start.line ||
-        (node.loc.start.line == range.start.line + 1 &&
-          node.loc.start.column <= range.start.character + 1)
+        node.loc.start.line <= position.line ||
+        (node.loc.start.line == position.line + 1 &&
+          node.loc.start.column <= position.character + 1)
       );
     }
   );
@@ -636,8 +636,6 @@ export function findDefinition(
 ) {
   const project = findProject(document.uri);
   if (!project) return Promise.reject("No project found");
-  const range = document.getWordRangeAtPosition(position);
-  if (!range) return Promise.reject("No symbol found");
   return project.getAnalysis().then((analysis) => {
     if (!analysis) {
       return Promise.reject("Project analysis not found");
@@ -658,7 +656,7 @@ export function findDefinition(
           : "Document ${document.uri.fsPath} not found in project"
       );
     }
-    const result = findItemsByRange(analysis.state, ast, fileName, range);
+    const result = findItemsByRange(analysis.state, ast, fileName, position);
     if (!result) {
       return Promise.reject("No symbol found");
     }
