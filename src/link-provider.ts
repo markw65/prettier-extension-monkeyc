@@ -2,6 +2,7 @@ import {
   isStateNode,
   visitReferences,
   visitorNode,
+  hasProperty,
 } from "@markw65/monkeyc-optimizer/api.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import * as vscode from "vscode";
@@ -28,10 +29,17 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
       if (!("state" in analysis)) {
         return Promise.reject("Project contains errors");
       }
-      const file = analysis.fnMap[normalize(document.uri.fsPath)];
-      if (!file) {
+
+      const fileName = normalize(document.uri.fsPath);
+      const ast = hasProperty(analysis.fnMap, fileName)
+        ? analysis.fnMap[fileName]?.ast
+        : (hasProperty(project.resources, fileName) ||
+            fileName === analysis.state?.manifestXML?.prolog?.loc?.source) &&
+          analysis.state.rezAst;
+      if (!ast) {
         return Promise.resolve([]);
       }
+
       const links: vscode.DocumentLink[] = [];
       const push = (node: mctree.Node, link: string) => {
         const loc = visitorNode(node).loc;
@@ -50,7 +58,7 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
       };
       visitReferences(
         analysis.state,
-        file.ast,
+        ast,
         null,
         null,
         (node, lookupDefns) => {
@@ -126,7 +134,10 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
           }
           return undefined;
         },
-        true
+        true,
+        (node) => {
+          return !node.loc || !node.loc.source || node.loc.source === fileName;
+        }
       );
       return links;
     });
