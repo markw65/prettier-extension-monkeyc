@@ -15,6 +15,7 @@ import {
 } from "@markw65/monkeyc-optimizer";
 import {
   hasProperty,
+  isStateNode,
   visitorNode,
   visitReferences,
 } from "@markw65/monkeyc-optimizer/api.js";
@@ -627,7 +628,17 @@ function findItemsByRange(
       );
     }
   );
-  return result.length ? result[result.length - 1] : null;
+  while (true) {
+    const res = result.pop();
+    if (!res) return null;
+    if (
+      res.results.some((r) =>
+        r.results.some((sn) => (isStateNode(sn) ? sn.node : sn)?.loc)
+      )
+    ) {
+      return res;
+    }
+  }
 }
 
 export function findDefinition(
