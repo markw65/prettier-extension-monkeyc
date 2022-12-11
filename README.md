@@ -458,4 +458,11 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Adds new setting `prettierMonkeyC.useLocalOptimizer` which can be used to prevent a locally installed copy of @markw65/monkeyc-optimizer from being used (this could be useful if you wanted an export task that uses a pinned version of the optimizer, for reproducibility, while all other build tasks used the latest version of the optimizer)
 - Adds new setting `prettierMonkeyC.typeCheckLevel` which can be used to set the level to use for optimized code independently of `monkeyC.typeCheckLevel`
 
+#### 2.0.37
+
+- Update to [@markw65/monkeyc-optimizer@1.0.44](https://github.com/markw65/monkeyc-optimizer#1044). Amongst other things:
+  - More comprehensive constant folding [#6](https://github.com/markw65/prettier-extension-monkeyc/issues/6)
+  - More comprehensive parsing of code embedded in resource files
+  - Fixes a couple of minor parser issues
+
 ---
