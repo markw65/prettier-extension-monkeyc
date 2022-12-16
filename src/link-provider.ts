@@ -109,19 +109,7 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
               break;
 
             case "EnumDeclaration":
-              if (
-                result.id &&
-                result.body.members[0].type === "EnumStringMember" &&
-                result.body.members[0].init?.enumType
-              ) {
-                push(
-                  node,
-                  make_link(
-                    "$." + result.body.members[0].init?.enumType,
-                    "module"
-                  )
-                );
-              }
+              push(node, make_link(result.fullName, "module"));
               break;
 
             case "TypedefDeclaration":
