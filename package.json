@@ -126,10 +126,25 @@
             "default": "WARNING",
             "scope": "resource"
           },
-          "prettierMonkeyC.sizeBasedPRE": {
+          "prettierMonkeyC.trustDeclaredTypes": {
+            "order": 10,
             "type": "boolean",
-            "description": "Whether to enable the size based partial redundancy pass",
-            "default": false,
+            "markdownDescription": "[Whether to rely on type declarations when optimizing](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#trust-declared-types)",
+            "default": true,
+            "scope": "resource"
+          },
+          "prettierMonkeyC.propagateTypes": {
+            "order": 11,
+            "type": "boolean",
+            "markdownDescription": "[Whether to propagate type information, or process it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)",
+            "default": true,
+            "scope": "resource"
+          },
+          "prettierMonkeyC.sizeBasedPRE": {
+            "order": 11,
+            "type": "boolean",
+            "markdownDescription": "[Whether to enable the size based partial redundancy pass](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre)",
+            "default": true,
             "scope": "resource"
           },
           "prettierMonkeyC.enforceStatic": {
@@ -288,9 +303,15 @@
           },
           "sizeBasedPRE": {
             "type": "boolean",
-            "description": "If present, overrides the corresponding `prettierMonkeyC' setting.",
-            "default": false,
-            "scope": "resource"
+            "markdownDescription": "[Whether to enable the size based partial redundancy pass](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre)"
+          },
+          "trustDeclaredTypes": {
+            "type": "boolean",
+            "markdownDescription": "[Whether to rely on type declarations when optimizing](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#trust-declared-types)"
+          },
+          "propagateTypes": {
+            "type": "boolean",
+            "markdownDescription": "[Whether to propagate type information, or just perform it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)"
           },
           "enforceStatic": {
             "type": "string",
@@ -442,7 +463,15 @@
               },
               "sizeBasedPRE": {
                 "type": "boolean",
-                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+                "markdownDescription": "[Whether to enable the size based partial redundancy pass](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre)"
+              },
+              "trustDeclaredTypes": {
+                "type": "boolean",
+                "markdownDescription": "[Whether to rely on type declarations when optimizing](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#trust-declared-types)"
+              },
+              "propagateTypes": {
+                "type": "boolean",
+                "markdownDescription": "[Whether to propagate type information, or just perform it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)"
               },
               "enforceStatic": {
                 "type": "string",
