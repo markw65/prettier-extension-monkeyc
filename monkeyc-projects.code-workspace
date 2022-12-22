@@ -26,8 +26,7 @@
     "task.allowAutomaticTasks": "on",
     "debug.javascript.terminalOptions": {
       "sourceMapPathOverrides": {
-        "webpack://./build/*": "${workspaceFolder}/build/*",
-        "webpack://./src/*": "${workspaceFolder}/src/*"
+        "webpack://./*": "${workspaceFolder}/*"
       }
     },
     "peggyLanguageServer.markInfo": false,
