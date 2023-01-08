@@ -469,4 +469,13 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 - Update to [@markw65/monkeyc-optimizer@1.0.45](https://github.com/markw65/monkeyc-optimizer#1045).
 
+#### 2.0.39
+
+- Update to [@markw65/monkeyc-optimizer@1.1.0](https://github.com/markw65/monkeyc-optimizer#110).
+  - The optimizer has been mostly rewritten based on a type analysis and propagation pass
+  - There are new settings to control the optimizer:
+    - `trustDeclaredTypes` - default `true`. Whether to use monkeyc type annotations when deciding what can be optimized.
+    - `propagateTypes` - default `true`. Gives the optimizer more type information, enabling more optimizations. Only disable this if it causes any issues with your code (and then please report the issues!).
+    - `checkTypes` - sets the severity of any diagnostics reported by the type checker. Currently there are very few type-related diagnostics.
+
 ---
