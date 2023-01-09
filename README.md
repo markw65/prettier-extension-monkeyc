@@ -478,4 +478,9 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
     - `propagateTypes` - default `true`. Gives the optimizer more type information, enabling more optimizations. Only disable this if it causes any issues with your code (and then please report the issues!).
     - `checkTypes` - sets the severity of any diagnostics reported by the type checker. Currently there are very few type-related diagnostics.
 
+#### 2.0.40
+
+- Update to [@markw65/monkeyc-optimizer@1.1.2](https://github.com/markw65/monkeyc-optimizer#112).
+  - Mostly fixes for edge cases where the new optimizer did worse than the old.
+
 ---
