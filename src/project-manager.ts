@@ -47,7 +47,8 @@ export class Project implements vscode.Disposable {
   private firstUpdateInBatch = 0;
   private disposables: vscode.Disposable[] = [];
   private extraWatchers: vscode.Disposable[] = [];
-  private diagnosticCollection = vscode.languages.createDiagnosticCollection();
+  private diagnosticCollection =
+    vscode.languages.createDiagnosticCollection("analysis");
   private lastDevice: string | null = null;
 
   static create(workspaceFolder: vscode.WorkspaceFolder) {
@@ -168,13 +169,13 @@ export class Project implements vscode.Disposable {
     } else {
       range = new vscode.Range(0, 0, 0, 0);
     }
-    const diagnostics = [
-      new vscode.Diagnostic(
-        range,
-        error.message,
-        vscode.DiagnosticSeverity.Error
-      ),
-    ];
+    const diagnostic = new vscode.Diagnostic(
+      range,
+      error.message,
+      vscode.DiagnosticSeverity.Error
+    );
+    diagnostic.source = "[pmc-analysis]";
+    const diagnostics = [diagnostic];
 
     this.diagnosticCollection.set(vscode.Uri.file(filepath), diagnostics);
   }
@@ -297,7 +298,8 @@ export class Project implements vscode.Disposable {
           processDiagnostics(
             analysis.state.diagnostics,
             {},
-            this.diagnosticCollection
+            this.diagnosticCollection,
+            "analysis"
           );
           return;
         }
@@ -791,6 +793,7 @@ export function processDiagnostics(
   optimizerDiags: ProgramState["diagnostics"],
   diagnostics: Record<string, vscode.Diagnostic[]>,
   diagnosticCollection: vscode.DiagnosticCollection,
+  tag: string,
   callback?: (
     diagnostic: NonNullable<ProgramState["diagnostics"]>[string][number],
     rel: string
@@ -798,30 +801,47 @@ export function processDiagnostics(
   workspace?: string
 ) {
   if (!optimizerDiags) return;
+  const rangeFromLoc = (loc: mctree.SourceLocation) =>
+    new vscode.Range(
+      loc.start.line - 1,
+      loc.start.column - 1,
+      loc.end.line - 1,
+      loc.end.column - 1
+    );
   Object.entries(optimizerDiags).forEach(([file, diags]) => {
     const rel = workspace ? path.relative(workspace, file) : file;
     diags.forEach((diag) => {
-      const range = new vscode.Range(
-        diag.loc.start.line - 1,
-        diag.loc.start.column - 1,
-        diag.loc.end.line - 1,
-        diag.loc.end.column - 1
-      );
+      const range = rangeFromLoc(diag.loc);
       const diagnostic = new vscode.Diagnostic(
         range,
-        diag.message,
+        `${diag.message}`,
         diag.type === "ERROR"
           ? vscode.DiagnosticSeverity.Error
           : diag.type === "WARNING"
           ? vscode.DiagnosticSeverity.Warning
           : vscode.DiagnosticSeverity.Information
       );
+      diagnostic.source = `[pmc-${tag}]`;
+      if (diag.related) {
+        diagnostic.relatedInformation = [];
+        diag.related.forEach((rel) =>
+          diagnostic.relatedInformation?.push(
+            new vscode.DiagnosticRelatedInformation(
+              new vscode.Location(
+                vscode.Uri.file(rel.loc.source),
+                rangeFromLoc(rel.loc)
+              ),
+              rel.message
+            )
+          )
+        );
+      }
 
       if (!hasProperty(diagnostics, rel)) {
         diagnostics[rel] = [];
       }
       diagnostics[rel].push(diagnostic);
-      callback && callback(diag, rel);
+      callback && callback(diag, file);
     });
     const uri = vscode.Uri.file(file);
     diagnosticCollection.set(uri, diagnostics[rel]);

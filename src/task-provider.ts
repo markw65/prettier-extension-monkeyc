@@ -23,17 +23,16 @@ export class OptimizedMonkeyCBuildTaskProvider implements vscode.TaskProvider {
       task.scope,
       task.definition.device,
       OptimizedMonkeyCBuildTaskProvider.type,
-      new vscode.CustomExecution(() => {
+      new vscode.CustomExecution((taskDefinition: vscode.TaskDefinition) => {
         // When the task is executed, this callback will run. Here, we setup for running the task.
         return Promise.resolve(
           new CustomBuildTaskTerminal(
-            task.definition.device,
+            taskDefinition.device,
             options,
             diagnosticCollection!
           )
         );
-      }) /*,
-      ["$monkeyc.error", "$monkeyc.fileWarning", "$monkeyc.genericWarning"]*/
+      })
     );
   }
 

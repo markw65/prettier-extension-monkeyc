@@ -90,7 +90,8 @@ export async function activate(context: vscode.ExtensionContext) {
     { scheme: "file", language: "manifest" },
   ];
   context.subscriptions.push(
-    (diagnosticCollection = vscode.languages.createDiagnosticCollection()),
+    (diagnosticCollection =
+      vscode.languages.createDiagnosticCollection("build")),
     vscode.commands.registerCommand(
       "prettiermonkeyc.generateOptimizedProject",
       () => builderTask("generate", { returnCommand: true })

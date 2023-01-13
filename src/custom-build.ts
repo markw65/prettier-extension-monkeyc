@@ -4,7 +4,7 @@ import {
   BuildConfig,
 } from "@markw65/monkeyc-optimizer";
 import { hasProperty } from "@markw65/monkeyc-optimizer/api.js";
-import { spawnByLine } from "@markw65/monkeyc-optimizer/util.js";
+import { forEach, spawnByLine } from "@markw65/monkeyc-optimizer/util.js";
 import { readPrg, SectionKinds } from "@markw65/monkeyc-optimizer/sdk-util.js";
 
 import * as path from "path";
@@ -92,7 +92,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         message = "Unknown error";
       if (
         (match = line.match(
-          /^(ERROR|WARNING|INFO):\s+\w+:\s+(.*):(\d+)(?:,(\d+))?:\s+(.*)$/
+          /^(ERROR|WARNING|INFO)[:>]\s+\w+:\s+(.*):(\d+)(?:,(\d+))?:\s+(.*)$/
         ))
       ) {
         type = match[1];
@@ -149,11 +149,19 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
           optimizerDiags,
           diagnostics,
           this.diagnosticCollection,
-          (diag, rel) =>
+          "build",
+          (diag, rel) => {
             logger(
-              `${diag.type}: ${device}: ${rel}:${diag.loc.start.line},${diag.loc.start.column}: ${diag.message}`,
+              `${diag.type}> ${device}: ${rel}:${diag.loc.start.line}:${diag.loc.start.column}: ${diag.message}`,
               true
-            ),
+            );
+            forEach(diag.related, (related) => {
+              logger(
+                `    ${related.message} in ${related.loc.source}:${related.loc.start.line}:${related.loc.start.column}`,
+                true
+              );
+            });
+          },
           this.options.workspace
         );
         if (returnCommand) {
