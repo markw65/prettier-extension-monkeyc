@@ -152,7 +152,11 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
           "build",
           (diag, rel) => {
             logger(
-              `${diag.type}> ${device}: ${rel}:${diag.loc.start.line}:${diag.loc.start.column}: ${diag.message}`,
+              `${diag.type}> ${device}: ${rel}:${diag.loc.start.line}:${
+                diag.loc.start.column
+              }: ${diag.message}${
+                diag.extra ? ` [${diag.extra.message}: ${diag.extra.uri}]` : ""
+              }`,
               true
             );
             forEach(diag.related, (related) => {

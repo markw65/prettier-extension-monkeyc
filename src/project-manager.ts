@@ -822,6 +822,12 @@ export function processDiagnostics(
           : vscode.DiagnosticSeverity.Information
       );
       diagnostic.source = `[pmc-${tag}]`;
+      if (diag.extra) {
+        diagnostic.code = {
+          target: vscode.Uri.parse(diag.extra.uri),
+          value: diag.extra.message,
+        };
+      }
       if (diag.related) {
         diagnostic.relatedInformation = [];
         diag.related.forEach((rel) =>
