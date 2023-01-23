@@ -19,6 +19,7 @@ import {
   visitorNode,
   visitReferences,
 } from "@markw65/monkeyc-optimizer/api.js";
+import { TypeMap } from "@markw65/monkeyc-optimizer/build/src/type-flow/interp";
 import {
   connectiq,
   getDeviceInfo,
@@ -589,7 +590,8 @@ function findItemsByRange(
   state: ProgramStateAnalysis,
   ast: mctree.Program,
   filename: string,
-  position: vscode.Position
+  position: vscode.Position,
+  typeMap: TypeMap | null | undefined
 ) {
   const result: {
     node: mctree.Node;
@@ -628,7 +630,8 @@ function findItemsByRange(
         (node.loc.start.line == position.line + 1 &&
           node.loc.start.column <= position.character + 1)
       );
-    }
+    },
+    typeMap
   );
   while (true) {
     const res = result.pop();
@@ -669,7 +672,13 @@ export function findDefinition(
           : "Document ${document.uri.fsPath} not found in project"
       );
     }
-    const result = findItemsByRange(analysis.state, ast, fileName, position);
+    const result = findItemsByRange(
+      analysis.state,
+      ast,
+      fileName,
+      position,
+      analysis.typeMap
+    );
     if (!result) {
       return Promise.reject("No symbol found");
     }

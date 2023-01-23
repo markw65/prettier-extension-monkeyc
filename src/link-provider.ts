@@ -125,7 +125,8 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
         true,
         (node) => {
           return !node.loc || !node.loc.source || node.loc.source === fileName;
-        }
+        },
+        analysis.typeMap
       );
       return links;
     });
