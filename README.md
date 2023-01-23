@@ -483,4 +483,10 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Update to [@markw65/monkeyc-optimizer@1.1.2](https://github.com/markw65/monkeyc-optimizer#112).
   - Mostly fixes for edge cases where the new optimizer did worse than the old.
 
+#### 2.0.41
+
+- Update to [@markw65/monkeyc-optimizer@1.1.3](https://github.com/markw65/monkeyc-optimizer#113).
+- Include new inline origins info in diagnostics, so that you can see exactly where an error message came from.
+- Include new uri info in diagnostics (when provided).
+
 ---
