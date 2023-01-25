@@ -489,4 +489,9 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Include new inline origins info in diagnostics, so that you can see exactly where an error message came from.
 - Include new uri info in diagnostics (when provided).
 
+#### 2.0.42
+
+- Update to [@markw65/monkeyc-optimizer@1.1.4](https://github.com/markw65/monkeyc-optimizer#114).
+- Use type map from analysis to provide better symbol resolution for Goto Ref/Def etc.
+
 ---
