@@ -494,4 +494,9 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Update to [@markw65/monkeyc-optimizer@1.1.4](https://github.com/markw65/monkeyc-optimizer#114).
 - Use type map from analysis to provide better symbol resolution for Goto Ref/Def etc.
 
+#### 2.0.43
+
+- Update to [@markw65/monkeyc-optimizer@1.1.6](https://github.com/markw65/monkeyc-optimizer#116).
+  - various bug fixes to prevent bogus warnings.
+
 ---
