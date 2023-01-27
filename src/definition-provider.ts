@@ -8,7 +8,13 @@ export class MonkeyCDefinitionProvider implements vscode.DefinitionProvider {
     position: vscode.Position,
     _cancellationToken: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Definition> {
-    return findDefinition(document, position).then(({ node, results }) => {
+    return findDefinition(
+      document,
+      position,
+      vscode.workspace
+        .getConfiguration("prettierMonkeyC", document)
+        .get("findSingleDefinition") === true
+    ).then(({ node, results }) => {
       if (node && results) {
         return results
           .map((lookupDefn) => lookupDefn.results)

@@ -591,7 +591,8 @@ function findItemsByRange(
   ast: mctree.Program,
   filename: string,
   position: vscode.Position,
-  typeMap: TypeMap | null | undefined
+  typeMap: TypeMap | null | undefined,
+  findSingleDefinition: boolean
 ) {
   const result: {
     node: mctree.Node;
@@ -631,7 +632,8 @@ function findItemsByRange(
           node.loc.start.column <= position.character + 1)
       );
     },
-    typeMap
+    typeMap,
+    findSingleDefinition
   );
   while (true) {
     const res = result.pop();
@@ -648,7 +650,8 @@ function findItemsByRange(
 
 export function findDefinition(
   document: vscode.TextDocument,
-  position: vscode.Position
+  position: vscode.Position,
+  findSingleDefinition: boolean
 ) {
   const project = findProject(document.uri);
   if (!project) return Promise.reject("No project found");
@@ -677,7 +680,8 @@ export function findDefinition(
       ast,
       fileName,
       position,
-      analysis.typeMap
+      analysis.typeMap,
+      findSingleDefinition
     );
     if (!result) {
       return Promise.reject("No symbol found");

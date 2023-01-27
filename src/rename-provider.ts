@@ -14,7 +14,7 @@ export class MonkeyCRenameRefProvider
     document: vscode.TextDocument,
     position: vscode.Position
   ) {
-    return findDefinition(document, position).then(
+    return findDefinition(document, position, false).then(
       ({ node, results, analysis }) => {
         if (node && results) {
           if (
@@ -136,7 +136,7 @@ export class MonkeyCRenameRefProvider
     _context: vscode.ReferenceContext,
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Location[]> {
-    return findDefinition(document, position).then(
+    return findDefinition(document, position, false).then(
       ({ node, results, analysis }) => {
         if (node && results) {
           const references: vscode.Location[] = [];

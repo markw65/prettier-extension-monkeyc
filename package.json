@@ -227,6 +227,12 @@
             "description": "Whether to add https links for Toybox entries in .mc files.",
             "default": true,
             "scope": "resource"
+          },
+          "prettierMonkeyC.findSingleDefinition": {
+            "type": "boolean",
+            "description": "Whether Goto Definition on one of several definitions for a symbol should find all of them, or just the selected symbol",
+            "default": false,
+            "scope": "resource"
           }
         }
       }
