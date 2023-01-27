@@ -122,6 +122,7 @@ export async function activate(context: vscode.ExtensionContext) {
         const config = getOptimizerBaseConfig();
         if (!config.workspace || !config.outputPath) return;
         const folder = path.resolve(config.workspace, config.outputPath);
+        diagnosticCollection?.clear();
         return (
           config.outputPath === "bin/optimized"
             ? Promise.resolve(true)
