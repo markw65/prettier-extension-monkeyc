@@ -594,6 +594,30 @@ export function initializeProjectManager(): vscode.Disposable[] {
   ];
 }
 
+export function skipToPosition(
+  node: mctree.Node,
+  position: vscode.Position,
+  filename: string | null
+) {
+  if (!node.loc || node.type === "Program") return true;
+  if (filename && node.loc.source && node.loc.source !== filename) {
+    return false;
+  }
+  // skip over nodes that end before the range begins
+  if (
+    node.loc.end.line <= position.line ||
+    (node.loc.end.line == position.line + 1 &&
+      node.loc.end.column <= position.character)
+  ) {
+    return false;
+  }
+  return (
+    node.loc.start.line <= position.line ||
+    (node.loc.start.line == position.line + 1 &&
+      node.loc.start.column <= position.character + 1)
+  );
+}
+
 function findItemsByRange(
   state: ProgramStateAnalysis,
   ast: mctree.Program,
@@ -621,25 +645,7 @@ function findItemsByRange(
       return undefined;
     },
     true,
-    (node) => {
-      if (!node.loc || node === ast) return true;
-      if (node.loc.source && node.loc.source !== filename) {
-        return false;
-      }
-      // skip over nodes that end before the range begins
-      if (
-        node.loc.end.line <= position.line ||
-        (node.loc.end.line == position.line + 1 &&
-          node.loc.end.column <= position.character)
-      ) {
-        return false;
-      }
-      return (
-        node.loc.start.line <= position.line ||
-        (node.loc.start.line == position.line + 1 &&
-          node.loc.start.column <= position.character + 1)
-      );
-    },
+    (node) => skipToPosition(node, position, filename),
     typeMap,
     findSingleDefinition
   );
@@ -656,19 +662,18 @@ function findItemsByRange(
   }
 }
 
-export function findDefinition(
+export function findAnalysis<T>(
   document: vscode.TextDocument,
-  position: vscode.Position,
-  findSingleDefinition: boolean
-) {
+  callback: (analysis: Analysis, ast: mctree.Program, fileName: string) => T
+): Promise<Awaited<T>> {
   const project = findProject(document.uri);
   if (!project) return Promise.reject("No project found");
   return project.getAnalysis().then((analysis) => {
     if (!analysis) {
-      return Promise.reject("Project analysis not found");
+      throw new Error("Project analysis not found");
     }
     if (!("state" in analysis)) {
-      return Promise.reject("Project contains errors");
+      throw new Error("Project contains errors");
     }
     const fileName = normalize(document.uri.fsPath);
     const ast = hasProperty(analysis.fnMap, fileName)
@@ -677,12 +682,22 @@ export function findDefinition(
           fileName === analysis.state?.manifestXML?.prolog?.loc?.source) &&
         analysis.state.rezAst;
     if (!ast) {
-      return Promise.reject(
+      throw new Error(
         hasProperty(project.buildRuleDependencies, fileName)
           ? "Symbols can only be looked up in the project's monkeyc files"
           : "Document ${document.uri.fsPath} not found in project"
       );
     }
+    return Promise.resolve(callback(analysis, ast, fileName));
+  });
+}
+
+export function findDefinition(
+  document: vscode.TextDocument,
+  position: vscode.Position,
+  findSingleDefinition: boolean
+) {
+  return findAnalysis(document, (analysis, ast, fileName) => {
     const result = findItemsByRange(
       analysis.state,
       ast,
@@ -692,11 +707,11 @@ export function findDefinition(
       findSingleDefinition
     );
     if (!result) {
-      return Promise.reject("No symbol found");
+      throw new Error("No symbol found");
     }
     const node = visitorNode(result.node);
     if (node.type !== "Identifier") {
-      return Promise.reject(`Unexpected node type '${node.type}'`);
+      throw new Error(`Unexpected node type '${node.type}'`);
     }
     return {
       node,

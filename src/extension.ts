@@ -17,6 +17,7 @@ import {
   getOptimizerBaseConfig,
   initializeProjectManager,
 } from "./project-manager";
+import { MonkeyCSignatureProvider } from "./signature-provider";
 
 export let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 export let extensionVersion: string | null = null;
@@ -165,6 +166,12 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerDocumentSymbolProvider(
       projectFiles,
       symbolProvider
+    ),
+    vscode.languages.registerSignatureHelpProvider(
+      "monkeyc",
+      new MonkeyCSignatureProvider(),
+      "(",
+      ","
     ),
     vscode.languages.registerWorkspaceSymbolProvider(symbolProvider),
     vscode.languages.registerRenameProvider(projectFiles, renameRefProvider),
