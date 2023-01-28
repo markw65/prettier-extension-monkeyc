@@ -233,6 +233,12 @@
             "description": "Whether Goto Definition on one of several definitions for a symbol should find all of them, or just the selected symbol",
             "default": false,
             "scope": "resource"
+          },
+          "prettierMonkeyC.disableLiveAnalysis": {
+            "type": "boolean",
+            "description": "Whether to disable the live analysis, which shows errors and warnings in real time as you type",
+            "default": false,
+            "scope": "resource"
           }
         }
       }

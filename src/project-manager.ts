@@ -288,27 +288,35 @@ export class Project implements vscode.Disposable {
       .then((analysis) => {
         this.currentAnalysis = analysis;
         this.diagnosticCollection.clear();
-        Object.entries(resources).forEach(
-          ([file, rez_or_err]) =>
-            rez_or_err instanceof Error &&
-            this.diagnosticFromError(rez_or_err, file)
-        );
         this.addExtraWatchers();
+        const disableLiveAnalysis =
+          vscode.workspace
+            .getConfiguration("prettierMonkeyC", this.workspaceFolder)
+            .get("disableLiveAnalysis") === true;
+
+        disableLiveAnalysis ||
+          Object.entries(resources).forEach(
+            ([file, rez_or_err]) =>
+              rez_or_err instanceof Error &&
+              this.diagnosticFromError(rez_or_err, file)
+          );
 
         if ("state" in analysis) {
-          processDiagnostics(
-            analysis.state.diagnostics,
-            {},
-            this.diagnosticCollection,
-            "analysis"
-          );
+          disableLiveAnalysis ||
+            processDiagnostics(
+              analysis.state.diagnostics,
+              {},
+              this.diagnosticCollection,
+              "analysis"
+            );
           return;
         }
-        Object.entries(analysis.fnMap).forEach(([filepath, info]) => {
-          if (info.parserError) {
-            this.diagnosticFromError(info.parserError, filepath);
-          }
-        });
+        disableLiveAnalysis ||
+          Object.entries(analysis.fnMap).forEach(([filepath, info]) => {
+            if (info.parserError) {
+              this.diagnosticFromError(info.parserError, filepath);
+            }
+          });
         return;
       })
       .catch((e) => {
