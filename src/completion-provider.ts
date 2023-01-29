@@ -1,18 +1,20 @@
-import { StateNode, StateNodeDecl } from "@markw65/monkeyc-optimizer";
 import {
+  ProgramStateAnalysis,
+  ProgramStateStack,
+  StateNode,
+  StateNodeDecl,
+} from "@markw65/monkeyc-optimizer";
+import {
+  collectNamespaces,
   findNamesInScope,
   formatAstLongLines,
   isStateNode,
+  lookupWithType,
   mapVarDeclsByType,
-  traverseAst,
 } from "@markw65/monkeyc-optimizer/api.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import * as vscode from "vscode";
-import {
-  findAnalysis,
-  findDefinition,
-  skipToPosition,
-} from "./project-manager";
+import { findAnalysis, skipToPosition } from "./project-manager";
 
 export class MonkeyCCompletionItemProvider
   implements vscode.CompletionItemProvider
@@ -25,27 +27,78 @@ export class MonkeyCCompletionItemProvider
   ): vscode.ProviderResult<
     vscode.CompletionItem[] | vscode.CompletionList<vscode.CompletionItem>
   > {
-    return findAnalysis(document, (analysis, ast, fileName) => {
-      const result = findIdentByRange(ast, fileName, position);
-      if (!result) return null;
-      if (
-        result.type === "MemberExpression" &&
-        result.object.loc &&
-        !result.computed
-      ) {
-        const objectPosition = new vscode.Position(
-          result.object.loc.end.line - 1,
-          result.object.loc.end.column - 1
-        );
-        return findDefinition(document, objectPosition, false).then(
-          (definition) => {
-            const decls = mapVarDeclsByType(
+    return findAnalysis(
+      document,
+      (analysis, ast, fileName, isLastGood, project) => {
+        const functionDocumentation =
+          project.getFunctionDocumentation() || Promise.resolve(null);
+        if (isLastGood) {
+          let text = document.getText(
+            new vscode.Range(0, 0, position.line, position.character)
+          );
+          const match = text.match(/(?<=\S)\s*\.\s*$/);
+          if (!match) return null;
+          text = text.substring(0, text.length - match[0].length);
+          if (
+            text !==
+            analysis.fnMap[fileName].monkeyCSource.substring(0, text.length)
+          ) {
+            return null;
+          }
+          position = position.translate(0, -match[0].length);
+        }
+        const info = findIdentByRange(analysis.state, ast, fileName, position);
+        if (!info) return null;
+        const { node, stack } = info;
+        let decls: StateNode[][] | null = null;
+        let name: string | null = null;
+        if (isLastGood) {
+          const [, definition] = lookupWithType(
+            analysis.state,
+            node,
+            analysis.typeMap,
+            false,
+            stack
+          );
+          if (!definition) return null;
+          decls = [
+            mapVarDeclsByType(
               analysis.state,
-              definition.results.flatMap((lookupDefn) => lookupDefn.results),
-              result.object,
+              definition.flatMap((lookupDefn) => lookupDefn.results),
+              node,
               analysis.typeMap
-            ).filter(isStateNode);
-            return findNamesInScope(decls, result.property.name)
+            ).filter(isStateNode),
+          ];
+          name = "";
+        } else if (
+          node.type === "MemberExpression" &&
+          node.object.loc &&
+          !node.computed
+        ) {
+          const [, definition] = lookupWithType(
+            analysis.state,
+            node.object,
+            analysis.typeMap,
+            false,
+            stack
+          );
+          if (!definition) return null;
+          decls = [
+            mapVarDeclsByType(
+              analysis.state,
+              definition.flatMap((lookupDefn) => lookupDefn.results),
+              node.object,
+              analysis.typeMap
+            ).filter(isStateNode),
+          ];
+          name = node.property.name;
+        } else if (node.type === "Identifier") {
+          decls = stack.map((elm) => [elm.sn]);
+          name = node.name;
+        }
+        if (decls) {
+          return functionDocumentation.then((docinfo) =>
+            findNamesInScope(decls!, name!)
               .map(([decl, { parent, depth }]) => {
                 const name = (() => {
                   switch (decl.type) {
@@ -62,81 +115,114 @@ export class MonkeyCCompletionItemProvider
                 if (!name) return null;
 
                 const item = new vscode.CompletionItem(name);
-                item.sortText = `${"!!!!!!!!!!!!".substring(depth)}${name}`;
                 //item.filterText = result.property.name;
                 const detail = completionDetail(parent, decl);
                 if (detail) {
-                  item.detail = detail;
+                  item.detail = detail.replace(/\$\.(Toybox\.)?/g, "");
                 }
-                const kind = completionKind(decl);
-                if (kind) {
+                if (docinfo && decl.type === "FunctionDeclaration") {
+                  const doc = docinfo.get(decl.fullName);
+                  if (doc) {
+                    item.documentation = new vscode.MarkdownString(doc);
+                  }
+                }
+                const info = completionInfo(decl);
+                const kind = info?.[0];
+                const sort = info?.[1];
+                if (kind != null) {
                   item.kind = kind;
+                }
+                item.sortText = `!${"!!!!!!!!!!!!!!!!!".substring(depth)}${
+                  sort != null ? String.fromCharCode(sort + 32) : ""
+                }${name}`;
+                if (!isLastGood) {
+                  item.range = document.getWordRangeAtPosition(position);
                 }
                 return item;
               })
-              .filter((item): item is vscode.CompletionItem => item != null);
-          }
-        );
-      }
-      return null;
-    });
+              .filter((item): item is vscode.CompletionItem => item != null)
+          );
+        }
+        return null;
+      },
+      true
+    );
   }
 }
 
 function findIdentByRange(
+  state: ProgramStateAnalysis,
   ast: mctree.Program,
   fileName: string,
   position: vscode.Position
 ) {
-  let result = null as mctree.Identifier | mctree.MemberExpression | null;
-  traverseAst(ast, (node) => {
+  let result = null as {
+    node: mctree.Expression;
+    stack: ProgramStateStack;
+  } | null;
+  const { pre, post, stack } = state;
+  delete state.post;
+  state.pre = (node) => {
     if (!skipToPosition(node, position, fileName)) {
-      return false;
+      return [];
     }
-    if (node.type === "MemberExpression") {
-      if (!node.computed) {
-        result = node;
-        return ["object"];
-      }
-    }
-    if (node.type === "Identifier") {
-      result = node;
+    switch (node.type) {
+      case "MemberExpression":
+        if (!node.computed) {
+          result = { node, stack: state.stackClone() };
+        }
+        break;
+      case "Identifier":
+      case "ThisExpression":
+        result = { node, stack: state.stackClone() };
+        break;
     }
     return null;
-  });
+  };
+  state.stack = stack.slice(0, 1);
+  try {
+    collectNamespaces(ast, state);
+  } finally {
+    state.pre = pre;
+    state.post = post;
+    state.stack = stack;
+  }
   return result;
 }
 
-function completionKind(decl: StateNodeDecl): vscode.CompletionItemKind | null {
+function completionInfo(
+  decl: StateNodeDecl
+): [vscode.CompletionItemKind, number] | null {
   switch (decl.type) {
     case "ModuleDeclaration":
-      return vscode.CompletionItemKind.Module;
+      return [vscode.CompletionItemKind.Module, 0];
     case "ClassDeclaration":
-      return vscode.CompletionItemKind.Class;
+      return [vscode.CompletionItemKind.Class, 10];
     case "FunctionDeclaration": {
       const back = decl.stack?.slice(-1).pop();
       return back?.sn.type === "ClassDeclaration"
         ? decl.name === "initialize"
-          ? vscode.CompletionItemKind.Constructor
-          : vscode.CompletionItemKind.Method
-        : vscode.CompletionItemKind.Function;
+          ? [vscode.CompletionItemKind.Constructor, 30]
+          : [vscode.CompletionItemKind.Method, 40]
+        : [vscode.CompletionItemKind.Function, 40];
     }
     case "TypedefDeclaration":
-      return vscode.CompletionItemKind.Variable;
+      return [vscode.CompletionItemKind.Variable, 50];
     case "EnumDeclaration":
-      return vscode.CompletionItemKind.Enum;
+      return [vscode.CompletionItemKind.Enum, 51];
     case "EnumStringMember":
-      return vscode.CompletionItemKind.EnumMember;
+      return [vscode.CompletionItemKind.EnumMember, 60];
     case "VariableDeclarator":
       return decl.node.kind === "const"
-        ? vscode.CompletionItemKind.Constant
-        : vscode.CompletionItemKind.Variable;
+        ? [vscode.CompletionItemKind.Constant, 20]
+        : [vscode.CompletionItemKind.Variable, 25];
     case "BinaryExpression":
     case "Identifier":
-      return vscode.CompletionItemKind.Variable;
+      return [vscode.CompletionItemKind.Variable, 25];
   }
   return null;
 }
+
 function completionDetail(
   parent: StateNode,
   decl: StateNodeDecl

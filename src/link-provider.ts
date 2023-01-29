@@ -1,8 +1,9 @@
 import {
-  isStateNode,
-  visitReferences,
-  visitorNode,
   hasProperty,
+  isStateNode,
+  makeToyboxLink,
+  visitorNode,
+  visitReferences,
 } from "@markw65/monkeyc-optimizer/api.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import * as vscode from "vscode";
@@ -78,47 +79,9 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
           ) {
             return undefined;
           }
-          const make_link = (fullName: string, fragment?: string) => {
-            const path = fullName.split(".");
-            return (
-              `https://developer.garmin.com/connect-iq/api-docs/${path
-                .slice(1, fragment ? -1 : undefined)
-                .join("/")}.html` +
-              (fragment ? `#${path.slice(-1)[0]}-${fragment}` : "")
-            );
-          };
-          switch (result.type) {
-            case "ClassDeclaration":
-            case "ModuleDeclaration":
-              if (result.fullName.startsWith("$.Toybox")) {
-                push(node, make_link(result.fullName));
-              }
-              break;
-
-            case "FunctionDeclaration":
-              push(node, make_link(result.fullName, "instance_function"));
-              break;
-
-            case "EnumStringMember":
-              if (
-                result.init.enumType &&
-                typeof result.init.enumType === "string"
-              ) {
-                push(node, make_link("$." + result.init.enumType, "module"));
-              }
-              break;
-
-            case "EnumDeclaration":
-              push(node, make_link(result.fullName, "module"));
-              break;
-
-            case "TypedefDeclaration":
-              push(node, make_link(result.fullName, "named_type"));
-              break;
-
-            case "VariableDeclarator":
-              push(node, make_link(result.fullName, "var"));
-              break;
+          const link = makeToyboxLink(result);
+          if (link) {
+            push(node, link);
           }
           return undefined;
         },

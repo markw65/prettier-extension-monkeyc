@@ -14,6 +14,7 @@ import {
   ResolvedJungle,
 } from "@markw65/monkeyc-optimizer";
 import {
+  createDocumentationMap,
   hasProperty,
   isStateNode,
   visitorNode,
@@ -23,6 +24,7 @@ import { TypeMap } from "@markw65/monkeyc-optimizer/build/src/type-flow/interp";
 import {
   connectiq,
   getDeviceInfo,
+  getFunctionDocumentation,
   xmlUtil,
 } from "@markw65/monkeyc-optimizer/sdk-util.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
@@ -39,6 +41,7 @@ export function normalize(filepath: string) {
 
 export class Project implements vscode.Disposable {
   private currentAnalysis: Analysis | PreAnalysis | null = null;
+  public lastGoodAnalysis: Analysis | null = null;
   private junglePromise: Promise<void> = Promise.resolve();
   public resources: JungleResourceMap | null | undefined;
   public buildRuleDependencies: JungleBuildDependencies = {};
@@ -51,6 +54,8 @@ export class Project implements vscode.Disposable {
   private diagnosticCollection =
     vscode.languages.createDiagnosticCollection("analysis");
   private lastDevice: string | null = null;
+  private functionDocumentation: Promise<Map<string, string> | null> | null =
+    null;
 
   static create(workspaceFolder: vscode.WorkspaceFolder) {
     const options = getOptimizerBaseConfig(workspaceFolder);
@@ -135,10 +140,13 @@ export class Project implements vscode.Disposable {
       watcher,
       watcher.onDidChange(() => {
         this.reloadJungles(this.currentAnalysis, this.resources);
+        this.functionDocumentation = null;
+        this.getFunctionDocumentation();
       })
     );
 
     this.reloadJungles(null, null);
+    this.getFunctionDocumentation();
   }
 
   clearExtraWatchers() {
@@ -302,6 +310,7 @@ export class Project implements vscode.Disposable {
           );
 
         if ("state" in analysis) {
+          this.lastGoodAnalysis = analysis;
           disableLiveAnalysis ||
             processDiagnostics(
               analysis.state.diagnostics,
@@ -536,6 +545,15 @@ export class Project implements vscode.Disposable {
       ? true
       : false;
   }
+
+  getFunctionDocumentation() {
+    if (!this.functionDocumentation) {
+      this.functionDocumentation = getFunctionDocumentation().then(
+        (doc) => doc && createDocumentationMap(doc)
+      );
+    }
+    return this.functionDocumentation;
+  }
 }
 
 const projects: Record<string, Project> = {};
@@ -664,16 +682,34 @@ function findItemsByRange(
 
 export function findAnalysis<T>(
   document: vscode.TextDocument,
-  callback: (analysis: Analysis, ast: mctree.Program, fileName: string) => T
+  callback: (
+    analysis: Analysis,
+    ast: mctree.Program,
+    fileName: string,
+    isLastGood: boolean,
+    project: Project
+  ) => T,
+  useLastGood = false
 ): Promise<Awaited<T>> {
   const project = findProject(document.uri);
   if (!project) return Promise.reject("No project found");
-  return project.getAnalysis().then((analysis) => {
-    if (!analysis) {
-      throw new Error("Project analysis not found");
-    }
-    if (!("state" in analysis)) {
-      throw new Error("Project contains errors");
+  return project.getAnalysis().then((analysisIn) => {
+    let analysis: Analysis | null = null;
+    let isLastGood = false;
+    try {
+      if (!analysisIn) {
+        throw new Error("Project analysis not found");
+      }
+      if (!("state" in analysisIn)) {
+        throw new Error("Project contains errors");
+      }
+      analysis = analysisIn;
+    } catch (ex) {
+      if (!useLastGood || !project.lastGoodAnalysis) {
+        throw ex;
+      }
+      analysis = project.lastGoodAnalysis;
+      isLastGood = true;
     }
     const fileName = normalize(document.uri.fsPath);
     const ast = hasProperty(analysis.fnMap, fileName)
@@ -688,7 +724,9 @@ export function findAnalysis<T>(
           : "Document ${document.uri.fsPath} not found in project"
       );
     }
-    return Promise.resolve(callback(analysis, ast, fileName));
+    return Promise.resolve(
+      callback(analysis, ast, fileName, isLastGood, project)
+    );
   });
 }
 
