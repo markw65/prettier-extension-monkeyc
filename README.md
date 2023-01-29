@@ -504,4 +504,14 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Update to [@markw65/monkeyc-optimizer@1.1.7](https://github.com/markw65/monkeyc-optimizer#117).
   - Fix an inlining bug that could make a local from the inlined function appear to be in the enclosing scope. If there was a same named variable in the enclosing scope, the type checker would see both definitions, and think the type was unknown (since the local doesn't have a declared type), resulting in an `Any` type for the variable, which could result in some bogus warnings, and might possibly block some optimizations.
 
+#### 2.0.45
+
+- Update to [@markw65/monkeyc-optimizer@1.1.8](https://github.com/markw65/monkeyc-optimizer#118).
+
+  - Fixes a type checker warning where the type checker incorrectly deduced that a variable could be null
+  - Adds various features to support the new `SignatureHelpProvider` and `CompletionItemProvider`
+
+- Adds a `SignatureHelpProvider` to provide popup prompts when filling out the parameters of a call
+- Adds a `CompletionItemProvider` to provide context sensitive completion prompts.
+
 ---
