@@ -19,6 +19,7 @@ import {
 } from "./project-manager";
 import { MonkeyCSignatureProvider } from "./signature-provider";
 import { MonkeyCCompletionItemProvider } from "./completion-provider";
+import { MonkeyCHoverProvider } from "./hover-provider";
 
 export let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 export let extensionVersion: string | null = null;
@@ -178,6 +179,10 @@ export async function activate(context: vscode.ExtensionContext) {
       "monkeyc",
       new MonkeyCCompletionItemProvider(),
       "."
+    ),
+    vscode.languages.registerHoverProvider(
+      "monkeyc",
+      new MonkeyCHoverProvider()
     ),
     vscode.languages.registerWorkspaceSymbolProvider(symbolProvider),
     vscode.languages.registerRenameProvider(projectFiles, renameRefProvider),
