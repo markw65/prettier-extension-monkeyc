@@ -514,4 +514,10 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Adds a `SignatureHelpProvider` to provide popup prompts when filling out the parameters of a call
 - Adds a `CompletionItemProvider` to provide context sensitive completion prompts.
 
+#### 2.0.46
+
+- Update to [@markw65/monkeyc-optimizer@1.1.9](https://github.com/markw65/monkeyc-optimizer#119).
+  - Fixes a crash
+  - Adds a minimizeLocals pass to reduce stack usage, and sometimes reduce code size.
+
 ---
