@@ -528,4 +528,12 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 - Adds a `HoverProvider` to provide info about calls and variables when you point the mouse at them.
 
+#### 2.0.48
+
+- Update to [@markw65/monkeyc-optimizer@1.1.11](https://github.com/markw65/monkeyc-optimizer#1111).
+
+  - various bug fixes, and adds the new Single Use Copy Prop pass
+
+- Adds options for [Minimize Locals](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#minimize-locals) and [Single Use Copy Prop](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)
+
 ---
