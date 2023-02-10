@@ -23,11 +23,6 @@
     "onDebugDynamicConfigurations:omonkeyc",
     "onLanguage:monkeyc",
     "onCommand:workbench.action.tasks.runTask",
-    "onCommand:prettiermonkeyc.generateOptimizedProject",
-    "onCommand:prettiermonkeyc.buildOptimizedProject",
-    "onCommand:prettiermonkeyc.runOptimizedProject",
-    "onCommand:prettiermonkeyc.exportOptimizedProject",
-    "onCommand:prettiermonkeyc.cleanOptimizedBuild",
     "onCommand:prettiermonkeyc.getTargetDevice",
     "onCommand:vscode.executeDocumentSymbolProvider"
   ],
@@ -162,6 +157,20 @@
             "order": 11,
             "type": "boolean",
             "markdownDescription": "[Whether to enable the size based partial redundancy pass](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre)",
+            "default": true,
+            "scope": "resource"
+          },
+          "prettierMonkeyC.minimizeLocals": {
+            "order": 12,
+            "type": "boolean",
+            "markdownDescription": "[Whether to enable the minimize locals pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#minimize-locals)",
+            "default": true,
+            "scope": "resource"
+          },
+          "prettierMonkeyC.singleUseCopyProp": {
+            "order": 12,
+            "type": "boolean",
+            "markdownDescription": "[Whether to enable the single use copy propagation pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)",
             "default": true,
             "scope": "resource"
           },
@@ -360,6 +369,14 @@
             "type": "boolean",
             "markdownDescription": "[Whether to propagate type information, or just perform it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)"
           },
+          "minimizeLocals": {
+            "type": "boolean",
+            "markdownDescription": "[Whether to enable the minimize locals pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#minimize-locals)"
+          },
+          "singleUseCopyProp": {
+            "type": "boolean",
+            "markdownDescription": "[Whether to enable the single use copy propagation pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)"
+          },
           "enforceStatic": {
             "type": "string",
             "description": "Whether to perform lookups in static methods as if they were invoked statically",
@@ -536,6 +553,14 @@
               "propagateTypes": {
                 "type": "boolean",
                 "markdownDescription": "[Whether to propagate type information, or just perform it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)"
+              },
+              "minimizeLocals": {
+                "type": "boolean",
+                "markdownDescription": "[Whether to enable the minimize locals pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#minimize-locals)"
+              },
+              "singleUseCopyProp": {
+                "type": "boolean",
+                "markdownDescription": "[Whether to enable the single use copy propagation pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)"
               },
               "enforceStatic": {
                 "type": "string",

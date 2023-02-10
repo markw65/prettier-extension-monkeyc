@@ -827,6 +827,8 @@ export function getOptimizerBaseConfig(
     "useLocalOptimizer",
     "trustDeclaredTypes",
     "propagateTypes",
+    "singleUseCopyProp",
+    "minimizeLocals",
     "checkTypes",
   ]) {
     if (pmcConfig[i] !== undefined) {
