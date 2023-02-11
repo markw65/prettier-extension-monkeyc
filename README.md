@@ -536,4 +536,9 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 - Adds options for [Minimize Locals](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#minimize-locals) and [Single Use Copy Prop](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)
 
+#### 2.0.49
+
+- Update to [@markw65/monkeyc-optimizer@1.1.12](https://github.com/markw65/monkeyc-optimizer#1112).
+  - Fixes some bugs, and makes some improvements to `Single Use Copy Prop`
+
 ---
