@@ -541,4 +541,9 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Update to [@markw65/monkeyc-optimizer@1.1.12](https://github.com/markw65/monkeyc-optimizer#1112).
   - Fixes some bugs, and makes some improvements to `Single Use Copy Prop`
 
+#### 2.0.50
+
+- Update to [@markw65/monkeyc-optimizer@1.1.13](https://github.com/markw65/monkeyc-optimizer#1113).
+  - Adds support for the [Minimize Modules](https://github.com/markw65/monkeyc-optimizer/wiki/Optimizing-module-imports#minimize-modules) pass.
+
 ---
