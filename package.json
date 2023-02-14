@@ -174,6 +174,13 @@
             "default": true,
             "scope": "resource"
           },
+          "prettierMonkeyC.minimizeModules": {
+            "order": 12,
+            "type": "boolean",
+            "markdownDescription": "[Whether to enable the minimize modules pass](https://github.com/markw65/monkeyc-optimizer/wiki/Optimizing-module-imports#minimize-modules)",
+            "default": true,
+            "scope": "resource"
+          },
           "prettierMonkeyC.enforceStatic": {
             "type": "string",
             "description": "Whether to perform lookups in static methods as if they were invoked statically",
@@ -373,6 +380,10 @@
             "type": "boolean",
             "markdownDescription": "[Whether to enable the minimize locals pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#minimize-locals)"
           },
+          "minimizeModules": {
+            "type": "boolean",
+            "markdownDescription": "[Whether to enable the minimize modules pass](https://github.com/markw65/monkeyc-optimizer/wiki/Optimizing-module-imports#minimize-modules)"
+          },
           "singleUseCopyProp": {
             "type": "boolean",
             "markdownDescription": "[Whether to enable the single use copy propagation pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)"
@@ -557,6 +568,10 @@
               "minimizeLocals": {
                 "type": "boolean",
                 "markdownDescription": "[Whether to enable the minimize locals pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#minimize-locals)"
+              },
+              "minimizeModules": {
+                "type": "boolean",
+                "markdownDescription": "[Whether to enable the minimize modules pass](https://github.com/markw65/monkeyc-optimizer/wiki/Optimizing-module-imports#minimize-modules)"
               },
               "singleUseCopyProp": {
                 "type": "boolean",

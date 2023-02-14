@@ -829,6 +829,7 @@ export function getOptimizerBaseConfig(
     "propagateTypes",
     "singleUseCopyProp",
     "minimizeLocals",
+    "minimizeModules",
     "checkTypes",
   ]) {
     if (pmcConfig[i] !== undefined) {
