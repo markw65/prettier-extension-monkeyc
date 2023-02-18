@@ -5,7 +5,11 @@ import {
 } from "@markw65/monkeyc-optimizer";
 import { hasProperty } from "@markw65/monkeyc-optimizer/api.js";
 import { forEach, spawnByLine } from "@markw65/monkeyc-optimizer/util.js";
-import { readPrg, SectionKinds } from "@markw65/monkeyc-optimizer/sdk-util.js";
+import {
+  optimizeProgram,
+  readPrg,
+  SectionKinds,
+} from "@markw65/monkeyc-optimizer/sdk-util.js";
 
 import * as path from "path";
 import * as vscode from "vscode";
@@ -171,29 +175,61 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         if (returnCommand) {
           return 0;
         }
+        let tempProg = program;
+        if (program && this.options.postBuildOptimizer) {
+          tempProg = program.replace(/\.(iq|prg)$/i, ".original.$1");
+          const relProg = path.relative(this.options.workspace!, program);
+          args = args.map((arg) => (arg === relProg ? tempProg : arg));
+        }
         logger(
           `> Executing task: ${[exe, ...args]
             .map((arg) => JSON.stringify(arg))
             .join(" ")} <\r\n`
         );
+        const programSizes = (program: string) =>
+          readPrg(program)
+            .then((info) => {
+              logger(
+                `\r\n> Sizes for ${path.basename(program)}: code: ${
+                  info[SectionKinds.TEXT]
+                } data: ${info[SectionKinds.DATA]} <\r\n`
+              );
+            })
+            .catch(() => {
+              /* empty */
+            });
         return spawnByLine(exe, args, [logger, logger], {
           cwd: this.options.workspace,
         })
-          .then(() =>
-            program
-              ? readPrg(program)
-                  .then((info) => {
-                    logger(
-                      `\r\n> Sizes for ${path.basename(program)}: code: ${
-                        info[SectionKinds.TEXT]
-                      } data: ${info[SectionKinds.DATA]} <\r\n`
-                    );
-                  })
-                  .catch(() => {
-                    /* empty */
-                  })
-              : Promise.resolve()
-          )
+          .then(() => {
+            if (
+              program &&
+              this.options.postBuildOptimizer &&
+              tempProg !== program
+            ) {
+              return programSizes(tempProg)
+                .then(() => {
+                  logger(
+                    `\r\n> Optimizing ${path.basename(
+                      tempProg
+                    )} to ${path.basename(program)} <\r\n`
+                  );
+
+                  return optimizeProgram(
+                    tempProg,
+                    this.options.developerKeyPath,
+                    program
+                  );
+                })
+                .then(() => null)
+                .catch((e) => {
+                  logger(`\r\nPost-build failed: ${e}\r\n`);
+                  throw 100;
+                });
+            }
+            return null;
+          })
+          .then(() => programSizes(program))
           .then(() => 0)
           .catch((e) => e);
       })
