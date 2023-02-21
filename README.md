@@ -546,4 +546,10 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 - Update to [@markw65/monkeyc-optimizer@1.1.13](https://github.com/markw65/monkeyc-optimizer#1113).
   - Adds support for the [Minimize Modules](https://github.com/markw65/monkeyc-optimizer/wiki/Optimizing-module-imports#minimize-modules) pass.
 
+#### 2.0.51
+
+- Update to [@markw65/monkeyc-optimizer@1.1.14](https://github.com/markw65/monkeyc-optimizer#1114).
+  - Adds a post build optimizer which optimizes the bytecode
+  - Adds the device to the size info line in the build output
+
 ---
