@@ -147,7 +147,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
           returnCommand: true,
         })
       )
-      .then(({ exe, args, program, diagnostics: optimizerDiags }) => {
+      .then(({ exe, args, program, product, diagnostics: optimizerDiags }) => {
         logger("Optimization step completed successfully...\r\n");
         processDiagnostics(
           optimizerDiags,
@@ -186,18 +186,23 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
             .map((arg) => JSON.stringify(arg))
             .join(" ")} <\r\n`
         );
-        const programSizes = (program: string) =>
-          readPrg(program)
-            .then((info) => {
-              logger(
-                `\r\n> Sizes for ${path.basename(program)}: code: ${
-                  info[SectionKinds.TEXT]
-                } data: ${info[SectionKinds.DATA]} <\r\n`
-              );
-            })
-            .catch(() => {
-              /* empty */
-            });
+        const programSizes = (program: string | null) =>
+          program && /\.prg$/i.test(program)
+            ? readPrg(program)
+                .then((info) => {
+                  logger(
+                    `\r\n> Sizes for ${path.basename(
+                      program,
+                      ".prg"
+                    )}-${product}: code: ${info[SectionKinds.TEXT]} data: ${
+                      info[SectionKinds.DATA]
+                    } <\r\n`
+                  );
+                })
+                .catch(() => {
+                  /* empty */
+                })
+            : Promise.resolve();
         return spawnByLine(exe, args, [logger, logger], {
           cwd: this.options.workspace,
         })
