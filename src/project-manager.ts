@@ -830,6 +830,7 @@ export function getOptimizerBaseConfig(
     "singleUseCopyProp",
     "minimizeLocals",
     "minimizeModules",
+    "iterateOptimizer",
     "postBuildOptimizer",
     "checkTypes",
   ]) {

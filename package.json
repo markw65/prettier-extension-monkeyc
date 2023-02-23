@@ -181,6 +181,13 @@
             "default": true,
             "scope": "resource"
           },
+          "prettierMonkeyC.iterateOptimizer": {
+            "order": 12,
+            "type": "boolean",
+            "description": "Whether to keep running the optimizer pass until it makes no further changes (may be slow)",
+            "default": false,
+            "scope": "resource"
+          },
           "prettierMonkeyC.postBuildOptimizer": {
             "order": 13,
             "type": "boolean",
@@ -395,6 +402,10 @@
             "type": "boolean",
             "markdownDescription": "[Whether to enable the single use copy propagation pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)"
           },
+          "iterateOptimizer": {
+            "type": "boolean",
+            "description": "Whether to keep running the optimizer pass until it makes no further changes (may be slow)"
+          },
           "postBuildOptimizer": {
             "type": "boolean",
             "description": "Whether to enable the post build optimizer"
@@ -587,6 +598,10 @@
               "singleUseCopyProp": {
                 "type": "boolean",
                 "markdownDescription": "[Whether to enable the single use copy propagation pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)"
+              },
+              "iterateOptimizer": {
+                "type": "boolean",
+                "description": "Whether to keep running the optimizer pass until it makes no further changes (may be slow)"
               },
               "postBuildOptimizer": {
                 "type": "boolean",
