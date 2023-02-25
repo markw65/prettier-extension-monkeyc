@@ -47,11 +47,14 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     /* nothing to do */
   }
 
-  getBuildFunction(
+  getMCFunction<T>(
+    name: string,
+    def: T,
+    subpath: string,
     logger: (line: string) => void
-  ): Promise<typeof buildOptimizedProject> {
+  ): Promise<T> {
     if (this.options.useLocalOptimizer === false) {
-      return Promise.resolve(buildOptimizedProject);
+      return Promise.resolve(def);
     }
     const optimizerPath = path.resolve(
       this.options.workspace!,
@@ -59,11 +62,21 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
       "@markw65",
       "monkeyc-optimizer"
     );
+    const targetPath = subpath.length
+      ? path.resolve(optimizerPath, subpath)
+      : optimizerPath;
     return fs
       .access(optimizerPath)
-      .then(() => delete require.cache[require.resolve(optimizerPath)])
-      .then(() => require(optimizerPath))
-      .then((mco) => {
+      .then(() => {
+        delete require.cache[require.resolve(optimizerPath)];
+        delete require.cache[require.resolve(targetPath)];
+      })
+      .catch(() => {
+        /* */
+      })
+      .then(() => require(targetPath))
+      .then((module) => {
+        if (!module[name]) return def;
         return fs
           .readFile(path.resolve(optimizerPath, "package.json"))
           .then((data) => {
@@ -72,11 +85,22 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
                 JSON.parse(data.toString()).version
               }`
             );
-            return mco.buildOptimizedProject;
+            return module[name];
           })
-          .catch(() => mco.buildOptimizedProject);
+          .catch(() => module[name]);
       })
-      .catch(() => buildOptimizedProject);
+      .catch(() => def);
+  }
+
+  getBuildFunction(
+    logger: (line: string) => void
+  ): Promise<typeof buildOptimizedProject> {
+    return this.getMCFunction(
+      "buildOptimizedProject",
+      buildOptimizedProject,
+      "",
+      logger
+    );
   }
 
   doBuild(device: string | null) {
@@ -214,10 +238,21 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
             ) {
               return programSizes(tempProg)
                 .then(() => {
+                  const parts: string[] = [];
+                  return this.getMCFunction(
+                    "optimizeProgram",
+                    optimizeProgram,
+                    "build/sdk-util.cjs",
+                    (line: string) => parts.push(line)
+                  ).then((optimizeProgram) => ({ optimizeProgram, parts }));
+                })
+                .then(({ optimizeProgram, parts }) => {
                   logger(
                     `\r\n> Optimizing ${path.basename(
                       tempProg
-                    )} to ${path.basename(program)} <\r\n`
+                    )} to ${path.basename(program)}${
+                      parts.length ? ` (${parts.join(" ")})` : ""
+                    } <\r\n`
                   );
 
                   return optimizeProgram(
