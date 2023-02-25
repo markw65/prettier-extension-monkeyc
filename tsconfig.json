@@ -6,6 +6,7 @@
     "checkJs": true /* Typecheck .js files. */,
     "lib": ["ES2020"],
     "outDir": "build",
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@markw65/monkeyc-optimizer": [
         "node_modules/@markw65/monkeyc-optimizer/build/src/optimizer.d.ts"
