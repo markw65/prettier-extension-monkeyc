@@ -1,11 +1,15 @@
-import { Analysis, display, StateNodeDecl } from "@markw65/monkeyc-optimizer";
+import {
+  Analysis,
+  display,
+  ExactOrUnion,
+  StateNodeDecl,
+} from "@markw65/monkeyc-optimizer";
 import {
   formatAstLongLines,
   isLocal,
   isStateNode,
   visitReferences,
 } from "@markw65/monkeyc-optimizer/api.js";
-import { ExactOrUnion } from "@markw65/monkeyc-optimizer/build/src/type-flow/types";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import * as vscode from "vscode";
 import { findAnalysis, skipToPosition } from "./project-manager";

@@ -12,6 +12,7 @@ import {
   ProgramState,
   ProgramStateAnalysis,
   ResolvedJungle,
+  TypeMap,
 } from "@markw65/monkeyc-optimizer";
 import {
   createDocumentationMap,
@@ -20,7 +21,6 @@ import {
   visitorNode,
   visitReferences,
 } from "@markw65/monkeyc-optimizer/api.js";
-import { TypeMap } from "@markw65/monkeyc-optimizer/build/src/type-flow/interp";
 import {
   connectiq,
   getDeviceInfo,
