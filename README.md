@@ -558,4 +558,12 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Improvements to the post build optimizer
   - Adds support for the new `Iterate Optimizer` setting.
 
+#### 2.0.53
+
+- Update to [@markw65/monkeyc-optimizer@1.1.16](https://github.com/markw65/monkeyc-optimizer#1116).
+
+  - Improvements to the post build optimizer
+
+- When `useLocalOptimizer` is set, use the locally installed `@markw65/monkeyc-optimizer` for both the source-to-source optimizer, and the post-build optimizer, to ensure repeatable builds.
+
 ---
