@@ -22,6 +22,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
   private closeEmitter = new vscode.EventEmitter<number>();
   onDidClose?: vscode.Event<number> = this.closeEmitter.event;
   private devicePromise: Promise<string | null>;
+  private abortController: AbortController | null = null;
   constructor(
     device: string,
     public options: BuildConfig,
@@ -44,7 +45,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
   }
 
   close() {
-    /* nothing to do */
+    this.abortController && this.abortController.abort();
   }
 
   getMCFunction<T>(
@@ -227,9 +228,14 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
                   /* empty */
                 })
             : Promise.resolve();
+        this.abortController = new AbortController();
         return spawnByLine(exe, args, [logger, logger], {
           cwd: this.options.workspace,
+          signal: this.abortController.signal,
         })
+          .finally(() => {
+            this.abortController = null;
+          })
           .then(() => {
             if (
               program &&
