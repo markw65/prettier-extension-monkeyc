@@ -164,6 +164,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
       this.diagnosticCollection.set(uri, diagnostics[file]);
     };
     logger("Starting optimization step...");
+    const startTime = Date.now();
     const { returnCommand } = this.options;
     return this.getBuildFunction(logger)
       .then((buildFn) =>
@@ -173,7 +174,11 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         })
       )
       .then(({ exe, args, program, product, diagnostics: optimizerDiags }) => {
-        logger("Optimization step completed successfully...\r\n");
+        logger(
+          `Optimization step completed successfully in ${
+            Date.now() - startTime
+          }ms\r\n`
+        );
         processDiagnostics(
           optimizerDiags,
           diagnostics,
