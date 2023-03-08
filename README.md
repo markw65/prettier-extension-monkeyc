@@ -68,6 +68,9 @@ You can provide more control over the build via `tasks.json` and `launch.json`. 
 - `Goto References` and `Peek References`
 - `Outline Mode`, `Goto Symbol` (Cmd-Shift-O), and `Open symbol by name` (Cmd-T)
 - Shows parser issues in the `Problems` tab as you type, rather than when you compile
+- Shows some type checker issues in the `Problems` tab as you type.
+- Provides context sensitive completions
+- Provides function and symbol info on hover
 
 ---
 
@@ -127,13 +130,13 @@ This extension depends on the [VSCode Prettier extension](https://marketplace.vi
 
 #### 2.0.2
 
-- Upgrade to @markw65/monkeyc-optimizer:1.0.4
+- Upgrade to `@markw65/monkeyc-optimizer:1.0.4`
 - Split the build into release and debug, so we can exclude code based on (:release) and (:debug)
 - Optimize away `if (constant)`, `while (false)` and `constant ? E1 : E2`. Convert `do BODY while(false)` to `BODY`
 
 #### 2.0.4
 
-Upgrade to @markw65/prettier-plugin-monkeyc:1.0.12 to fix various parser issues:
+Upgrade to `@markw65/prettier-plugin-monkeyc:1.0.12` to fix various parser issues:
 
 - Allow space after `arg` in `catch ( arg ) {`
 - Allow space after `,` in `for (i = 0 , j = 0; whatever; i++ , j++ ) {`
@@ -149,11 +152,11 @@ Upgrade to @markw65/prettier-plugin-monkeyc:1.0.12 to fix various parser issues:
 - Handle octal literals
 - Parse `new [size]b`
 
-Upgrade to @markw65/monkeyc-optimizer:1.0.4 to fix some optimizer bugs
+Upgrade to `@markw65/monkeyc-optimizer:1.0.4` to fix some optimizer bugs
 
 #### 2.0.5
 
-Upgrade to @markw65/monkeyc-optimizer:1.0.7 to fix some more optimizer bugs found via open source projects.
+Upgrade to `@markw65/monkeyc-optimizer:1.0.7` to fix some more optimizer bugs found via open source projects.
 
 - Fix parsing of quoted strings in jungle files
 - Better error messages from the test framework
@@ -171,11 +174,11 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.7 to fix some more optimizer bugs foun
 
 #### 2.0.6
 
-Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open source projects.
+Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open source projects.
 
 - Improvements
 
-  - Update to @markw65/prettier-plugin-monkeyc:1.0.14
+  - Update to `@markw65/prettier-plugin-monkeyc:1.0.14`
   - Parse and respect \<build\> instructions in resource files
   - Add minimal barrel support
   - Better checking for whether the optimized source is up to date
@@ -200,8 +203,8 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.7
 
-- upgrade to @markw65/monkeyc-optimizer:1.0.9 for better barrel support, and minor bug fixes
-- upgrade to @markw65/prettier-plugin-monkeyc:1.0.15 to fix a bug that dropped attributes on module declarations
+- upgrade to `@markw65/monkeyc-optimizer:1.0.9` for better barrel support, and minor bug fixes
+- upgrade to `@markw65/prettier-plugin-monkeyc:1.0.15` to fix a bug that dropped attributes on module declarations
 - switch to using a CustomExecution for tasks, which keeps everything in-process
 
 #### 2.0.8
@@ -210,7 +213,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.9
 
-- Bump to @markw65/monkeyc-optimizer@1.0.11
+- Bump to `@markw65/monkeyc-optimizer@1.0.11`
 - Properly handle extension disposables
   - prevents potential issues when the extension is repeatedly enabled/disabled, or different workspaces are loaded/unloaded.
 - Switch to typescript
@@ -228,7 +231,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.10
 
-- Bump to @markw65/monkeyc-optimizer@1.0.12
+- Bump to `@markw65/monkeyc-optimizer@1.0.12`
 - Better error handling/reporting when the sdk is missing
 - Use the correct sdk paths on Linux
 
@@ -255,7 +258,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Better handling of multi-project workspaces
   - Better error reporting
   - Reorganize options, and make document links optional
-  - From @markw65/monkeyc-optimizer
+  - From `@markw65/monkeyc-optimizer`
     - Only generate language configs for languages supported by the device, to avoid unnecessary warnings
     - Drop comments when the ast node that contains them is deleted
     - Treat barrel projects with no devices as having all devices
@@ -271,7 +274,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.13
 
-- Update to @markw65/monkeyc-optimizer@1.0.16
+- Update to `@markw65/monkeyc-optimizer@1.0.16`
   - Fixes various minor bugs
   - Adds support for simple inlining
     - Currently limited to functions whose body consists of a single return statement.
@@ -284,7 +287,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.14
 
-- Update to @markw65/monkeyc-optimizer@1.0.16
+- Update to `@markw65/monkeyc-optimizer@1.0.16`
 
   - Fixes a type lookup bug that cause some links to the api docs to go missing.
   - Adds support for inlining functions whose return value is unused.
@@ -300,7 +303,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.16
 
-- Update to @markw65/monkeyc-optimizer@1.0.19
+- Update to `@markw65/monkeyc-optimizer@1.0.19`
 
   - Adds support for statement-level inlining in assignment and return contexts
   - Adds some minor optimizations, mostly to clean up code generated by the inliner
@@ -311,20 +314,20 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.17
 
-- Update to @markw65/monkeyc-optimizer@1.0.19
+- Update to `@markw65/monkeyc-optimizer@1.0.19`
   - Fixes some minor bugs
   - Ensures that functions that get inlined at all callsites are eliminated from the source.
 
 #### 2.0.18
 
-- Update to @markw65/monkeyc-optimizer@1.0.19
+- Update to `@markw65/monkeyc-optimizer@1.0.19`
   - Fixes inlining in expression context when the argument to the callee is one of the caller's parameters
   - Fixes nested inlining
   - Fixes a crash caused by comments on attributes.
 
 #### 2.0.19
 
-- Update to @markw65/monkeyc-optimizer@1.0.22
+- Update to `@markw65/monkeyc-optimizer@1.0.22`
 
   - Major update to the lookup system to match what the device actually does (rather than what the type checker incorrectly thinks it does)
   - Added diagnostics for missing symbols (updated as you type)
@@ -334,7 +337,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.20
 
-- Update to @markw65/monkeyc-optimizer@1.0.25
+- Update to `@markw65/monkeyc-optimizer@1.0.25`
 
   - Fixes bug reporting missing symbols for Method parameters
 
@@ -342,7 +345,7 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
 
 #### 2.0.21
 
-- Update to @markw65/monkeyc-optimizer@1.0.26
+- Update to `@markw65/monkeyc-optimizer@1.0.26`
   - Use `self.` rather than `ClassName.` to qualify names that would otherwise collide with locals, since that works with both public and private variables
   - Fix a bug that caused the inliner to fail to qualify certain names, even if there was a collision with an existing local variables
   - Fix some name lookup issues relating to whether the lookup is done as a type or a value.
@@ -565,5 +568,11 @@ Upgrade to @markw65/monkeyc-optimizer:1.0.8 to fix more issues found via open so
   - Improvements to the post build optimizer
 
 - When `useLocalOptimizer` is set, use the locally installed `@markw65/monkeyc-optimizer` for both the source-to-source optimizer, and the post-build optimizer, to ensure repeatable builds.
+
+#### 2.0.54
+
+- Update to [@markw65/monkeyc-optimizer@1.1.18](https://github.com/markw65/monkeyc-optimizer#1118).
+  - Faster `export`
+  - Properly update `-settings.json` and `-fit_contributions.json` files when running the post build optimizer
 
 ---
