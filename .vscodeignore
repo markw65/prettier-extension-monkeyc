@@ -2,6 +2,8 @@
 .vscode-test/**
 test/**
 src/**
+bin/**
+icons/*.xcf
 .gitignore
 .yarnrc
 vsc-extension-quickstart.md
@@ -9,4 +11,9 @@ vsc-extension-quickstart.md
 **/*.map
 **/.eslintrc.json
 *~
+*.orig
+**/monkeyc-optimizer/build/src/**/*.d.ts
+**/prettier-plugin-monkeyc/build/*.d.ts
+monkeyc-projects.code-workspace
+out*
 # node_modules/prettier
