@@ -575,4 +575,9 @@ Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open 
   - Faster `export`
   - Properly update `-settings.json` and `-fit_contributions.json` files when running the post build optimizer
 
+#### 2.0.55
+
+- Update to [@markw65/monkeyc-optimizer@1.1.19](https://github.com/markw65/monkeyc-optimizer#1119).
+  - Fixes #7
+
 ---
