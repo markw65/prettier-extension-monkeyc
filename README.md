@@ -586,4 +586,9 @@ Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open 
   - Fixes a rare bug in the source to source optimizer
   - Small improvement to dce in the post build optimizer
 
+#### 2.0.57
+
+- Update to [@markw65/monkeyc-optimizer@1.1.21](https://github.com/markw65/monkeyc-optimizer#1121).
+  - Various improvements to both the source to source and post build optimizers
+
 ---
