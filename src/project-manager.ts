@@ -832,6 +832,7 @@ export function getOptimizerBaseConfig(
     "minimizeModules",
     "iterateOptimizer",
     "postBuildOptimizer",
+    "removeArgc",
     "checkTypes",
   ]) {
     if (pmcConfig[i] !== undefined) {

@@ -269,7 +269,8 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
                   return optimizeProgram(
                     tempProg,
                     this.options.developerKeyPath,
-                    program
+                    program,
+                    this.options
                   );
                 })
                 .then(() => null)

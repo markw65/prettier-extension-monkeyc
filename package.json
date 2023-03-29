@@ -188,13 +188,6 @@
             "default": false,
             "scope": "resource"
           },
-          "prettierMonkeyC.postBuildOptimizer": {
-            "order": 13,
-            "type": "boolean",
-            "description": "Whether to enable the post build optimizer",
-            "default": false,
-            "scope": "resource"
-          },
           "prettierMonkeyC.enforceStatic": {
             "type": "string",
             "description": "Whether to perform lookups in static methods as if they were invoked statically",
@@ -244,6 +237,27 @@
             "type": "boolean",
             "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds",
             "default": true,
+            "scope": "resource"
+          }
+        }
+      },
+      {
+        "title": "Post Build Optimizer",
+        "type": "object",
+        "properties": {
+          "prettierMonkeyC.postBuildOptimizer": {
+            "title": "Enable",
+            "order": 0,
+            "type": "boolean",
+            "description": "Whether to enable the post build optimizer",
+            "default": false,
+            "scope": "resource"
+          },
+          "prettierMonkeyC.removeArgc": {
+            "order": 1,
+            "type": "boolean",
+            "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)",
+            "default": false,
             "scope": "resource"
           }
         }
@@ -409,6 +423,10 @@
           "postBuildOptimizer": {
             "type": "boolean",
             "description": "Whether to enable the post build optimizer"
+          },
+          "removeArgc": {
+            "type": "boolean",
+            "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)"
           },
           "enforceStatic": {
             "type": "string",
@@ -606,6 +624,10 @@
               "postBuildOptimizer": {
                 "type": "boolean",
                 "description": "Whether to enable the post build optimizer"
+              },
+              "removeArgc": {
+                "type": "boolean",
+                "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)"
               },
               "enforceStatic": {
                 "type": "string",
