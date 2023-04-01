@@ -259,6 +259,13 @@
             "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)",
             "default": false,
             "scope": "resource"
+          },
+          "prettierMonkeyC.postBuildPRE": {
+            "order": 1,
+            "type": "boolean",
+            "markdownDescription": "Post Build Size based PRE [similar to the source-to-source pass](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre)",
+            "default": true,
+            "scope": "resource"
           }
         }
       },
@@ -427,6 +434,10 @@
           "removeArgc": {
             "type": "boolean",
             "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)"
+          },
+          "postBuildPRE": {
+            "type": "boolean",
+            "markdownDescription": "Post Build Size based PRE [similar to the source-to-source pass](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre)"
           },
           "enforceStatic": {
             "type": "string",
@@ -628,6 +639,10 @@
               "removeArgc": {
                 "type": "boolean",
                 "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)"
+              },
+              "postBuildPRE": {
+                "type": "boolean",
+                "markdownDescription": "Post Build Size based PRE [similar to the source-to-source pass](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre)"
               },
               "enforceStatic": {
                 "type": "string",
