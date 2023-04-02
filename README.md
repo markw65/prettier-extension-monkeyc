@@ -606,4 +606,9 @@ Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open 
 - Update to [@markw65/monkeyc-optimizer@1.1.24](https://github.com/markw65/monkeyc-optimizer#1124).
   - Adds some new post build optimizations
 
+#### 2.0.60
+
+- Update to [@markw65/monkeyc-optimizer@1.1.25](https://github.com/markw65/monkeyc-optimizer#1125).
+  - Fixes a bug in the post build optimizer that could cause code to be removed incorrectly
+
 ---
