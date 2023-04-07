@@ -341,6 +341,22 @@
               "Type match failures and ambiguity are marked as errors"
             ]
           },
+          "optimizationLevel": {
+            "type": "string",
+            "description": "If present, overrides the corresponding `monkeyC' setting.",
+            "enum": [
+              "None",
+              "Basic",
+              "Fast",
+              "Slow"
+            ],
+            "enumDescriptions": [
+              "No optimization",
+              "Basic optimizations for building in debug",
+              "Fast optimizations for building in release",
+              "Slow optimizations that need more time"
+            ]
+          },
           "checkInvalidSymbols": {
             "type": "string",
             "description": "Whether to check for invalid symbols, and how to report them",
@@ -544,6 +560,22 @@
                   "Type match failures are marked as errors, but ambiguity is ignored",
                   "Type match failures are marked as errors, and ambiguity is marked as a warning",
                   "Type match failures and ambiguity are marked as errors"
+                ]
+              },
+              "optimizationLevel": {
+                "type": "string",
+                "description": "If present, overrides the corresponding `monkeyC' setting.",
+                "enum": [
+                  "None",
+                  "Basic",
+                  "Fast",
+                  "Slow"
+                ],
+                "enumDescriptions": [
+                  "No optimization",
+                  "Basic optimizations for building in debug",
+                  "Fast optimizations for building in release",
+                  "Slow optimizations that need more time"
                 ]
               },
               "checkInvalidSymbols": {

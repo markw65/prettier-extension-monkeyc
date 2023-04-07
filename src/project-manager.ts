@@ -802,6 +802,7 @@ export function getOptimizerBaseConfig(
     "jungleFiles",
     "developerKeyPath",
     "typeCheckLevel",
+    "optimizationLevel",
     "compilerOptions",
     "compilerWarnings",
   ] as const) {
