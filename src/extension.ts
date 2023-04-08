@@ -91,6 +91,7 @@ export async function activate(context: vscode.ExtensionContext) {
     { scheme: "file", language: "xml" },
     { scheme: "file", language: "jungle" },
     { scheme: "file", language: "manifest" },
+    { scheme: "file", language: "mss" },
   ];
   context.subscriptions.push(
     (diagnosticCollection =

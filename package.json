@@ -22,6 +22,9 @@
     "onDebug",
     "onDebugDynamicConfigurations:omonkeyc",
     "onLanguage:monkeyc",
+    "onLanguage:mss",
+    "onLanguage:jungle",
+    "onLanguage:manifest",
     "onCommand:workbench.action.tasks.runTask",
     "onCommand:prettiermonkeyc.getTargetDevice",
     "onCommand:vscode.executeDocumentSymbolProvider"
