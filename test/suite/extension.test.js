@@ -10,9 +10,15 @@ suite("Extension Test Suite", function () {
   vscode.window.showInformationMessage("Start all tests.");
 
   const dir = path.resolve(__dirname, "..", "IntegrationTests", "source");
-  setup(function () {
-    this.timeout(0);
-    return vscode.commands.executeCommand("workbench.action.closeAllEditors");
+  this.timeout(0);
+  this.slow(2500);
+
+  suiteSetup(function () {
+    this.slow(10000);
+    console.log("Running suite setup");
+    return getSymbols(path.resolve(dir, "IntegrationTestsSource.mc")).then(() =>
+      vscode.commands.executeCommand("workbench.action.closeAllEditors")
+    );
   });
 
   const getRefs = async (docSym) => {
@@ -137,55 +143,67 @@ suite("Extension Test Suite", function () {
           );
       }, Promise.resolve());
 
-  test("Test Refs and Renames", async function () {
-    this.timeout(0);
-    {
-      symbols = null;
-      let fooFunc, fooVar;
-      [fooFunc, fooVar] = await checkFoo("foo", "foo");
-      await doRename(fooFunc, "bar");
-      [fooFunc, fooVar] = await checkFoo("bar", "foo");
-      await doRename(fooVar, "baz");
-      [fooFunc, fooVar] = await checkFoo("bar", "baz");
-      await revertAll();
-    }
-    {
-      symbols = null;
-      const testsSource = path.resolve(dir, "IntegrationTestsSource.mc");
-      const symbol = await checkSymbolRefs(
-        testsSource,
-        ["buz", "ex"],
-        "Variable",
-        1,
-        1
-      );
-      await doRename(symbol, "ex2");
-      // There's a second catch variable named ex that shouldn't
-      // have been renamed
-      await checkSymbolRefs(testsSource, ["buz", "ex"], "Variable", 1, 1);
-      await checkSymbolRefs(testsSource, ["buz", "ex2"], "Variable", 1, 1);
-      await revertAll();
-    }
-    {
-      symbols = null;
-      const testsSource = path.resolve(dir, "IntegrationTestsView.mc");
-      const symbol = await checkSymbolRefs(
-        testsSource,
-        ["IntegrationTestsView"],
-        "Class",
-        1,
-        1
-      );
-      await doRename(symbol, "SomeOtherView");
-      await checkSymbolRefs(testsSource, ["SomeOtherView"], "Class", 1, 1);
-      const onShow = await checkSymbolRefs(
-        testsSource,
-        ["SomeOtherView", "onShow"],
-        "Method",
-        0,
-        1
-      );
-      await doRename(onShow, "onShowRenamed").then(
+  let serializer = Promise.resolve();
+  test("Test Refs and Renames - locals vs functions", function () {
+    const result = serializer
+      .then(() => {
+        symbols = null;
+      })
+      .then(() => checkFoo("foo", "foo"))
+      .then(([fooFunc]) => doRename(fooFunc, "bar"))
+      .then(() => checkFoo("bar", "foo"))
+      .then(([, fooVar]) => doRename(fooVar, "baz"))
+      .then(() => checkFoo("bar", "baz"))
+      .finally(() => revertAll());
+    serializer = result.catch(() => null);
+    return result;
+  });
+
+  test("Test Refs and Renames - catch variables", function () {
+    const testsSource = path.resolve(dir, "IntegrationTestsSource.mc");
+    const result = serializer
+      .then(() => {
+        symbols = null;
+      })
+      .then(() => checkSymbolRefs(testsSource, ["buz", "ex"], "Variable", 1, 1))
+      .then((symbol) => doRename(symbol, "ex2"))
+      .then(() =>
+        Promise.all([
+          // There's a second catch variable named ex that shouldn't
+          // have been renamed
+          checkSymbolRefs(testsSource, ["buz", "ex"], "Variable", 1, 1),
+          checkSymbolRefs(testsSource, ["buz", "ex2"], "Variable", 1, 1),
+        ])
+      )
+      .finally(() => revertAll());
+    serializer = result.catch(() => null);
+    return result;
+  });
+
+  test("Test Refs and Renames - classes", function () {
+    const testsSource = path.resolve(dir, "IntegrationTestsView.mc");
+    const result = serializer
+      .then(() => {
+        symbols = null;
+      })
+      .then(() =>
+        checkSymbolRefs(testsSource, ["IntegrationTestsView"], "Class", 1, 1)
+      )
+      .then((symbol) => doRename(symbol, "SomeOtherView"))
+      .then(() =>
+        checkSymbolRefs(testsSource, ["SomeOtherView"], "Class", 1, 1)
+      )
+      .then(() =>
+        checkSymbolRefs(
+          testsSource,
+          ["SomeOtherView", "onShow"],
+          "Method",
+          0,
+          1
+        )
+      )
+      .then((onShow) => doRename(onShow, "onShowRenamed"))
+      .then(
         () => {
           throw new Error("Rename should not succeed!");
         },
@@ -194,20 +212,23 @@ suite("Extension Test Suite", function () {
           // failure.
           return;
         }
-      );
-      await checkSymbolRefs(
-        testsSource,
-        ["SomeOtherView", "onShow"],
-        "Method",
-        0,
-        1
-      );
-      await revertAll();
-    }
+      )
+      .then(() =>
+        checkSymbolRefs(
+          testsSource,
+          ["SomeOtherView", "onShow"],
+          "Method",
+          0,
+          1
+        )
+      )
+      .finally(() => revertAll());
+    serializer = result.catch(() => null);
+    return result;
   });
 
-  test("Pause after tests", async function () {
-    this.timeout(0);
-    // await new Promise((resolve) => setTimeout(() => resolve(), 10000));
+  test("Pause after tests", function () {
+    console.log("Pause");
+    // return new Promise((resolve) => setTimeout(() => resolve(), 10000));
   });
 });
