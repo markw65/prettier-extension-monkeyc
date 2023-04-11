@@ -729,6 +729,7 @@
     "watch": "npx tsc --watch",
     "test": "node --inspect ./test/runTest.js",
     "build": "npx tsc",
+    "mc-package": "npm install; npm install @markw65/monkeyc-optimizer; git commit -am \"Update to $(npm list @markw65/monkeyc-optimizer | sed -ne 's/^.*\\(@markw65\\/monkeyc\\)/\\1/p')\"",
     "mc-live": "test -z \"$(git status --untracked-files=no --porcelain || echo dirty)\" && npm install ../monkeyc-optimizer && npm install && git commit -am 'monkeyc-optimizer-live'",
     "prettier-live": "test -z \"$(git status --untracked-files=no --porcelain || echo dirty)\" && npm install ../prettier-plugin-monkeyc && npm install && git commit -am 'prettier-plugin-monkeyc-live'",
     "vscode:uninstall": "node ./uninstall.js",
