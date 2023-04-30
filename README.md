@@ -620,4 +620,9 @@ Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open 
   - Adds support for the new `optimizationLevel` setting in the MonkeyC extension
   - Adds support for `Monkey Styles` (ie personalities and .mss files)
 
+#### 2.0.62
+
+- Update to [@markw65/monkeyc-optimizer@1.1.27](https://github.com/markw65/monkeyc-optimizer#1127).
+  - Fixes an incorrect type checker error
+
 ---
