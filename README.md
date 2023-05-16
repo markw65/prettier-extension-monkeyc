@@ -625,4 +625,11 @@ Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open 
 - Update to [@markw65/monkeyc-optimizer@1.1.27](https://github.com/markw65/monkeyc-optimizer#1127).
   - Fixes an incorrect type checker error
 
+#### 2.0.63
+
+- Update to [@markw65/monkeyc-optimizer@1.1.28](https://github.com/markw65/monkeyc-optimizer#1128).
+  - Fixes a bug introduced in 2.0.61 causing the extension to stop working with sdks prior to 4.2.1
+  - Fixes a bug in the post build optimizer which could cause a method to be invoked with the wrong `self`
+  - Fixes a bug in type propagation which could cause incorrect type inferences as a result of a comparison when the inferred type of one of the operands was `Lang.Object`.
+
 ---
