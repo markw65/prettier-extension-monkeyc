@@ -632,4 +632,10 @@ Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open 
   - Fixes a bug in the post build optimizer which could cause a method to be invoked with the wrong `self`
   - Fixes a bug in type propagation which could cause incorrect type inferences as a result of a comparison when the inferred type of one of the operands was `Lang.Object`.
 
+#### 2.0.64
+
+- Update to [@markw65/monkeyc-optimizer@1.1.29](https://github.com/markw65/monkeyc-optimizer#1129).
+  - Fixes a bug that could incorrectly optimize away an `if` because the declared type of the operand was Object (this is wrong because some Toybox methods are declared as returning an object, but sometimes return null).
+  - Gives better results for `hover` and `compeletions`
+
 ---
