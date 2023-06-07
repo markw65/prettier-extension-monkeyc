@@ -638,4 +638,10 @@ Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open 
   - Fixes a bug that could incorrectly optimize away an `if` because the declared type of the operand was Object (this is wrong because some Toybox methods are declared as returning an object, but sometimes return null).
   - Gives better results for `hover` and `compeletions`
 
+#### 2.0.65
+
+- Update to [@markw65/monkeyc-optimizer@1.1.30](https://github.com/markw65/monkeyc-optimizer#1130).
+  - Fixes an issue where exporting a project that uses barrels could fail.
+  - Fixes a type analysis bug that could result in the type checker incorrectly thinking two types were disjoint.
+
 ---
