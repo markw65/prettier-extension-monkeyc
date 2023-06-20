@@ -644,4 +644,9 @@ Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open 
   - Fixes an issue where exporting a project that uses barrels could fail.
   - Fixes a type analysis bug that could result in the type checker incorrectly thinking two types were disjoint.
 
+#### 2.0.66
+
+- Update to [@markw65/monkeyc-optimizer@1.1.31](https://github.com/markw65/monkeyc-optimizer#1131).
+  - Fixes issues with sdk-6.2.0
+
 ---
