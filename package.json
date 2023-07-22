@@ -16,7 +16,11 @@
   "categories": [
     "Programming Languages",
     "Formatters",
-    "Linters"
+    "Linters",
+    "Debuggers"
+  ],
+  "keywords": [
+    "optimizer"
   ],
   "activationEvents": [
     "onDebug",
