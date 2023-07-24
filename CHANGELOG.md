@@ -2,6 +2,15 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.67
+
+- Update to [@markw65/monkeyc-optimizer@1.1.32](https://github.com/markw65/monkeyc-optimizer#1132).
+
+  - Minor bug fixes, and tweaks for sdk-6.2.x
+
+- Update to README.md and package.json to describe more of the extension's features
+- Move release notes from README.md to CHANGELOG.md
+
 #### 2.0.66
 
 - Update to [@markw65/monkeyc-optimizer@1.1.31](https://github.com/markw65/monkeyc-optimizer#1131).
