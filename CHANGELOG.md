@@ -2,6 +2,11 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.68
+
+- Update to [@markw65/monkeyc-optimizer@1.1.33](https://github.com/markw65/monkeyc-optimizer#1133).
+  - Fixes an edge case bug in the post-optimize array init optimization, and makes the array init optimization work in a few cases where it used to give up.
+
 #### 2.0.67
 
 - Update to [@markw65/monkeyc-optimizer@1.1.32](https://github.com/markw65/monkeyc-optimizer#1132).
