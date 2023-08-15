@@ -2,14 +2,20 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.69
+
+- Update to [@markw65/monkeyc-optimizer@1.1.34](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1134).
+  - minor improvements to the post build optimizer
+  - minor improvements to the type checker
+
 #### 2.0.68
 
-- Update to [@markw65/monkeyc-optimizer@1.1.33](https://github.com/markw65/monkeyc-optimizer#1133).
+- Update to [@markw65/monkeyc-optimizer@1.1.33](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1133).
   - Fixes an edge case bug in the post-optimize array init optimization, and makes the array init optimization work in a few cases where it used to give up.
 
 #### 2.0.67
 
-- Update to [@markw65/monkeyc-optimizer@1.1.32](https://github.com/markw65/monkeyc-optimizer#1132).
+- Update to [@markw65/monkeyc-optimizer@1.1.32](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1132).
 
   - Minor bug fixes, and tweaks for sdk-6.2.x
 
@@ -18,36 +24,36 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.66
 
-- Update to [@markw65/monkeyc-optimizer@1.1.31](https://github.com/markw65/monkeyc-optimizer#1131).
+- Update to [@markw65/monkeyc-optimizer@1.1.31](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1131).
   - Fixes issues with sdk-6.2.0
 
 #### 2.0.65
 
-- Update to [@markw65/monkeyc-optimizer@1.1.30](https://github.com/markw65/monkeyc-optimizer#1130).
+- Update to [@markw65/monkeyc-optimizer@1.1.30](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1130).
   - Fixes an issue where exporting a project that uses barrels could fail.
   - Fixes a type analysis bug that could result in the type checker incorrectly thinking two types were disjoint.
 
 #### 2.0.64
 
-- Update to [@markw65/monkeyc-optimizer@1.1.29](https://github.com/markw65/monkeyc-optimizer#1129).
+- Update to [@markw65/monkeyc-optimizer@1.1.29](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1129).
   - Fixes a bug that could incorrectly optimize away an `if` because the declared type of the operand was Object (this is wrong because some Toybox methods are declared as returning an object, but sometimes return null).
   - Gives better results for `hover` and `compeletions`
 
 #### 2.0.63
 
-- Update to [@markw65/monkeyc-optimizer@1.1.28](https://github.com/markw65/monkeyc-optimizer#1128).
+- Update to [@markw65/monkeyc-optimizer@1.1.28](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1128).
   - Fixes a bug introduced in 2.0.61 causing the extension to stop working with sdks prior to 4.2.1
   - Fixes a bug in the post build optimizer which could cause a method to be invoked with the wrong `self`
   - Fixes a bug in type propagation which could cause incorrect type inferences as a result of a comparison when the inferred type of one of the operands was `Lang.Object`.
 
 #### 2.0.62
 
-- Update to [@markw65/monkeyc-optimizer@1.1.27](https://github.com/markw65/monkeyc-optimizer#1127).
+- Update to [@markw65/monkeyc-optimizer@1.1.27](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1127).
   - Fixes an incorrect type checker error
 
 #### 2.0.61
 
-- Update to [@markw65/monkeyc-optimizer@1.1.26](https://github.com/markw65/monkeyc-optimizer#1126).
+- Update to [@markw65/monkeyc-optimizer@1.1.26](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1126).
   - Fixes a bug in the post build optimizer that could cause pre variables to be inserted too late in the presence of try-catch blocks
   - Fixes an issue where some references from resource files were not available in `Goto references` or `Goto definition`
   - Adds support for `project.optimization` and `project.typecheck` in `.jungle` files
@@ -56,49 +62,49 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.60
 
-- Update to [@markw65/monkeyc-optimizer@1.1.25](https://github.com/markw65/monkeyc-optimizer#1125).
+- Update to [@markw65/monkeyc-optimizer@1.1.25](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1125).
   - Fixes a bug in the post build optimizer that could cause code to be removed incorrectly
 
 #### 2.0.59
 
-- Update to [@markw65/monkeyc-optimizer@1.1.24](https://github.com/markw65/monkeyc-optimizer#1124).
+- Update to [@markw65/monkeyc-optimizer@1.1.24](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1124).
   - Adds some new post build optimizations
 
 #### 2.0.58
 
-- Update to [@markw65/monkeyc-optimizer@1.1.22](https://github.com/markw65/monkeyc-optimizer#1122).
+- Update to [@markw65/monkeyc-optimizer@1.1.22](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1122).
 
   - Fixes [#8](https://github.com/markw65/prettier-extension-monkeyc/issues/8)
   - Adds some new post build optimizations
 
-- Update to [@markw65/monkeyc-optimizer@1.1.23](https://github.com/markw65/monkeyc-optimizer#1123).
+- Update to [@markw65/monkeyc-optimizer@1.1.23](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1123).
   - Fixes an issue building the extension with 1.1.22
 
 #### 2.0.57
 
-- Update to [@markw65/monkeyc-optimizer@1.1.21](https://github.com/markw65/monkeyc-optimizer#1121).
+- Update to [@markw65/monkeyc-optimizer@1.1.21](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1121).
   - Various improvements to both the source to source and post build optimizers
 
 #### 2.0.56
 
-- Update to [@markw65/monkeyc-optimizer@1.1.20](https://github.com/markw65/monkeyc-optimizer#1120).
+- Update to [@markw65/monkeyc-optimizer@1.1.20](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1120).
   - Fixes a rare bug in the source to source optimizer
   - Small improvement to dce in the post build optimizer
 
 #### 2.0.55
 
-- Update to [@markw65/monkeyc-optimizer@1.1.19](https://github.com/markw65/monkeyc-optimizer#1119).
+- Update to [@markw65/monkeyc-optimizer@1.1.19](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1119).
   - Fixes #7
 
 #### 2.0.54
 
-- Update to [@markw65/monkeyc-optimizer@1.1.18](https://github.com/markw65/monkeyc-optimizer#1118).
+- Update to [@markw65/monkeyc-optimizer@1.1.18](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1118).
   - Faster `export`
   - Properly update `-settings.json` and `-fit_contributions.json` files when running the post build optimizer
 
 #### 2.0.53
 
-- Update to [@markw65/monkeyc-optimizer@1.1.16](https://github.com/markw65/monkeyc-optimizer#1116).
+- Update to [@markw65/monkeyc-optimizer@1.1.16](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1116).
 
   - Improvements to the post build optimizer
 
@@ -106,29 +112,29 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.52
 
-- Update to [@markw65/monkeyc-optimizer@1.1.15](https://github.com/markw65/monkeyc-optimizer#1115).
+- Update to [@markw65/monkeyc-optimizer@1.1.15](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1115).
   - Improvements to the post build optimizer
   - Adds support for the new `Iterate Optimizer` setting.
 
 #### 2.0.51
 
-- Update to [@markw65/monkeyc-optimizer@1.1.14](https://github.com/markw65/monkeyc-optimizer#1114).
+- Update to [@markw65/monkeyc-optimizer@1.1.14](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1114).
   - Adds a post build optimizer which optimizes the bytecode
   - Adds the device to the size info line in the build output
 
 #### 2.0.50
 
-- Update to [@markw65/monkeyc-optimizer@1.1.13](https://github.com/markw65/monkeyc-optimizer#1113).
+- Update to [@markw65/monkeyc-optimizer@1.1.13](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1113).
   - Adds support for the [Minimize Modules](https://github.com/markw65/monkeyc-optimizer/wiki/Optimizing-module-imports#minimize-modules) pass.
 
 #### 2.0.49
 
-- Update to [@markw65/monkeyc-optimizer@1.1.12](https://github.com/markw65/monkeyc-optimizer#1112).
+- Update to [@markw65/monkeyc-optimizer@1.1.12](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1112).
   - Fixes some bugs, and makes some improvements to `Single Use Copy Prop`
 
 #### 2.0.48
 
-- Update to [@markw65/monkeyc-optimizer@1.1.11](https://github.com/markw65/monkeyc-optimizer#1111).
+- Update to [@markw65/monkeyc-optimizer@1.1.11](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1111).
 
   - various bug fixes, and adds the new Single Use Copy Prop pass
 
@@ -136,7 +142,7 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.47
 
-- Update to [@markw65/monkeyc-optimizer@1.1.10](https://github.com/markw65/monkeyc-optimizer#1110).
+- Update to [@markw65/monkeyc-optimizer@1.1.10](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1110).
 
   - Fixes various minor bugs
 
@@ -144,13 +150,13 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.46
 
-- Update to [@markw65/monkeyc-optimizer@1.1.9](https://github.com/markw65/monkeyc-optimizer#119).
+- Update to [@markw65/monkeyc-optimizer@1.1.9](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#119).
   - Fixes a crash
   - Adds a minimizeLocals pass to reduce stack usage, and sometimes reduce code size.
 
 #### 2.0.45
 
-- Update to [@markw65/monkeyc-optimizer@1.1.8](https://github.com/markw65/monkeyc-optimizer#118).
+- Update to [@markw65/monkeyc-optimizer@1.1.8](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#118).
 
   - Fixes a type checker warning where the type checker incorrectly deduced that a variable could be null
   - Adds various features to support the new `SignatureHelpProvider` and `CompletionItemProvider`
@@ -160,33 +166,33 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.44
 
-- Update to [@markw65/monkeyc-optimizer@1.1.7](https://github.com/markw65/monkeyc-optimizer#117).
+- Update to [@markw65/monkeyc-optimizer@1.1.7](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#117).
   - Fix an inlining bug that could make a local from the inlined function appear to be in the enclosing scope. If there was a same named variable in the enclosing scope, the type checker would see both definitions, and think the type was unknown (since the local doesn't have a declared type), resulting in an `Any` type for the variable, which could result in some bogus warnings, and might possibly block some optimizations.
 
 #### 2.0.43
 
-- Update to [@markw65/monkeyc-optimizer@1.1.6](https://github.com/markw65/monkeyc-optimizer#116).
+- Update to [@markw65/monkeyc-optimizer@1.1.6](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#116).
   - various bug fixes to prevent bogus warnings.
 
 #### 2.0.42
 
-- Update to [@markw65/monkeyc-optimizer@1.1.4](https://github.com/markw65/monkeyc-optimizer#114).
+- Update to [@markw65/monkeyc-optimizer@1.1.4](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#114).
 - Use type map from analysis to provide better symbol resolution for Goto Ref/Def etc.
 
 #### 2.0.41
 
-- Update to [@markw65/monkeyc-optimizer@1.1.3](https://github.com/markw65/monkeyc-optimizer#113).
+- Update to [@markw65/monkeyc-optimizer@1.1.3](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#113).
 - Include new inline origins info in diagnostics, so that you can see exactly where an error message came from.
 - Include new uri info in diagnostics (when provided).
 
 #### 2.0.40
 
-- Update to [@markw65/monkeyc-optimizer@1.1.2](https://github.com/markw65/monkeyc-optimizer#112).
+- Update to [@markw65/monkeyc-optimizer@1.1.2](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#112).
   - Mostly fixes for edge cases where the new optimizer did worse than the old.
 
 #### 2.0.39
 
-- Update to [@markw65/monkeyc-optimizer@1.1.0](https://github.com/markw65/monkeyc-optimizer#110).
+- Update to [@markw65/monkeyc-optimizer@1.1.0](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#110).
   - The optimizer has been mostly rewritten based on a type analysis and propagation pass
   - There are new settings to control the optimizer:
     - `trustDeclaredTypes` - default `true`. Whether to use monkeyc type annotations when deciding what can be optimized.
@@ -195,18 +201,18 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.38
 
-- Update to [@markw65/monkeyc-optimizer@1.0.45](https://github.com/markw65/monkeyc-optimizer#1045).
+- Update to [@markw65/monkeyc-optimizer@1.0.45](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1045).
 
 #### 2.0.37
 
-- Update to [@markw65/monkeyc-optimizer@1.0.44](https://github.com/markw65/monkeyc-optimizer#1044). Amongst other things:
+- Update to [@markw65/monkeyc-optimizer@1.0.44](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1044). Amongst other things:
   - More comprehensive constant folding [#6](https://github.com/markw65/prettier-extension-monkeyc/issues/6)
   - More comprehensive parsing of code embedded in resource files
   - Fixes a couple of minor parser issues
 
 #### 2.0.36
 
-- Update to [@markw65/monkeyc-optimizer@1.0.43](https://github.com/markw65/monkeyc-optimizer#1043). Amongst other things:
+- Update to [@markw65/monkeyc-optimizer@1.0.43](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1043). Amongst other things:
 
   - Fixes a couple of windows issues, introduced in 2.0.35
   - Fixes some issues jumping between refs and defs
@@ -217,13 +223,13 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.35
 
-- Update to [@markw65/monkeyc-optimizer@1.0.42](https://github.com/markw65/monkeyc-optimizer#1042). Amongst other things:
+- Update to [@markw65/monkeyc-optimizer@1.0.42](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1042). Amongst other things:
   - Much faster code analysis, resulting in snappier updates when editing .mc files
   - Better resource file support, so that Refs and Defs work seamlessly across `monkeyc`, `resource` and `manifest` files
 
 #### 2.0.34
 
-- Update to [@markw65/monkeyc-optimizer@1.0.41](https://github.com/markw65/monkeyc-optimizer#1041). Amongst other things:
+- Update to [@markw65/monkeyc-optimizer@1.0.41](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1041). Amongst other things:
 
   - Fixes a bug that could cause `and` and `or` to be incorrectly optimized
   - Fixes a bug that could prevent `has` from being optimized to false
@@ -236,7 +242,7 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.33
 
-- Update to [@markw65/monkeyc-optimizer@1.0.39](https://github.com/markw65/monkeyc-optimizer#1039). Amongst other things:
+- Update to [@markw65/monkeyc-optimizer@1.0.39](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1039). Amongst other things:
   - Better optimization of `x has :y` when `x` definitely doesn't have `y`
   - Better analysis of projects using barrels (no change to the actual build), so that `Goto definition` etc will take you to a definition in a barrel.
   - Finds all symbols defined in resource files, so that `Goto definition` will take you to the resource definition (or list all of them if there's more than one). Currently `Goto References` won't find references in resource files, but will find all .mc file references to the resources. Also at present you can't click on the definition to find the .mc file references. I'm planning to fix this in a future release.
@@ -247,30 +253,30 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.32
 
-- Update to [@markw65/monkeyc-optimizer@1.0.38](https://github.com/markw65/monkeyc-optimizer#1038).
+- Update to [@markw65/monkeyc-optimizer@1.0.38](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1038).
   - Improves inlining heuristics, to allow inlining the condition of an if-statement, and to allow the inline function to be embedded in a more complex expression. See [The @markw65/monkeyc-optimizer wiki](https://github.com/markw65/monkeyc-optimizer/wiki/Inlining) for more details of inlining.
 
 #### 2.0.31
 
-- Update to [@markw65/monkeyc-optimizer@1.0.37](https://github.com/markw65/monkeyc-optimizer#1037).
+- Update to [@markw65/monkeyc-optimizer@1.0.37](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1037).
   - Embeds extensionVersion and optimizerVersion in the generated build-info.json
 - Look for a project local @markw65/monkeyc-optimizer, and use it for builds if found.
 - Add binary size info (code and data size) to build output.
 
 #### 2.0.30
 
-- Update to [@markw65/prettier-plugin-monkeyc@1.0.35](https://github.com/markw65/prettier-plugin-monkeyc#1035) and [@markw65/monkeyc-optimizer@1.0.36](https://github.com/markw65/monkeyc-optimizer#1036).
+- Update to [@markw65/prettier-plugin-monkeyc@1.0.35](https://github.com/markw65/prettier-plugin-monkeyc#1035) and [@markw65/monkeyc-optimizer@1.0.36](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1036).
   - Fixes [prettier-plugin-monkeyc#1](https://github.com/markw65/prettier-plugin-monkeyc/issues/1)
   - Fixes [monkeyc-optimizer#1](https://github.com/markw65/monkeyc-optimizer/issues/1)
 
 #### 2.0.29
 
-- Update to [@markw65/monkeyc-optimizer@1.0.35](https://github.com/markw65/monkeyc-optimizer#1035).
+- Update to [@markw65/monkeyc-optimizer@1.0.35](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1035).
   - Fixes a bug that prevented the optimizer from working in some cases.
 
 #### 2.0.28
 
-- Update to [@markw65/monkeyc-optimizer@1.0.34](https://github.com/markw65/monkeyc-optimizer#1034).
+- Update to [@markw65/monkeyc-optimizer@1.0.34](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1034).
 
   - Optimized files use prettier options when formatting
 
@@ -278,13 +284,13 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.27
 
-- Update to [@markw65/monkeyc-optimizer@1.0.33](https://github.com/markw65/monkeyc-optimizer#1033).
+- Update to [@markw65/monkeyc-optimizer@1.0.33](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1033).
   - Fixes a bug where PRE could combine Float and Doubles with the same value, or Number and Longs with the same value.
   - Adds support for `(:keep)` to prevent removing a function that appears to be unused.
 
 #### 2.0.26
 
-- Update to [@markw65/monkeyc-optimizer@1.0.32](https://github.com/markw65/monkeyc-optimizer#1031). Highlights include:
+- Update to [@markw65/monkeyc-optimizer@1.0.32](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1031). Highlights include:
   - Adds an unused variable cleanup pass
   - Improves function side-effect analysis, which gets better results for inlining and size-based PRE.
   - Fixes a bug that caused size-based PRE to miss a lot of opportunities.
@@ -292,13 +298,13 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.25
 
-- Update to [@markw65/monkeyc-optimizer@1.0.30](https://github.com/markw65/monkeyc-optimizer#1030).
+- Update to [@markw65/monkeyc-optimizer@1.0.30](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1030).
   - Fixes a couple of inliner issues
   - Small improvement to heuristics for PRE
 
 #### 2.0.24
 
-- Update to [@markw65/monkeyc-optimizer@1.0.29](https://github.com/markw65/monkeyc-optimizer#1029) for various new functionality.
+- Update to [@markw65/monkeyc-optimizer@1.0.29](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1029) for various new functionality.
 - Add options to the settings, tasks.json and launch.json to control size based PRE.
 - Add "Clean Optimized Build" command to remove all the generated files.
 - Bug fixes
