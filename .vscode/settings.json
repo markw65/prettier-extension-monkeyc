@@ -2,5 +2,25 @@
   "javascript.validate.enable": true,
   "typescript.validate.enable": true,
   "typescript.tsdk": "./node_modules/typescript/lib",
-  "task.allowAutomaticTasks": "on"
+  "task.allowAutomaticTasks": "on",
+  "cSpell.words": [
+    "bytecodes",
+    "callees",
+    "callsites",
+    "connectiq",
+    "consts",
+    "Defn",
+    "Defns",
+    "docinfo",
+    "inlines",
+    "lnum",
+    "misparsed",
+    "prettiermonkeyc",
+    "Pseudoterminal",
+    "Toybox",
+    "typecheck",
+    "typechecker",
+    "uncompilable",
+    "uniquify"
+  ]
 }
