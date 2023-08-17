@@ -89,9 +89,14 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
                     }
                     doc = docinfo?.get(decl.fullName);
                   } else {
-                    result += formatAstLongLines(decl);
+                    result += formatAstLongLines(self.node);
                   }
-                  if (typeString && decl.type === "VariableDeclarator") {
+                  if (
+                    typeString &&
+                    (decl.type === "VariableDeclarator" ||
+                      decl.type === "BinaryExpression" ||
+                      decl.type === "Identifier")
+                  ) {
                     result += ` (${typeString})`;
                   }
                   if (doc) {
