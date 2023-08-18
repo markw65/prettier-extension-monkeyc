@@ -17,6 +17,13 @@ export class MonkeyCSignatureProvider implements vscode.SignatureHelpProvider {
     position: vscode.Position,
     _cancellationToken: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.SignatureHelp> {
+    if (
+      vscode.workspace
+        .getConfiguration("prettierMonkeyC", document)
+        .get("disableSignature") === true
+    ) {
+      return null;
+    }
     return findAnalysis(
       document,
       (analysis, ast, fileName, isLastGood, project) => {

@@ -27,6 +27,13 @@ export class MonkeyCCompletionItemProvider
   ): vscode.ProviderResult<
     vscode.CompletionItem[] | vscode.CompletionList<vscode.CompletionItem>
   > {
+    if (
+      vscode.workspace
+        .getConfiguration("prettierMonkeyC", document)
+        .get("disableCompletion") === true
+    ) {
+      return null;
+    }
     return findAnalysis(
       document,
       (analysis, ast, fileName, isLastGood, project) => {

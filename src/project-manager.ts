@@ -56,6 +56,7 @@ export class Project implements vscode.Disposable {
   private lastDevice: string | null = null;
   private functionDocumentation: Promise<Map<string, string> | null> | null =
     null;
+  private disableAnalysis = false;
 
   static create(workspaceFolder: vscode.WorkspaceFolder) {
     const options = getOptimizerBaseConfig(workspaceFolder);
@@ -123,6 +124,15 @@ export class Project implements vscode.Disposable {
       new vscode.RelativePattern(connectiq, "current-sdk.cfg")
     );
 
+    const disableAnalysis = () =>
+      vscode.workspace
+        .getConfiguration("prettierMonkeyC", this.workspaceFolder)
+        .get("disableAnalysis")
+        ? true
+        : false;
+
+    this.disableAnalysis = disableAnalysis();
+
     this.disposables.push(
       this.diagnosticCollection,
       vscode.workspace.onDidChangeConfiguration((e) => {
@@ -132,7 +142,11 @@ export class Project implements vscode.Disposable {
         ) {
           const old = JSON.stringify(this.options);
           this.options = getOptimizerBaseConfig(this.workspaceFolder);
-          if (JSON.stringify(this.options) !== old) {
+          if (
+            disableAnalysis() !== this.disableAnalysis ||
+            JSON.stringify(this.options) !== old
+          ) {
+            this.disableAnalysis = disableAnalysis();
             this.reloadJungles(this.currentAnalysis, this.resources);
           }
         }
@@ -292,6 +306,10 @@ export class Project implements vscode.Disposable {
       this.jungleResult;
     this.buildRuleDependencies = buildDependencies;
     this.resources = resources;
+    if (this.disableAnalysis) {
+      this.lastGoodAnalysis = null;
+      return Promise.resolve();
+    }
     return getProjectAnalysis(targets, oldAnalysis, xml, this.options)
       .then((analysis) => {
         this.currentAnalysis = analysis;

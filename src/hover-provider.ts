@@ -26,6 +26,14 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
     position: vscode.Position,
     _cancellationToken: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Hover> {
+    if (
+      vscode.workspace
+        .getConfiguration("prettierMonkeyC", document)
+        .get("disableHover") === true
+    ) {
+      return null;
+    }
+
     return findAnalysis(
       document,
       (analysis, ast, fileName, isLastGood, project) => {

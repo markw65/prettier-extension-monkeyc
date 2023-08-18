@@ -14,11 +14,11 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
     document: vscode.TextDocument,
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.DocumentLink[]> {
-    const config = vscode.workspace.getConfiguration(
-      "prettierMonkeyC",
-      document
-    );
-    if (config && !config.documentLinks) {
+    if (
+      vscode.workspace
+        .getConfiguration("prettierMonkeyC", document)
+        .get("documentLinks") === false
+    ) {
       return null;
     }
     const project = findProject(document.uri);
