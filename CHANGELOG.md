@@ -2,6 +2,17 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.70
+
+- Update to [@markw65/monkeyc-optimizer@1.1.35](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1135).
+
+  - Minor improvements to the type checker
+  - Significant speed up in the .xml parser
+
+- Settings
+  - Adds disableAnalysis to completely disable the background analysis (useful on slow machines where it can make the editor sluggish). Doing so effectively turns off all the language support features the extension provides, while still allowing you to build/run optimized versions of your code.
+  - Adds disableHover, disableCompletion and disableSignature to turn off the hover, completion and signature providers respectively.
+
 #### 2.0.69
 
 - Update to [@markw65/monkeyc-optimizer@1.1.34](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1134).
@@ -37,7 +48,7 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 - Update to [@markw65/monkeyc-optimizer@1.1.29](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1129).
   - Fixes a bug that could incorrectly optimize away an `if` because the declared type of the operand was Object (this is wrong because some Toybox methods are declared as returning an object, but sometimes return null).
-  - Gives better results for `hover` and `compeletions`
+  - Gives better results for `hover` and `completions`
 
 #### 2.0.63
 
