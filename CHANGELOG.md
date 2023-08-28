@@ -2,6 +2,11 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.71
+
+- Update to [@markw65/monkeyc-optimizer@1.1.36](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1136).
+  - Fixes an issue that didn't allow `import` or `using` inside a class declaration.
+
 #### 2.0.70
 
 - Update to [@markw65/monkeyc-optimizer@1.1.35](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1135).
