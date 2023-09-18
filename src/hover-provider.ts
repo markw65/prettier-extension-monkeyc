@@ -46,7 +46,7 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
         if (!result) return null;
         const [self, parent] = result;
         return functionDocumentation.then((docinfo) => {
-          const hoverTexts: string[] = [];
+          const hoverTexts: Promise<string>[] = [];
           const typeString = self.type
             ? display(self.type).replace(/[<>]/g, "\\$&")
             : null;
@@ -54,7 +54,7 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
             if (self.node === parent.node.callee) {
               hoverTexts.push(
                 ...self.decls
-                  .map((decl) => {
+                  .map(async (decl) => {
                     if (decl.type !== "FunctionDeclaration") {
                       return null;
                     }
@@ -63,12 +63,12 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
                     const result =
                       (decl.stack
                         ? decl.stack[decl.stack.length - 1].sn.fullName + ": "
-                        : "") + formatAstLongLines(decl.node);
+                        : "") + (await formatAstLongLines(decl.node));
                     decl.node.body = body;
                     const doc = docinfo?.get(decl.fullName);
                     return doc ? `${result}\n\n${doc}` : result;
                   })
-                  .filter((s): s is string => s != null)
+                  .filter((s): s is Promise<string> => s != null)
               );
             } else {
               const arg = parent.node.arguments.indexOf(
@@ -76,9 +76,12 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
               );
               if (arg >= 0) {
                 hoverTexts.push(
-                  `${formatAstLongLines(parent.node.callee)}  \nargument (${
-                    arg + 1
-                  })${typeString ? `: ${typeString}` : ""}`
+                  Promise.resolve(formatAstLongLines(parent.node.callee)).then(
+                    (callee) =>
+                      `${callee}  \nargument (${arg + 1})${
+                        typeString ? `: ${typeString}` : ""
+                      }`
+                  )
                 );
               }
             }
@@ -86,7 +89,7 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
           if (!hoverTexts.length) {
             hoverTexts.push(
               ...self.decls
-                .map((decl) => {
+                .map(async (decl) => {
                   let result = "";
                   let doc: string | undefined;
                   if (isStateNode(decl)) {
@@ -97,7 +100,7 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
                     }
                     doc = docinfo?.get(decl.fullName);
                   } else {
-                    result += formatAstLongLines(self.node);
+                    result += await formatAstLongLines(self.node);
                   }
                   if (
                     typeString &&
@@ -112,18 +115,19 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
                   }
                   return result.length ? result : null;
                 })
-                .filter((s): s is string => s != null)
+                .filter((s): s is Promise<string> => s != null)
             );
           }
           if (!hoverTexts.length) {
             return null;
           }
-          return new vscode.Hover(
-            hoverTexts.map((t) => new vscode.MarkdownString(t))
+          return Promise.all(hoverTexts).then(
+            (hoverTexts) =>
+              new vscode.Hover(
+                hoverTexts.map((t) => new vscode.MarkdownString(t))
+              )
           );
         });
-
-        return null;
       }
     );
   }

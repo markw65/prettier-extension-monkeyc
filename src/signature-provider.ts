@@ -49,36 +49,42 @@ export class MonkeyCSignatureProvider implements vscode.SignatureHelpProvider {
         );
         const arg = result[1];
         return functionDocumentation.then((docinfo) =>
-          findDefinition(document, calleePosition, false).then((result) => {
-            const help = new vscode.SignatureHelp();
-            help.signatures = result.results.flatMap((lookupDef) =>
-              lookupDef.results.flatMap((decl) => {
-                if (decl.type !== "FunctionDeclaration") return [];
-                const body = decl.node.body;
-                decl.node.body = null;
-                const sig = new vscode.SignatureInformation(
-                  formatAstLongLines(decl.node)
-                );
-                decl.node.body = body;
-                sig.parameters = decl.node.params.map(
-                  (param) =>
-                    new vscode.ParameterInformation(
-                      variableDeclarationName(param)
-                    )
-                );
-                const doc = docinfo?.get(decl.fullName);
-                if (doc) {
-                  sig.documentation = new vscode.MarkdownString(doc);
-                }
-                return sig;
-              })
-            );
-            help.activeParameter = arg;
-            return help;
-          })
+          findDefinition(document, calleePosition, false).then((result) =>
+            Promise.all(
+              result.results.flatMap((lookupDef) =>
+                lookupDef.results.map(async (decl) => {
+                  if (decl.type !== "FunctionDeclaration") return null;
+                  const body = decl.node.body;
+                  decl.node.body = null;
+                  const sig = new vscode.SignatureInformation(
+                    await formatAstLongLines(decl.node)
+                  );
+                  decl.node.body = body;
+                  sig.parameters = decl.node.params.map(
+                    (param) =>
+                      new vscode.ParameterInformation(
+                        variableDeclarationName(param)
+                      )
+                  );
+                  const doc = docinfo?.get(decl.fullName);
+                  if (doc) {
+                    sig.documentation = new vscode.MarkdownString(doc);
+                  }
+                  return sig;
+                })
+              )
+            ).then((signatures) => {
+              const help = new vscode.SignatureHelp();
+              help.signatures = signatures.filter(
+                (s): s is vscode.SignatureInformation => s != null
+              );
+              help.activeParameter = arg;
+              return help;
+            })
+          )
         );
       }
-    ).then((x) => x);
+    );
   }
 }
 

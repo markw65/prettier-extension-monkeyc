@@ -103,10 +103,11 @@ export class MonkeyCCompletionItemProvider
           decls = stack.map((elm) => [elm.sn]);
           name = node.name;
         }
-        if (decls) {
-          return functionDocumentation.then((docinfo) =>
-            findNamesInScope(decls!, name!)
-              .map(([decl, { parent, depth }]) => {
+        if (!decls) return null;
+        return functionDocumentation.then((docinfo) =>
+          Promise.all(
+            findNamesInScope(decls!, name!).map(
+              async ([decl, { parent, depth }]) => {
                 const name = (() => {
                   switch (decl.type) {
                     case "BinaryExpression":
@@ -123,7 +124,7 @@ export class MonkeyCCompletionItemProvider
 
                 const item = new vscode.CompletionItem(name);
                 //item.filterText = result.property.name;
-                const detail = completionDetail(parent, decl);
+                const detail = await completionDetail(parent, decl);
                 if (detail) {
                   item.detail = detail.replace(/\$\.(Toybox\.)?/g, "");
                 }
@@ -146,11 +147,12 @@ export class MonkeyCCompletionItemProvider
                   item.range = document.getWordRangeAtPosition(position);
                 }
                 return item;
-              })
-              .filter((item): item is vscode.CompletionItem => item != null)
-          );
-        }
-        return null;
+              }
+            )
+          ).then((items) =>
+            items.filter((item): item is vscode.CompletionItem => item != null)
+          )
+        );
       },
       true
     );
@@ -230,10 +232,10 @@ function completionInfo(
   return null;
 }
 
-function completionDetail(
+async function completionDetail(
   parent: StateNode,
   decl: StateNodeDecl
-): string | null {
+): Promise<string | null> {
   const detail = (() => {
     switch (decl.type) {
       case "ModuleDeclaration":
@@ -257,5 +259,5 @@ function completionDetail(
     return null;
   })();
   if (!detail) return null;
-  return `${parent.fullName}: ${detail}`;
+  return `${parent.fullName}: ${await detail}`;
 }
