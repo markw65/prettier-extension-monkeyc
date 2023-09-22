@@ -21,7 +21,7 @@
   "settings": {
     "javascript.validate.enable": true,
     "typescript.validate.enable": true,
-    "typescript.tsdk": "./node_modules/typescript/lib",
+    "typescript.tsdk": "prettier-extension-monkeyc/node_modules/typescript/lib",
     "editor.formatOnSave": true,
     "task.allowAutomaticTasks": "on",
     "debug.javascript.terminalOptions": {
