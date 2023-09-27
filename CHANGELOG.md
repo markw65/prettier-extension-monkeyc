@@ -2,6 +2,17 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.72
+
+- Update to [@markw65/monkeyc-optimizer@1.1.37](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1137).
+
+  - Diagnostics for operators with incorrect types
+  - Proper tracking of object literal types (`{ :foo => String, 42 => Array<Number> }` for example).
+  - `Graphics.ColorValue`s are converted to hex numbers.
+  - Various parsing speedups.
+
+- Update to [@markw65/prettier-plugin-monkeyc@1.0.53](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1053).
+
 #### 2.0.71
 
 - Update to [@markw65/monkeyc-optimizer@1.1.36](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1136).
