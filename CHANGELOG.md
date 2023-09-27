@@ -2,7 +2,13 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
-#### 2.0.72
+#### 2.0.73
+
+- Update to [@markw65/monkeyc-optimizer@1.1.38](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1138).
+  - Fix a bug that caused diagnostics to be duplicated, and sometimes to have garbled messages
+  - Make the type of `{ :foo => null }` be `{ :foo => Object? }` so that subsequent assignments aren't flagged as errors.
+
+#### 2.0.72 (not released)
 
 - Update to [@markw65/monkeyc-optimizer@1.1.37](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1137).
 
