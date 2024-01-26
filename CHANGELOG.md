@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.74
+
+- Update to [@markw65/monkeyc-optimizer@1.1.40](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1140) and [@markw65/prettier-plugin-monkeyc@1.0.54](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1054).
+  - Adds minimal support for tuples, as implemented in sdk-7.x-beta
+  - Fixes a problem with the post build optimizer caused by a change to the shlv and shrv bytecodes.
+
 #### 2.0.73
 
 - Update to [@markw65/monkeyc-optimizer@1.1.38](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1138).
