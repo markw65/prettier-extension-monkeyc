@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.75
+
+- Update to [@markw65/monkeyc-optimizer@1.1.41](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1141)
+  - Add proper support for tuple types (Sdk-7.x)
+  - Fix a bug with the signature of the initialize method of resource-generated menus
+
 #### 2.0.74
 
 - Update to [@markw65/monkeyc-optimizer@1.1.40](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1140) and [@markw65/prettier-plugin-monkeyc@1.0.54](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1054).
