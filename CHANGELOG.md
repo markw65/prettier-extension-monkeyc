@@ -4,6 +4,11 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.76
 
+- Update to [@markw65/monkeyc-optimizer@1.1.44](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1144)
+  - Proper fix for type mismatch errors relating to Rez.Strings under sdk-7.x, with tests. Previous fix introduced diagnostics with sdk-6.x at TypeCheckLevel=Strict
+
+#### 2.0.76
+
 - Update to [@markw65/monkeyc-optimizer@1.1.43](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1143)
   - Fix bogus type mismatch errors relating to Rez.Strings.\* under sdk-7.x
   - Fix a stack overflow caused by the post build array init optimization
