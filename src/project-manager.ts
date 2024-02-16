@@ -854,6 +854,7 @@ export function getOptimizerBaseConfig(
     "removeArgc",
     "postBuildPRE",
     "checkTypes",
+    "extraExcludes",
   ]) {
     if (pmcConfig[i] !== undefined) {
       if (i !== "typeCheckLevel" || pmcConfig[i] !== "Default") {

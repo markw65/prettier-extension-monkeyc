@@ -73,6 +73,12 @@
             "default": "bin/optimized",
             "scope": "resource"
           },
+          "prettierMonkeyC.extraExcludes": {
+            "type": "string",
+            "markdownDescription": "[Semicolon separated list of excludeAnnotations to add or remove](https://github.com/markw65/monkeyc-optimizer/wiki/The-extraExcludes-Option)",
+            "default": "",
+            "scope": "resource"
+          },
           "prettierMonkeyC.ignoredExcludeAnnotations": {
             "type": "string",
             "description": "Semicolon separated list of excludeAnnotations to ignore, or `*' to ignore all",
@@ -441,6 +447,10 @@
             "type": "string",
             "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
           },
+          "extraExcludes": {
+            "type": "string",
+            "markdownDescription": "[Semicolon separated list of excludeAnnotations to add or remove](https://github.com/markw65/monkeyc-optimizer/wiki/The-extraExcludes-Option)"
+          },
           "ignoredExcludeAnnotations": {
             "type": "string",
             "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
@@ -661,6 +671,10 @@
               "outputPath": {
                 "type": "string",
                 "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+              },
+              "extraExcludes": {
+                "type": "string",
+                "markdownDescription": "[Semicolon separated list of excludeAnnotations to add or remove](https://github.com/markw65/monkeyc-optimizer/wiki/The-extraExcludes-Option)"
               },
               "ignoredExcludeAnnotations": {
                 "type": "string",
