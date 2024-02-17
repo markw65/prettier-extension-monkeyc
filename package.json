@@ -835,6 +835,7 @@
     "fast-glob": "^3.2.12",
     "glob": "^8.0.3",
     "mocha": "^10.1.0",
+    "node-html-parser": "^6.1.12",
     "typescript": "^5.0.4"
   },
   "extensionDependencies": [

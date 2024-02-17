@@ -13,11 +13,13 @@ import {
   ProgramStateAnalysis,
   ResolvedJungle,
   TypeMap,
+  StateNodeDecl,
 } from "@markw65/monkeyc-optimizer";
 import {
   createDocumentationMap,
   hasProperty,
   isStateNode,
+  makeToyboxLink,
   visitorNode,
   visitReferences,
 } from "@markw65/monkeyc-optimizer/api.js";
@@ -29,9 +31,11 @@ import {
 } from "@markw65/monkeyc-optimizer/sdk-util.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import { existsSync } from "fs";
+import { readFile } from "node:fs/promises";
 import * as path from "path";
 import * as vscode from "vscode";
 import { extensionVersion } from "./extension";
+import { HTMLElement, NodeType, parse } from "node-html-parser";
 
 type UpdateElem = { file: string; content: string | null | false };
 
@@ -56,6 +60,7 @@ export class Project implements vscode.Disposable {
   private lastDevice: string | null = null;
   private functionDocumentation: Promise<Map<string, string> | null> | null =
     null;
+  private documentXml: Map<string, Promise<HTMLElement>> | null = null;
   private disableAnalysis = false;
 
   static create(workspaceFolder: vscode.WorkspaceFolder) {
@@ -155,6 +160,7 @@ export class Project implements vscode.Disposable {
       watcher.onDidChange(() => {
         this.reloadJungles(this.currentAnalysis, this.resources);
         this.functionDocumentation = null;
+        this.documentXml = null;
         this.getFunctionDocumentation();
       })
     );
@@ -571,6 +577,80 @@ export class Project implements vscode.Disposable {
       );
     }
     return this.functionDocumentation;
+  }
+
+  async getMarkdownFor(sn: StateNodeDecl): Promise<[string, string] | null> {
+    if (!this.currentAnalysis || !("state" in this.currentAnalysis)) {
+      return null;
+    }
+    const sdk = this.currentAnalysis.state.sdk;
+    if (!sdk) return null;
+    const docPath = makeToyboxLink(sn, sdk + "doc/");
+    if (!docPath) return null;
+    const [docFile, fragment] = docPath.split("#", 2);
+    const remotePath =
+      "https://developer.garmin.com/connect-iq/api-docs/" +
+      docFile.replace(/^.*\/doc\//, "");
+    let xmlPromise = this.documentXml?.get(docFile);
+    if (!xmlPromise) {
+      xmlPromise = readFile(docFile, "utf-8").then((content) => {
+        content = content.replace(/<\/dl><\/dd>/g, "</dd></dl>");
+        return parse(content);
+      });
+      if (!this.documentXml) this.documentXml = new Map();
+      this.documentXml.set(docFile, xmlPromise);
+    }
+    return xmlPromise
+      .then((html) => {
+        if (fragment) {
+          const element = html.querySelector(`#${fragment}`);
+          if (!element) return null;
+          const parent = element.parentNode;
+          switch (parent?.tagName) {
+            case "DIV":
+              return parent.clone() as HTMLElement;
+            case "DL": {
+              const result = parent.clone() as HTMLElement;
+              let keep = false;
+              const children = result.childNodes.filter((child) => {
+                if (child.nodeType === NodeType.ELEMENT_NODE) {
+                  const ce = child as HTMLElement;
+                  if (ce.tagName === "DT") {
+                    keep = ce.attrs.id === fragment;
+                  }
+                }
+                return keep;
+              });
+              result.childNodes = children;
+              return result;
+            }
+          }
+          return null;
+        }
+        const element = html.querySelector("#content");
+        if (!element) return null;
+        const result = element.clone() as HTMLElement;
+        result.querySelector("#instance_method_details")?.remove();
+        result.querySelector("#instance_attr_details")?.remove();
+        result.querySelectorAll("a.summary_toggle").forEach((a) => a.remove());
+        result.querySelectorAll("a.inheritanceTree").forEach((a) => a.remove());
+        return result;
+      })
+      .then((html) => {
+        if (!html) return null;
+        const remotePage = remotePath.replace(/^.*\//, "");
+        html.querySelectorAll("a").forEach((a) => {
+          const href = a.getAttribute("href");
+          if (href?.startsWith("#")) {
+            a.setAttribute("href", remotePage + "\\" + href);
+          }
+        });
+        return [html.removeWhitespace().innerHTML, remotePath] satisfies [
+          string,
+          string
+        ];
+      })
+      .catch(() => null);
   }
 }
 

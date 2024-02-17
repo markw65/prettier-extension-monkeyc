@@ -46,29 +46,27 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
         if (!result) return null;
         const [self, parent] = result;
         return functionDocumentation.then((docinfo) => {
-          const hoverTexts: Promise<string>[] = [];
+          const hoverTexts: Promise<[string, string] | string | null>[] = [];
           const typeString = self.type
             ? display(self.type).replace(/[<>]/g, "\\$&")
             : null;
           if (parent && parent.node.type === "CallExpression") {
             if (self.node === parent.node.callee) {
               hoverTexts.push(
-                ...self.decls
-                  .map(async (decl) => {
-                    if (decl.type !== "FunctionDeclaration") {
-                      return null;
-                    }
-                    const body = decl.node.body;
-                    decl.node.body = null;
-                    const result =
-                      (decl.stack
-                        ? decl.stack[decl.stack.length - 1].sn.fullName + ": "
-                        : "") + (await formatAstLongLines(decl.node));
-                    decl.node.body = body;
-                    const doc = docinfo?.get(decl.fullName);
-                    return doc ? `${result}\n\n${doc}` : result;
-                  })
-                  .filter((s): s is Promise<string> => s != null)
+                ...self.decls.map(async (decl) => {
+                  if (decl.type !== "FunctionDeclaration") {
+                    return null;
+                  }
+                  const body = decl.node.body;
+                  decl.node.body = null;
+                  const result =
+                    (decl.stack
+                      ? decl.stack[decl.stack.length - 1].sn.fullName + ": "
+                      : "") + (await formatAstLongLines(decl.node));
+                  decl.node.body = body;
+                  const doc = docinfo?.get(decl.fullName);
+                  return doc ? `${result}\n\n${doc}` : result;
+                })
               );
             } else {
               const arg = parent.node.arguments.indexOf(
@@ -88,34 +86,46 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
           }
           if (!hoverTexts.length) {
             hoverTexts.push(
-              ...self.decls
-                .map(async (decl) => {
-                  let result = "";
-                  let doc: string | undefined;
-                  if (isStateNode(decl)) {
-                    if (decl.type !== "VariableDeclarator" || !isLocal(decl)) {
-                      result += decl.fullName;
-                    } else {
-                      result += decl.name;
-                    }
-                    doc = docinfo?.get(decl.fullName);
+              ...self.decls.map(async (decl) => {
+                let result = "";
+                let doc: string | undefined;
+                let uri: string | undefined;
+                if (isStateNode(decl)) {
+                  if (decl.type !== "VariableDeclarator" || !isLocal(decl)) {
+                    result += decl.fullName;
                   } else {
-                    result += await formatAstLongLines(self.node);
+                    result += decl.name;
                   }
-                  if (
-                    typeString &&
-                    (decl.type === "VariableDeclarator" ||
-                      decl.type === "BinaryExpression" ||
-                      decl.type === "Identifier")
-                  ) {
-                    result += ` (${typeString})`;
+                  doc = docinfo?.get(decl.fullName);
+                } else {
+                  result += await formatAstLongLines(self.node);
+                }
+                if (!doc) {
+                  const md = (await project.getMarkdownFor(decl)) || undefined;
+                  if (md) {
+                    doc = md[0];
+                    uri = md[1];
                   }
-                  if (doc) {
-                    result += "\n\n" + doc;
+                }
+                if (
+                  typeString &&
+                  (decl.type === "VariableDeclarator" ||
+                    decl.type === "BinaryExpression" ||
+                    decl.type === "Identifier")
+                ) {
+                  result += ` (${typeString})`;
+                }
+                if (doc) {
+                  if (uri) {
+                    return [`<div>${result}<br/>${doc}</div>`, uri] satisfies [
+                      string,
+                      string
+                    ];
                   }
-                  return result.length ? result : null;
-                })
-                .filter((s): s is Promise<string> => s != null)
+                  return doc ? `${result}\n\n${doc}` : result;
+                }
+                return result.length ? result : null;
+              })
             );
           }
           if (!hoverTexts.length) {
@@ -124,7 +134,21 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
           return Promise.all(hoverTexts).then(
             (hoverTexts) =>
               new vscode.Hover(
-                hoverTexts.map((t) => new vscode.MarkdownString(t))
+                hoverTexts
+                  .map((t) => {
+                    if (!t) return null;
+                    const result = new vscode.MarkdownString();
+                    if (Array.isArray(t)) {
+                      result.baseUri = vscode.Uri.parse(t[1]);
+                      t = t[0];
+                    }
+                    if (t.startsWith("<div")) {
+                      result.supportHtml = true;
+                    }
+                    result.appendMarkdown(t);
+                    return result;
+                  })
+                  .filter((mds): mds is NonNullable<typeof mds> => mds != null)
               )
           );
         });
