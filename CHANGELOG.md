@@ -2,6 +2,15 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.78
+
+- Update to [@markw65/monkeyc-optimizer@1.1.46](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1146)
+
+  - Needed for the new `extraExcludes` option
+
+- Adds support for [extraExcludes](https://github.com/markw65/monkeyc-optimizer/wiki/The-extraExcludes-Option).
+- Adds more Toybox documentation inline on hover.
+
 #### 2.0.76
 
 - Update to [@markw65/monkeyc-optimizer@1.1.44](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1144)
