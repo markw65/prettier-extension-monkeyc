@@ -16,4 +16,5 @@ vsc-extension-quickstart.md
 **/prettier-plugin-monkeyc/build/*.d.ts
 monkeyc-projects.code-workspace
 out*
+esbuild.mjs
 # node_modules/prettier
