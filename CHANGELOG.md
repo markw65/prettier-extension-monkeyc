@@ -2,6 +2,14 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.79
+
+- Update to [@markw65/monkeyc-optimizer@1.1.49](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1149)
+  - Fix a bug in cleanupUnusedVars that could cause the wrong variable to be removed
+  - Allow variables mixed with literals in jungle files
+  - Allow Char as operands to relational operators
+  - Include Null in dictionary return type
+
 #### 2.0.78
 
 - Update to [@markw65/monkeyc-optimizer@1.1.46](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1146)
