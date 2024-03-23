@@ -2,6 +2,13 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.80
+
+- Update to [@markw65/monkeyc-optimizer@1.1.50](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1150)
+  - Add a diagnostic when an inline function doesn't get removed
+  - No diagnostics for String + Symbol, or String + Method, or String + Object, or String + Enum
+  - Fix a bug in minimizeLocals
+
 #### 2.0.79
 
 - Update to [@markw65/monkeyc-optimizer@1.1.49](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1149)
