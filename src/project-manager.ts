@@ -605,27 +605,22 @@ export class Project implements vscode.Disposable {
         if (fragment) {
           const element = html.querySelector(`#${fragment}`);
           if (!element) return null;
-          const parent = element.parentNode;
-          switch (parent?.tagName) {
-            case "DIV":
-              return parent.clone() as HTMLElement;
-            case "DL": {
-              const result = parent.clone() as HTMLElement;
-              let keep = false;
-              const children = result.childNodes.filter((child) => {
-                if (child.nodeType === NodeType.ELEMENT_NODE) {
-                  const ce = child as HTMLElement;
-                  if (ce.tagName === "DT") {
-                    keep = ce.attrs.id === fragment;
-                  }
+          const parent = element.parentNode?.clone() as HTMLElement | undefined;
+          if (!parent) return element;
+          if (element.tagName === "DT") {
+            let keep = false;
+            const children = parent.childNodes.filter((child) => {
+              if (child.nodeType === NodeType.ELEMENT_NODE) {
+                const ce = child as HTMLElement;
+                if (ce.tagName === "DT") {
+                  keep = ce.attrs.id === fragment;
                 }
-                return keep;
-              });
-              result.childNodes = children;
-              return result;
-            }
+              }
+              return keep;
+            });
+            parent.childNodes = children;
           }
-          return null;
+          return parent;
         }
         const element = html.querySelector("#content");
         if (!element) return null;
