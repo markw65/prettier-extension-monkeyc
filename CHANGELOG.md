@@ -2,6 +2,15 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.81
+
+- Update to [@markw65/monkeyc-optimizer@1.1.51](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1151)
+
+  - Fix a bug where a call with mismatched arguments could be marked as side-effect free, and then removed.
+  - Don't inline functions with mis-matched arguments, and issue a diagnostic.
+
+- Refine hover info for instance vars to just show the specific instance var, rather than everything in the class/module.
+
 #### 2.0.80
 
 - Update to [@markw65/monkeyc-optimizer@1.1.50](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1150)
