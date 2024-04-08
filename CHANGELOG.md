@@ -2,6 +2,14 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.82
+
+- Update to [@markw65/monkeyc-optimizer@1.1.53](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1153)
+  - Allows excludeAnnotations on typedefs
+  - Allows arbitrary initializers for enums
+  - Fix a few nits with the post build optimizer
+  - Add support for System 5 .prg files, including new bytecodes.
+
 #### 2.0.81
 
 - Update to [@markw65/monkeyc-optimizer@1.1.51](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1151)
