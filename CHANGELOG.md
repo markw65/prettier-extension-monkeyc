@@ -2,7 +2,13 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
-#### 2.0.83
+#### 2.0.85
+
+- Update to [@markw65/monkeyc-optimizer@1.1.56](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1156)
+  - Fix regression caused by the fix to #24 (Fixes #26)
+  - Fix bug in the post build optimizer for system 7 devices, caused by not handling the new argcincsp bytecode
+
+#### 2.0.84
 
 - Update to [@markw65/monkeyc-optimizer@1.1.55](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1155)
   - Allow class typedef lookups from static methods
