@@ -4,6 +4,12 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### 2.0.83
 
+- Update to [@markw65/monkeyc-optimizer@1.1.55](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1155)
+  - Allow class typedef lookups from static methods
+  - Fix method lookups on enum values
+
+#### 2.0.83
+
 - Update to [@markw65/monkeyc-optimizer@1.1.54](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1154)
   - Fix return types of Dictionary.values() and Dictionary.keys()
   - Fix issue with single-copy-prop creating stores that the Garmin compiler can't parse
