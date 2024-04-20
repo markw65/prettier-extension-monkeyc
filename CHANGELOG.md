@@ -2,6 +2,14 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.88
+
+- Update to [@markw65/monkeyc-optimizer@1.1.57](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1157)
+  - Include ConditionalExpression and LogicalExpression in evaluateFunction
+  - Fix personality search path (Fixes # 27)
+  - Use fully qualified names for enum typedefs (Fixes # 28)
+  - Fix auto-inlining of protected functions (Fixes #29)
+
 #### 2.0.85
 
 - Update to [@markw65/monkeyc-optimizer@1.1.56](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1156)
