@@ -2,7 +2,14 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
-#### 2.0.88
+#### 2.0.87
+
+- Update to [@markw65/monkeyc-optimizer@1.1.58](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1158)
+  - Properly quote paths in the generated jungle
+  - Take account of all references from resource files
+  - Include Null in the types of uninitialized variables in their initialize method
+
+#### 2.0.86
 
 - Update to [@markw65/monkeyc-optimizer@1.1.57](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1157)
   - Include ConditionalExpression and LogicalExpression in evaluateFunction
