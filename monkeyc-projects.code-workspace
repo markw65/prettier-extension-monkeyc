@@ -11,7 +11,7 @@
       "path": "../monkeyc-optimizer/test/OptimizerTests"
     },
     {
-      "name": "IntegrationTests",
+      "name": "IntegrationTestsXX",
       "path": "test/IntegrationTests"
     },
     {

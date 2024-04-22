@@ -73,7 +73,11 @@ export class OptimizedMonkeyCDebugConfigProvider
       return null;
     }
 
-    const basePath = path.join(workspace, "bin", `optimized-${folder.name}`);
+    const basePath = path.join(
+      workspace,
+      "bin",
+      `optimized-${path.basename(workspace)}`
+    );
     // The monkeyc resolveDebugConfigurationWithSubstitutedVariables
     // would overwrite prg, prgDebugXml and settingsJson. By creating the config
     // with type == "omonkeyc", and then switching it here, it goes straight to the
