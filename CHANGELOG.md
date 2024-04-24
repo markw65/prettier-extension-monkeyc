@@ -2,6 +2,11 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.89
+
+- Update to [@markw65/monkeyc-optimizer@1.1.59](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1159)
+  - Getv and Putv can directly access local 0 (Fixes #34)
+
 #### 2.0.88
 
 - Use directory name when choosing .prg file to run, rather than VSCode Folder name. Fixes #33
