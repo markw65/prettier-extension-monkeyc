@@ -149,6 +149,7 @@ export async function activate(context: vscode.ExtensionContext) {
         if (Array.isArray(args) && args.length && typeof args[0] === "string") {
           ws = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args[0]));
         }
+        if (!ws) ws = OptimizedMonkeyCDebugConfigProvider.lastWorkspace;
         if (!ws) ws = workspaceOrNull();
         return ws && findProject(ws.uri)?.getDeviceToBuild();
       }

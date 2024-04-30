@@ -15,8 +15,22 @@ export const baseDebugConfig = {
 export class OptimizedMonkeyCDebugConfigProvider
   implements vscode.DebugConfigurationProvider
 {
+  static lastWorkspace: vscode.WorkspaceFolder | undefined;
+
   provideDebugConfigurations(_folder: vscode.WorkspaceFolder) {
     return [baseDebugConfig];
+  }
+
+  resolveDebugConfiguration(
+    folder: vscode.WorkspaceFolder,
+    config: vscode.DebugConfiguration,
+    _token: vscode.CancellationToken
+  ) {
+    if (folder) {
+      OptimizedMonkeyCDebugConfigProvider.lastWorkspace =
+        vscode.workspace.getWorkspaceFolder(folder.uri);
+    }
+    return config;
   }
 
   async resolveDebugConfigurationWithSubstitutedVariables(
