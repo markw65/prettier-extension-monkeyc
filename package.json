@@ -10,7 +10,7 @@
     "vscode": "^1.65.0"
   },
   "dependencies": {
-    "@markw65/monkeyc-optimizer": "^1.1.59",
+    "@markw65/monkeyc-optimizer": "^1.1.60",
     "@markw65/prettier-plugin-monkeyc": "^1.0.54"
   },
   "categories": [
@@ -271,7 +271,8 @@
             "type": "boolean",
             "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)",
             "default": false,
-            "scope": "resource"
+            "scope": "resource",
+            "deprecationMessage": "No longer supported. Although they continue to work when side loaded, Garmin's app store will reject apps with argc removed."
           },
           "prettierMonkeyC.postBuildPRE": {
             "order": 1,
@@ -497,7 +498,7 @@
           },
           "removeArgc": {
             "type": "boolean",
-            "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)"
+            "markdownDescription": "No longer supported. Although they continue to work when side loaded, Garmin's app store will reject apps with argc removed."
           },
           "postBuildPRE": {
             "type": "boolean",
@@ -722,7 +723,8 @@
               },
               "removeArgc": {
                 "type": "boolean",
-                "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)"
+                "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)",
+                "deprecationMessage": "No longer supported. Although they continue to work when side loaded, Garmin's app store will reject apps with argc removed."
               },
               "postBuildPRE": {
                 "type": "boolean",
