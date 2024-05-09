@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.90
+
+- Update to [@markw65/monkeyc-optimizer@1.1.60](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1160)
+  - Disable the "remove argc" optimization, as it's going to start breaking verification in the app store.
+- Fix GetTargetDevice when trying to launch, and the project has no editors open.
+
 #### 2.0.89
 
 - Update to [@markw65/monkeyc-optimizer@1.1.59](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1159)
