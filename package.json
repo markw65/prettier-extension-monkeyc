@@ -269,13 +269,19 @@
           "prettierMonkeyC.removeArgc": {
             "order": 1,
             "type": "boolean",
-            "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)",
+            "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc). Does not apply to exports",
             "default": false,
-            "scope": "resource",
-            "deprecationMessage": "No longer supported. Although they continue to work when side loaded, Garmin's app store will reject apps with argc removed."
+            "scope": "resource"
+          },
+          "prettierMonkeyC.allowForbiddenOpts": {
+            "order": 2,
+            "type": "boolean",
+            "markdownDescription": "[Whether to perform optimizations no longer allowed on the app store](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#allow-forbidden-optimizations). Always false for exports",
+            "default": false,
+            "scope": "resource"
           },
           "prettierMonkeyC.postBuildPRE": {
-            "order": 1,
+            "order": 3,
             "type": "boolean",
             "markdownDescription": "Post Build Size based PRE [similar to the source-to-source pass](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre)",
             "default": true,
@@ -498,7 +504,11 @@
           },
           "removeArgc": {
             "type": "boolean",
-            "markdownDescription": "No longer supported. Although they continue to work when side loaded, Garmin's app store will reject apps with argc removed."
+            "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc). Does not apply to exports"
+          },
+          "allowForbiddenOpts": {
+            "type": "boolean",
+            "markdownDescription": "[Whether to perform optimizations no longer allowed on the app store](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#allow-forbidden-optimizations). Always false for exports"
           },
           "postBuildPRE": {
             "type": "boolean",
@@ -723,8 +733,11 @@
               },
               "removeArgc": {
                 "type": "boolean",
-                "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc)",
-                "deprecationMessage": "No longer supported. Although they continue to work when side loaded, Garmin's app store will reject apps with argc removed."
+                "markdownDescription": "[Whether to remove argc bytecodes](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#remove-argc). Does not apply to exports"
+              },
+              "allowForbiddenOpts": {
+                "type": "boolean",
+                "markdownDescription": "[Whether to perform optimizations no longer allowed on the app store](https://github.com/markw65/monkeyc-optimizer/wiki/Post-Build-Optimizer#allow-forbidden-optimizations). Always false for exports"
               },
               "postBuildPRE": {
                 "type": "boolean",

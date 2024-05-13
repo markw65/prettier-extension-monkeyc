@@ -927,6 +927,7 @@ export function getOptimizerBaseConfig(
     "iterateOptimizer",
     "postBuildOptimizer",
     "removeArgc",
+    "allowForbiddenOpts",
     "postBuildPRE",
     "checkTypes",
     "extraExcludes",
