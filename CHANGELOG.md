@@ -2,6 +2,15 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.91
+
+- Update to [@markw65/monkeyc-optimizer@1.1.61](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1161)
+
+  - Disable more post-build optimizations to allow apps to verify.
+  - Add an `allowForbiddenOpts` option to re-enable the optimizations in simulator or device build mode.
+
+- Add support for `allowForbiddenOpts`
+
 #### 2.0.90
 
 - Update to [@markw65/monkeyc-optimizer@1.1.60](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1160)
