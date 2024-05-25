@@ -57,20 +57,19 @@ export async function activate(context: vscode.ExtensionContext) {
   const renameRefProvider = new MonkeyCRenameRefProvider();
   const symbolProvider = new MonkeyCSymbolProvider();
 
-  const workspaceOrNull = () => {
+  const workspaceOrNull = async () => {
     try {
       return currentWorkspace();
     } catch (ex) {
-      let message = "Unknown error";
-      if (ex instanceof Error) {
-        message = ex.toString();
-      }
-      vscode.window.showErrorMessage(`Unable to find workspace: ${message}`);
-      return null;
+      const ws = await vscode.window.showWorkspaceFolderPick({
+        placeHolder: "Select a MonkeyC Project",
+      });
+      return ws ? ws : null;
     }
   };
-  const builderTask = (device: string, extra: BuildConfig) => {
-    const ws = workspaceOrNull();
+
+  const builderTask = async (device: string, extra: BuildConfig) => {
+    const ws = await workspaceOrNull();
     if (!ws) return null;
     const task = OptimizedMonkeyCBuildTaskProvider.finalizeTask(
       new vscode.Task(
@@ -106,8 +105,8 @@ export async function activate(context: vscode.ExtensionContext) {
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.runOptimizedProject",
-      () => {
-        const ws = workspaceOrNull();
+      async () => {
+        const ws = await workspaceOrNull();
         return (
           ws &&
           vscode.debug.startDebugging(ws, {
@@ -144,13 +143,13 @@ export async function activate(context: vscode.ExtensionContext) {
     ),
     vscode.commands.registerCommand(
       "prettiermonkeyc.getTargetDevice",
-      (args) => {
+      async (args) => {
         let ws;
         if (Array.isArray(args) && args.length && typeof args[0] === "string") {
           ws = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(args[0]));
         }
         if (!ws) ws = OptimizedMonkeyCDebugConfigProvider.lastWorkspace;
-        if (!ws) ws = workspaceOrNull();
+        if (!ws) ws = await workspaceOrNull();
         return ws && findProject(ws.uri)?.getDeviceToBuild();
       }
     ),
