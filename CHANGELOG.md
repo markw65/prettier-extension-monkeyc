@@ -2,6 +2,14 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.92
+
+- Update to [@markw65/monkeyc-optimizer@1.1.62](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1162)
+  - Track uninitialized fields in class initializers
+  - Fix lookups for MemberExpressions with literal objects
+  - Don't report parameters as missing symbols in interface functions
+- Build/Run commands should prompt for a project (Fixes #14)
+
 #### 2.0.91
 
 - Update to [@markw65/monkeyc-optimizer@1.1.61](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1161)
