@@ -48,6 +48,36 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     this.abortController && this.abortController.abort();
   }
 
+  async findOptimizerPath(): Promise<string | null> {
+    let curDir = this.options.workspace;
+    try {
+      while (curDir) {
+        const optimizerPath = path.resolve(
+          curDir,
+          "node_modules",
+          "@markw65",
+          "monkeyc-optimizer"
+        );
+        const exists = await fs
+          .access(
+            path.resolve(optimizerPath, "package.json"),
+            fs.constants.R_OK
+          )
+          .then(
+            () => true,
+            () => false
+          );
+        if (exists) return optimizerPath;
+        const next = path.dirname(curDir);
+        if (next === curDir) break;
+        curDir = next;
+      }
+    } catch (ex) {
+      /* */
+    }
+    return null;
+  }
+
   getMCFunction<T>(
     name: string,
     def: T,
@@ -57,38 +87,30 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     if (this.options.useLocalOptimizer === false) {
       return Promise.resolve(def);
     }
-    const optimizerPath = path.resolve(
-      this.options.workspace!,
-      "node_modules",
-      "@markw65",
-      "monkeyc-optimizer"
-    );
-    const targetPath = subpath.length
-      ? path.resolve(optimizerPath, subpath)
-      : optimizerPath;
-    return fs
-      .access(optimizerPath)
-      .then(() => {
+    return this.findOptimizerPath()
+      .then((optimizerPath) => {
+        if (!optimizerPath) return def;
+        const targetPath = subpath.length
+          ? path.resolve(optimizerPath, subpath)
+          : optimizerPath;
         delete require.cache[require.resolve(optimizerPath)];
         delete require.cache[require.resolve(targetPath)];
-      })
-      .catch(() => {
-        /* */
-      })
-      .then(() => require(targetPath))
-      .then((module) => {
-        if (!module[name]) return def;
-        return fs
-          .readFile(path.resolve(optimizerPath, "package.json"))
-          .then((data) => {
-            logger(
-              `Using project-local @markw65/monkeyc-optimizer@${
-                JSON.parse(data.toString()).version
-              }`
-            );
-            return module[name];
-          })
-          .catch(() => module[name]);
+        return Promise.resolve()
+          .then(() => require(targetPath))
+          .then((module) => {
+            if (!module[name]) return def;
+            return fs
+              .readFile(path.resolve(optimizerPath, "package.json"))
+              .then((data) => {
+                logger(
+                  `Using project-local @markw65/monkeyc-optimizer@${
+                    JSON.parse(data.toString()).version
+                  }`
+                );
+                return module[name];
+              })
+              .catch(() => module[name]);
+          });
       })
       .catch(() => def);
   }
