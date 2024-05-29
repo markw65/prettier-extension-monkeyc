@@ -2,6 +2,13 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.94
+
+- Update to [@markw65/monkeyc-optimizer@1.1.64](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1164)
+  - various fixes for running @markw65/monkeyc-optimizer standalone
+- Build the vscode contributions section of package.json from a single source of truth in @markw65/monkeyc-optimizer
+- When looking for a local optimizer, search upwards until we find one, or error out.
+
 #### 2.0.93
 
 - Update to [@markw65/monkeyc-optimizer@1.1.63](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1163)
