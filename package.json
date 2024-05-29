@@ -10,7 +10,7 @@
     "vscode": "^1.65.0"
   },
   "dependencies": {
-    "@markw65/monkeyc-optimizer": "^1.1.63",
+    "@markw65/monkeyc-optimizer": "^1.1.64",
     "@markw65/prettier-plugin-monkeyc": "^1.0.54"
   },
   "categories": [
@@ -114,7 +114,8 @@
               "Type match failures are marked as errors, but ambiguity is ignored",
               "Type match failures are marked as errors, and ambiguity is marked as a warning",
               "Type match failures and ambiguity are marked as errors"
-            ]
+            ],
+            "scope": "resource"
           },
           "prettierMonkeyC.checkInvalidSymbols": {
             "type": "string",
@@ -212,7 +213,8 @@
               "Assume static functions may be invoked non-statically",
               "Assume static functions will always be invoked statically"
             ],
-            "default": "YES"
+            "default": "YES",
+            "scope": "resource"
           },
           "prettierMonkeyC.compilerLookupRules": {
             "type": "string",
@@ -227,7 +229,8 @@
               "Match compiler2's behavior when performing lookups",
               "Match the currently selected compiler's behavior"
             ],
-            "default": "DEFAULT"
+            "default": "DEFAULT",
+            "scope": "resource"
           },
           "prettierMonkeyC.checkCompilerLookupRules": {
             "type": "string",
@@ -244,7 +247,8 @@
               "Generate WARNING level diagnostics",
               "Generate ERROR level diagnostics"
             ],
-            "default": "WARNING"
+            "default": "WARNING",
+            "scope": "resource"
           },
           "prettierMonkeyC.useLocalOptimizer": {
             "type": "boolean",
@@ -381,12 +385,14 @@
             "description": "If present, overrides the corresponding `monkeyC' setting.",
             "enum": [
               "Off",
+              "Default",
               "Gradual",
               "Informative",
               "Strict"
             ],
             "enumDescriptions": [
               "Disable type checking",
+              "Inherit the Garmin Extension's typeCheckLevel",
               "Type match failures are marked as errors, but ambiguity is ignored",
               "Type match failures are marked as errors, and ambiguity is marked as a warning",
               "Type match failures and ambiguity are marked as errors"
@@ -422,8 +428,7 @@
               "Generate INFO level diagnostics",
               "Generate WARNING level diagnostics",
               "Generate ERROR level diagnostics"
-            ],
-            "default": "WARNING"
+            ]
           },
           "checkTypes": {
             "type": "string",
@@ -439,8 +444,7 @@
               "Generate INFO level diagnostics",
               "Generate WARNING level diagnostics",
               "Generate ERROR level diagnostics"
-            ],
-            "default": "WARNING"
+            ]
           },
           "compilerOptions": {
             "type": "string",
@@ -452,7 +456,7 @@
           },
           "outputPath": {
             "type": "string",
-            "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+            "description": "Path to where the optimized project should be generated."
           },
           "extraExcludes": {
             "type": "string",
@@ -460,15 +464,15 @@
           },
           "ignoredExcludeAnnotations": {
             "type": "string",
-            "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+            "description": "Semicolon separated list of excludeAnnotations to ignore, or `*' to ignore all"
           },
           "ignoredAnnotations": {
             "type": "string",
-            "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+            "description": "Semicolon separated list of annotations to ignore, or `*' to ignore all"
           },
           "ignoredSourcePaths": {
             "type": "string",
-            "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+            "description": "Regex of source paths to ignore."
           },
           "sizeBasedPRE": {
             "type": "boolean",
@@ -480,7 +484,7 @@
           },
           "propagateTypes": {
             "type": "boolean",
-            "markdownDescription": "[Whether to propagate type information, or just perform it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)"
+            "markdownDescription": "[Whether to propagate type information, or process it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)"
           },
           "minimizeLocals": {
             "type": "boolean",
@@ -524,8 +528,7 @@
             "enumDescriptions": [
               "Assume static functions may be invoked non-statically",
               "Assume static functions will always be invoked statically"
-            ],
-            "default": "YES"
+            ]
           },
           "compilerLookupRules": {
             "type": "string",
@@ -538,9 +541,8 @@
             "enumDescriptions": [
               "Match compiler1's behavior when performing lookups",
               "Match compiler2's behavior when performing lookups",
-              "Match the currently selected sdk's compiler"
-            ],
-            "default": "DEFAULT"
+              "Match the currently selected compiler's behavior"
+            ]
           },
           "checkCompilerLookupRules": {
             "type": "string",
@@ -556,14 +558,11 @@
               "Generate INFO level diagnostics",
               "Generate WARNING level diagnostics",
               "Generate ERROR level diagnostics"
-            ],
-            "default": "WARNING"
+            ]
           },
           "useLocalOptimizer": {
             "type": "boolean",
-            "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds",
-            "default": true,
-            "scope": "resource"
+            "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds"
           }
         }
       }
@@ -594,8 +593,7 @@
               },
               "runTests": {
                 "type": "boolean",
-                "description": "run test cases.",
-                "default": false
+                "description": "run test cases."
               },
               "jungleFiles": {
                 "type": "string",
@@ -610,12 +608,14 @@
                 "description": "If present, overrides the corresponding `monkeyC' setting.",
                 "enum": [
                   "Off",
+                  "Default",
                   "Gradual",
                   "Informative",
                   "Strict"
                 ],
                 "enumDescriptions": [
                   "Disable type checking",
+                  "Inherit the Garmin Extension's typeCheckLevel",
                   "Type match failures are marked as errors, but ambiguity is ignored",
                   "Type match failures are marked as errors, and ambiguity is marked as a warning",
                   "Type match failures and ambiguity are marked as errors"
@@ -651,8 +651,7 @@
                   "Generate INFO level diagnostics",
                   "Generate WARNING level diagnostics",
                   "Generate ERROR level diagnostics"
-                ],
-                "default": "WARNING"
+                ]
               },
               "checkTypes": {
                 "type": "string",
@@ -668,8 +667,7 @@
                   "Generate INFO level diagnostics",
                   "Generate WARNING level diagnostics",
                   "Generate ERROR level diagnostics"
-                ],
-                "default": "WARNING"
+                ]
               },
               "compilerOptions": {
                 "type": "string",
@@ -681,7 +679,7 @@
               },
               "outputPath": {
                 "type": "string",
-                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+                "description": "Path to where the optimized project should be generated."
               },
               "extraExcludes": {
                 "type": "string",
@@ -689,15 +687,15 @@
               },
               "ignoredExcludeAnnotations": {
                 "type": "string",
-                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+                "description": "Semicolon separated list of excludeAnnotations to ignore, or `*' to ignore all"
               },
               "ignoredAnnotations": {
                 "type": "string",
-                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+                "description": "Semicolon separated list of annotations to ignore, or `*' to ignore all"
               },
               "ignoredSourcePaths": {
                 "type": "string",
-                "description": "If present, overrides the corresponding `prettierMonkeyC' setting."
+                "description": "Regex of source paths to ignore."
               },
               "sizeBasedPRE": {
                 "type": "boolean",
@@ -709,7 +707,7 @@
               },
               "propagateTypes": {
                 "type": "boolean",
-                "markdownDescription": "[Whether to propagate type information, or just perform it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)"
+                "markdownDescription": "[Whether to propagate type information, or process it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)"
               },
               "minimizeLocals": {
                 "type": "boolean",
@@ -753,8 +751,7 @@
                 "enumDescriptions": [
                   "Assume static functions may be invoked non-statically",
                   "Assume static functions will always be invoked statically"
-                ],
-                "default": "YES"
+                ]
               },
               "compilerLookupRules": {
                 "type": "string",
@@ -768,8 +765,7 @@
                   "Match compiler1's behavior when performing lookups",
                   "Match compiler2's behavior when performing lookups",
                   "Match the currently selected compiler's behavior"
-                ],
-                "default": "DEFAULT"
+                ]
               },
               "checkCompilerLookupRules": {
                 "type": "string",
@@ -785,14 +781,11 @@
                   "Generate INFO level diagnostics",
                   "Generate WARNING level diagnostics",
                   "Generate ERROR level diagnostics"
-                ],
-                "default": "WARNING"
+                ]
               },
               "useLocalOptimizer": {
                 "type": "boolean",
-                "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds",
-                "default": true,
-                "scope": "resource"
+                "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds"
               }
             }
           }
