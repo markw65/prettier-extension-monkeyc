@@ -1,6 +1,9 @@
+import { buildConfigDescription } from "@markw65/monkeyc-optimizer";
 import * as esbuild from "esbuild";
 import * as child_process from "node:child_process";
+import * as fs from "node:fs/promises";
 import * as readline from "node:readline";
+import * as Prettier from "prettier";
 
 const cjsDir = "build";
 const releaseBuild = process.argv.includes("--release");
@@ -33,12 +36,133 @@ function report(diagnostics, kind) {
     .then((messages) => messages.forEach((error) => console.log(error)));
 }
 
+async function updatePackage() {
+  const contents = await fs.readFile("package.json");
+  const packageJSON = JSON.parse(contents);
+  const contributes = packageJSON.contributes;
+  const index = contributes.configuration.findIndex(
+    (c) => c["title"] === "Prettier Monkey C"
+  );
+  contributes.configuration.splice(
+    0,
+    index,
+    ...buildConfigDescription
+      .map((cd) => ({
+        ...cd,
+        properties: Object.fromEntries(
+          Object.entries(cd.properties)
+            .filter(([, value]) => !/^tasks|launch$/.test(value.scope))
+            .map(([key, value]) => {
+              value = { ...value };
+              delete value.taskDescription;
+              delete value.launchDescription;
+              return [`prettierMonkeyC.${key}`, value];
+            })
+        ),
+      }))
+      .filter((cd) => Object.keys(cd.properties).length > 0)
+  );
+  const rebuild = (originalObject, updated) => {
+    const original = Object.fromEntries(
+      Object.keys(originalObject).map((key, index) => [key, index])
+    );
+    return Object.fromEntries(
+      updated.sort(([a], [b]) => {
+        const v1 = original[a];
+        const v2 = original[b];
+        if (v1 != null) {
+          if (v2 != null) {
+            return v1 - v2;
+          }
+          return -1;
+        }
+        if (v2 != null) return 1;
+        return a < b ? -1 : a > b ? 1 : 0;
+      })
+    );
+  };
+  contributes.taskDefinitions = contributes.taskDefinitions.map((td) =>
+    td.type !== "omonkeyc"
+      ? td
+      : {
+          ...td,
+          properties: rebuild(
+            td.properties,
+            buildConfigDescription.flatMap((cd) =>
+              Object.entries(cd.properties)
+                .filter(([, value]) => value.scope !== "launch")
+                .map(([key, v]) => {
+                  const value = { ...v };
+                  if (value.taskDescription) {
+                    value.description = value.taskDescription;
+                  }
+                  delete value.scope;
+                  delete value.default;
+                  delete value.order;
+                  delete value.title;
+                  delete value.taskDescription;
+                  delete value.launchDescription;
+
+                  return [key, value];
+                })
+            )
+          ),
+        }
+  );
+  contributes.debuggers = contributes.debuggers.map((db) => {
+    if (db.type !== "omonkeyc") return db;
+
+    db.configurationAttributes.launch.properties = rebuild(
+      db.configurationAttributes.launch.properties,
+      [
+        [
+          "stopAtLaunch",
+          {
+            type: "boolean",
+            description: "break immediately when the program launches.",
+            default: false,
+          },
+        ],
+      ].concat(
+        buildConfigDescription.flatMap((cd) =>
+          Object.entries(cd.properties)
+            .filter(([, value]) => value.scope !== "tasks")
+            .map(([key, v]) => {
+              const value = { ...v };
+              if (value.launchDescription) {
+                value.description = value.launchDescription;
+              }
+              delete value.scope;
+              delete value.default;
+              delete value.order;
+              delete value.title;
+              delete value.taskDescription;
+              delete value.launchDescription;
+              return [key, value];
+            })
+        )
+      )
+    );
+    return db;
+  });
+  const newPackage = JSON.stringify(packageJSON);
+  if (newPackage !== JSON.stringify(JSON.parse(contents))) {
+    const formatted = Prettier.format(newPackage, {
+      parser: "json-stringify",
+      endOfLine: "lf",
+    });
+
+    return fs.writeFile("package.json", formatted);
+  }
+}
+
 const startEndPlugin = {
   name: "startEnd",
   setup(build) {
     build.onStart(() => {
       activate();
       console.log(`${new Date().toLocaleString()} - ESBuild start`);
+      return updatePackage();
     });
     build.onEnd((result) => {
       report(result.errors, "error");
