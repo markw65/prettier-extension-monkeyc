@@ -2,6 +2,16 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.95
+
+- Update to [@markw65/monkeyc-optimizer@1.1.65](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1165)
+  - Fix lookup scopes for tuples and object literals (fixes #39)
+  - Fix a race creating the output directory
+  - Don't put system personality files in barrel namespace (partial fix for #40)
+  - Fix 'illegal argument' error with multi-line personality attributes (partial fix for #40)
+  - Fix filtering of source files in compiled barrels in analysis mode (fixes #41)
+  - Fix lookup of Barrel qualified names in resource references (fixes #43)
+
 #### 2.0.94
 
 - Update to [@markw65/monkeyc-optimizer@1.1.64](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1164)
