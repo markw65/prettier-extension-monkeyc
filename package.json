@@ -10,7 +10,7 @@
     "vscode": "^1.65.0"
   },
   "dependencies": {
-    "@markw65/monkeyc-optimizer": "^1.1.65",
+    "@markw65/monkeyc-optimizer": "^1.1.66",
     "@markw65/prettier-plugin-monkeyc": "^1.0.54"
   },
   "categories": [
@@ -154,49 +154,56 @@
             "scope": "resource"
           },
           "prettierMonkeyC.trustDeclaredTypes": {
-            "order": 10,
+            "order": 100,
             "type": "boolean",
             "markdownDescription": "[Whether to rely on type declarations when optimizing](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#trust-declared-types)",
             "default": true,
             "scope": "resource"
           },
           "prettierMonkeyC.propagateTypes": {
-            "order": 11,
+            "order": 110,
             "type": "boolean",
             "markdownDescription": "[Whether to propagate type information, or process it locally](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#propagate-types)",
             "default": true,
             "scope": "resource"
           },
           "prettierMonkeyC.sizeBasedPRE": {
-            "order": 11,
+            "order": 111,
             "type": "boolean",
             "markdownDescription": "[Whether to enable the size based partial redundancy pass](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre)",
             "default": true,
             "scope": "resource"
           },
+          "prettierMonkeyC.preSkipLiterals": {
+            "order": 112,
+            "type": "boolean",
+            "markdownDescription": "[Whether to skip the size based partial redundancy pass for literal values](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre-skip-literals)",
+            "default": false,
+            "scope": "resource"
+          },
           "prettierMonkeyC.minimizeLocals": {
-            "order": 12,
+            "order": 120,
             "type": "boolean",
             "markdownDescription": "[Whether to enable the minimize locals pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#minimize-locals)",
             "default": true,
             "scope": "resource"
           },
           "prettierMonkeyC.singleUseCopyProp": {
-            "order": 12,
+            "order": 120,
             "type": "boolean",
             "markdownDescription": "[Whether to enable the single use copy propagation pass](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)",
             "default": true,
             "scope": "resource"
           },
           "prettierMonkeyC.minimizeModules": {
-            "order": 12,
+            "order": 120,
             "type": "boolean",
             "markdownDescription": "[Whether to enable the minimize modules pass](https://github.com/markw65/monkeyc-optimizer/wiki/Optimizing-module-imports#minimize-modules)",
             "default": true,
             "scope": "resource"
           },
           "prettierMonkeyC.iterateOptimizer": {
-            "order": 12,
+            "order": 120,
             "type": "boolean",
             "description": "Whether to keep running the optimizer pass until it makes no further changes (may be slow)",
             "default": false,
@@ -563,6 +570,10 @@
           "useLocalOptimizer": {
             "type": "boolean",
             "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds"
+          },
+          "preSkipLiterals": {
+            "type": "boolean",
+            "markdownDescription": "[Whether to skip the size based partial redundancy pass for literal values](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre-skip-literals)"
           }
         }
       }
@@ -786,6 +797,10 @@
               "useLocalOptimizer": {
                 "type": "boolean",
                 "description": "Whether to use a locally installed @markw65/monkeyc-optimizer for builds"
+              },
+              "preSkipLiterals": {
+                "type": "boolean",
+                "markdownDescription": "[Whether to skip the size based partial redundancy pass for literal values](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre-skip-literals)"
               }
             }
           }
