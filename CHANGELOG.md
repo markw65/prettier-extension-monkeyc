@@ -2,6 +2,13 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.96
+
+- Update to [@markw65/monkeyc-optimizer@1.1.66](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1166)
+  - Match Garmin's handling of add and addAll for tuples (fixes #38)
+  - Add preSkipLiterals option (workaround for part of #38)
+  - Remove casts when an enum is replaced by a typedef (Fixes #44)
+
 #### 2.0.95
 
 - Update to [@markw65/monkeyc-optimizer@1.1.65](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1165)
