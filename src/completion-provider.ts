@@ -48,7 +48,7 @@ export class MonkeyCCompletionItemProvider
           text = text.substring(0, text.length - match[0].length);
           if (
             text !==
-            analysis.fnMap[fileName].monkeyCSource.substring(0, text.length)
+            analysis.fnMap[fileName].monkeyCSource?.substring(0, text.length)
           ) {
             return null;
           }

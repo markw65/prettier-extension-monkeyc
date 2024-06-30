@@ -100,30 +100,31 @@ export class MonkeyCRenameRefProvider
               .map(({ ast }) => ast)
               .concat(analysis.state.rezAst ? [analysis.state.rezAst] : []);
         asts.forEach((ast) => {
-          visitReferences(
-            analysis.state,
-            ast,
-            id.name,
-            results,
-            (node) => {
-              const n = visitorNode(node);
-              const loc = n.loc!;
-              edits.replace(
-                vscode.Uri.file(loc.source!),
-                new vscode.Range(
-                  loc.start.line - 1,
-                  loc.start.column - 1,
-                  loc.end.line - 1,
-                  loc.end.column - 1
-                ),
-                newName
-              );
-              return undefined;
-            },
-            true,
-            null,
-            analysis.typeMap
-          );
+          ast &&
+            visitReferences(
+              analysis.state,
+              ast,
+              id.name,
+              results,
+              (node) => {
+                const n = visitorNode(node);
+                const loc = n.loc!;
+                edits.replace(
+                  vscode.Uri.file(loc.source!),
+                  new vscode.Range(
+                    loc.start.line - 1,
+                    loc.start.column - 1,
+                    loc.end.line - 1,
+                    loc.end.column - 1
+                  ),
+                  newName
+                );
+                return undefined;
+              },
+              true,
+              null,
+              analysis.typeMap
+            );
         });
         return edits;
       })
@@ -150,33 +151,34 @@ export class MonkeyCRenameRefProvider
             : Object.values(analysis.fnMap)
                 .map(({ ast }) => ast)
                 .concat(analysis.state.rezAst ? [analysis.state.rezAst] : []);
-          asts.forEach((ast) => {
-            visitReferences(
-              analysis.state,
-              ast,
-              node.name,
-              results,
-              (node) => {
-                const n = visitorNode(node);
-                const loc = n.loc!;
-                references.push(
-                  new vscode.Location(
-                    vscode.Uri.file(loc.source!),
-                    new vscode.Range(
-                      loc.start.line - 1,
-                      loc.start.column - 1,
-                      loc.end.line - 1,
-                      loc.end.column - 1
+          asts.every((ast) => ast != null) &&
+            asts.forEach((ast) => {
+              visitReferences(
+                analysis.state,
+                ast!,
+                node.name,
+                results,
+                (node) => {
+                  const n = visitorNode(node);
+                  const loc = n.loc!;
+                  references.push(
+                    new vscode.Location(
+                      vscode.Uri.file(loc.source!),
+                      new vscode.Range(
+                        loc.start.line - 1,
+                        loc.start.column - 1,
+                        loc.end.line - 1,
+                        loc.end.column - 1
+                      )
                     )
-                  )
-                );
-                return undefined;
-              },
-              false,
-              null,
-              analysis.typeMap
-            );
-          });
+                  );
+                  return undefined;
+                },
+                false,
+                null,
+                analysis.typeMap
+              );
+            });
           return references;
         }
         return null;

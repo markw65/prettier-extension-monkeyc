@@ -333,6 +333,13 @@ export class Project implements vscode.Disposable {
               this.diagnosticFromError(rez_or_err, file)
           );
 
+        disableLiveAnalysis ||
+          Object.entries(analysis.fnMap).forEach(([filepath, info]) => {
+            if (info.parserError) {
+              this.diagnosticFromError(info.parserError, filepath);
+            }
+          });
+
         if ("state" in analysis) {
           this.lastGoodAnalysis = analysis;
           disableLiveAnalysis ||
@@ -342,15 +349,7 @@ export class Project implements vscode.Disposable {
               this.diagnosticCollection,
               "analysis"
             );
-          return;
         }
-        disableLiveAnalysis ||
-          Object.entries(analysis.fnMap).forEach(([filepath, info]) => {
-            if (info.parserError) {
-              this.diagnosticFromError(info.parserError, filepath);
-            }
-          });
-        return;
       })
       .catch((e) => {
         if (e instanceof Error) {
