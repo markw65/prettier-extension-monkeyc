@@ -14,6 +14,7 @@ import {
   ResolvedJungle,
   TypeMap,
   StateNodeDecl,
+  buildConfigDescription,
 } from "@markw65/monkeyc-optimizer";
 import {
   createDocumentationMap,
@@ -901,41 +902,36 @@ export function getOptimizerBaseConfig(
     if (mcConfig[i]) config[i] = mcConfig[i];
   }
 
+  let strictTypeCheck =
+    config.typeCheckLevel?.toString().toLowerCase() === "strict";
+
+  const configKeys = buildConfigDescription.flatMap((desc) =>
+    Object.entries(desc.properties).flatMap(([key, value]) =>
+      !/^tasks|launch$/.test(value.scope) ? key : []
+    )
+  );
+
   const pmcConfig = vscode.workspace.getConfiguration(
     "prettierMonkeyC",
     workspaceFolder
   );
-  for (const i of [
-    "releaseBuild",
-    "outputPath",
-    "ignoredExcludeAnnotations",
-    "ignoredAnnotations",
-    "ignoredSourcePaths",
-    "checkInvalidSymbols",
-    "sizeBasedPRE",
-    "enforceStatic",
-    "compilerLookupRules",
-    "checkCompilerLookupRules",
-    "typeCheckLevel",
-    "useLocalOptimizer",
-    "trustDeclaredTypes",
-    "propagateTypes",
-    "singleUseCopyProp",
-    "minimizeLocals",
-    "minimizeModules",
-    "iterateOptimizer",
-    "postBuildOptimizer",
-    "removeArgc",
-    "allowForbiddenOpts",
-    "postBuildPRE",
-    "checkTypes",
-    "extraExcludes",
-  ]) {
+
+  for (const i of configKeys) {
     if (pmcConfig[i] !== undefined) {
       if (i !== "typeCheckLevel" || pmcConfig[i] !== "Default") {
         config[i] = pmcConfig[i];
       }
     }
+  }
+  if (config.typeCheckLevel?.toString().toLowerCase() === "strict") {
+    strictTypeCheck = true;
+  }
+  if (
+    strictTypeCheck &&
+    (!config.strictTypeCheck ||
+      config.strictTypeCheck.toString().toLowerCase() === "default")
+  ) {
+    config.strictTypeCheck = "On";
   }
 
   const prettierConfig = vscode.workspace.getConfiguration(

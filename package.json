@@ -153,6 +153,22 @@
             "default": "WARNING",
             "scope": "resource"
           },
+          "prettierMonkeyC.strictTypeCheck": {
+            "type": "string",
+            "description": "Whether to do strict or relaxed type checking - Default deduces it from typeCheckLevel",
+            "enum": [
+              "On",
+              "Off",
+              "Default"
+            ],
+            "enumDescriptions": [
+              "Do Strict type checking",
+              "Do Relaxed type checking",
+              "Do Strict type checking iff typeCheckLevel is Strict"
+            ],
+            "default": "Default",
+            "scope": "resource"
+          },
           "prettierMonkeyC.trustDeclaredTypes": {
             "order": 100,
             "type": "boolean",
@@ -574,6 +590,20 @@
           "preSkipLiterals": {
             "type": "boolean",
             "markdownDescription": "[Whether to skip the size based partial redundancy pass for literal values](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre-skip-literals)"
+          },
+          "strictTypeCheck": {
+            "type": "string",
+            "description": "Whether to do strict or relaxed type checking - Default deduces it from typeCheckLevel",
+            "enum": [
+              "On",
+              "Off",
+              "Default"
+            ],
+            "enumDescriptions": [
+              "Do Strict type checking",
+              "Do Relaxed type checking",
+              "Do Strict type checking iff typeCheckLevel is Strict"
+            ]
           }
         }
       }
@@ -801,6 +831,20 @@
               "preSkipLiterals": {
                 "type": "boolean",
                 "markdownDescription": "[Whether to skip the size based partial redundancy pass for literal values](https://github.com/markw65/monkeyc-optimizer/wiki/Type-and-Dataflow-analysis#size-based-pre-skip-literals)"
+              },
+              "strictTypeCheck": {
+                "type": "string",
+                "description": "Whether to do strict or relaxed type checking - Default deduces it from typeCheckLevel",
+                "enum": [
+                  "On",
+                  "Off",
+                  "Default"
+                ],
+                "enumDescriptions": [
+                  "Do Strict type checking",
+                  "Do Relaxed type checking",
+                  "Do Strict type checking iff typeCheckLevel is Strict"
+                ]
               }
             }
           }
