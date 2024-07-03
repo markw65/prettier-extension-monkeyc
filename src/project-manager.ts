@@ -15,9 +15,12 @@ import {
   TypeMap,
   StateNodeDecl,
   buildConfigDescription,
+  StateNode,
+  ClassStateNode,
 } from "@markw65/monkeyc-optimizer";
 import {
   createDocumentationMap,
+  getSuperClasses,
   hasProperty,
   isStateNode,
   makeToyboxLink,
@@ -37,6 +40,7 @@ import * as path from "path";
 import * as vscode from "vscode";
 import { extensionVersion } from "./extension";
 import { HTMLElement, NodeType, parse } from "node-html-parser";
+import { lookupWithType } from "@markw65/monkeyc-optimizer/api.js";
 
 type UpdateElem = { file: string; content: string | null | false };
 
@@ -737,9 +741,40 @@ function findItemsByRange(
   typeMap: TypeMap | null | undefined,
   findSingleDefinition: boolean
 ) {
+  const singleDef = (node: mctree.Node, results: LookupDefinition[]) => {
+    if (node.type === "Identifier") {
+      return results.every((r) =>
+        r.results.every(
+          (sn) =>
+            isStateNode(sn) && sn.node && "id" in sn.node && sn.node.id === node
+        )
+      );
+    }
+    if (node.type === "MemberExpression") {
+      const [, base] = lookupWithType(state, node.object, typeMap);
+      return base
+        ? base.every((lookupDef) =>
+            lookupDef.results.every((sn) => sn.type === "ClassDeclaration")
+          )
+        : false;
+    }
+    return false;
+  };
   const result: {
     node: mctree.Node;
     results: LookupDefinition[];
+    /*
+     * We set the singleDef flag to indicate that the thing selected can
+     * only refer to this result.
+     *  - a call such as `f()` in a class method
+     *    might refer to any f defined in any class extending this one. But
+     *    a Base.f() in a class hierarchy can only refer to the f
+     *    we found here.
+     *  - if we clicked on the definition of f in class Base, it definitely
+     *    refers to that function; so we don't want to find references to
+     *    overrides of f.
+     */
+    singleDef: boolean;
   }[] = [];
   visitReferences(
     state,
@@ -751,6 +786,7 @@ function findItemsByRange(
         result.push({
           node,
           results,
+          singleDef: singleDef(node, results),
         });
       }
       return undefined;
@@ -844,9 +880,56 @@ export function findDefinition(
     if (node.type !== "Identifier") {
       throw new Error(`Unexpected node type '${node.type}'`);
     }
+    let results = result.results;
+    if (!result.singleDef) {
+      const newResults = new Map<StateNode | null, Set<StateNodeDecl>>();
+      const klassMap = new Map<ClassStateNode, Set<ClassStateNode>>();
+      const getSubClasses = (cls: ClassStateNode) => {
+        const subClasses = klassMap.get(cls) ?? new Set<ClassStateNode>();
+        if (subClasses.size) return subClasses;
+        subClasses.add(cls);
+        analysis.state.allClasses.forEach(
+          (c) => getSuperClasses(c)?.has(cls) && subClasses.add(c)
+        );
+        return subClasses;
+      };
+      results.forEach((lookupDefn) => {
+        lookupDefn.results.forEach((sn) => {
+          if (isStateNode(sn)) {
+            const name = sn.name;
+            const owner = sn.stack?.at(-1);
+            if (name && owner?.sn.type === "ClassDeclaration") {
+              const subClasses = getSubClasses(owner.sn);
+              subClasses.forEach((sc) => {
+                const decls = sc.decls?.[name];
+                if (decls?.length) {
+                  const r = newResults.get(sc);
+                  if (r) {
+                    decls.forEach((d) => r.add(d));
+                  } else {
+                    newResults.set(sc, new Set(decls));
+                  }
+                }
+              });
+              return;
+            }
+          }
+          const r = newResults.get(lookupDefn.parent);
+          if (r) {
+            r.add(sn);
+          } else {
+            newResults.set(lookupDefn.parent, new Set([sn]));
+          }
+        });
+      });
+      results = Array.from(newResults).map(([parent, results]) => ({
+        parent,
+        results: Array.from(results),
+      }));
+    }
     return {
       node,
-      results: result.results,
+      results,
       analysis,
     };
   });

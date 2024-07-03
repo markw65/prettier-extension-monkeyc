@@ -83,22 +83,37 @@ suite("Extension Test Suite", function () {
     assert.equal(symbol.kind, vscode.SymbolKind[kind], `Expected a ${kind}`);
     return symbol;
   };
-  const checkSymbolRefs = async (source, path, kind, refsCount, defsCount) => {
+  const checkSymbolRefsEx = async (
+    source,
+    path,
+    kind,
+    refsCount,
+    defsCount
+  ) => {
     const symbol = await findSymbol(source, path, kind);
     const refs = await getRefs(symbol);
     assert.equal(
       refs.length,
       refsCount,
-      `Expected ${symbol.name} to have ${refsCount} references, but got ${refs.length}`
+      `Expected ${path.join(".")} to have ${refsCount} references, but got ${
+        refs.length
+      }`
     );
     const defs = await getDefs(symbol);
     assert.equal(
       defs.length,
       defsCount,
-      `Expected ${symbol.name} to have ${defsCount} definitions, but got ${defs.length}`
+      `Expected ${path.join(".")} to have ${defsCount} definitions, but got ${
+        defs.length
+      }`
     );
-    return symbol;
+    return { symbol, refs, defs };
   };
+  const checkSymbolRefs = (source, path, kind, refsCount, defsCount) =>
+    checkSymbolRefsEx(source, path, kind, refsCount, defsCount).then(
+      (result) => result.symbol
+    );
+
   const checkFoo = async (funcName, varName) => {
     const testsSource = path.resolve(dir, "IntegrationTestsSource.mc");
     const fooFunc = await checkSymbolRefs(
@@ -223,6 +238,55 @@ suite("Extension Test Suite", function () {
         )
       )
       .finally(() => revertAll());
+    serializer = result.catch(() => null);
+    return result;
+  });
+
+  test("Test References and inheritance", function () {
+    const testsSource = path.resolve(dir, "IntegrationTestsInheritance.mc");
+    const result = serializer
+      .then(() => {
+        symbols = null;
+      })
+      .then(() => checkSymbolRefs(testsSource, ["Base", "f1"], "Method", 1, 1))
+      .then(() => {
+        // When we lookup references to Base.f2, via the definition, we should only
+        // find 2, because one of the calls to f2 must go to Derived.f2...
+        return checkSymbolRefsEx(testsSource, ["Base", "f2"], "Method", 2, 1);
+      })
+      .then(({ refs }) =>
+        Promise.all([
+          vscode.commands.executeCommand(
+            "vscode.executeReferenceProvider",
+            refs[0].uri,
+            refs[0].range.start
+          ),
+          vscode.commands.executeCommand(
+            "vscode.executeDefinitionProvider",
+            refs[0].uri,
+            refs[0].range.start
+          ),
+        ])
+      )
+      .then(([refs, defs]) => {
+        // ...but when we lookup references to Base.f2, via a reference in Base,
+        // we should find 3, because that reference could call either Base.f2 or
+        // Derived.f2
+        assert(
+          Array.isArray(refs) && refs.length === 3,
+          `Expected an array of 2 references to 'Base.f2'`
+        );
+        // Similarly looking up a call to f2() in Base should find two possible defs
+        assert(
+          Array.isArray(defs) && defs.length === 2,
+          `Expected an array of 2 definitions for 'f2'`
+        );
+      })
+      .then(() => {
+        // We currently expect 3 refs for Derived.f2, but one of them is an
+        // explicit call to Base.f2. When we fix that, this needs changing.
+        return checkSymbolRefs(testsSource, ["Derived", "f2"], "Method", 3, 1);
+      });
     serializer = result.catch(() => null);
     return result;
   });

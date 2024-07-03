@@ -1,4 +1,5 @@
 import {
+  getSuperClasses,
   hasProperty,
   isStateNode,
   visitReferences,
@@ -99,11 +100,11 @@ export class MonkeyCRenameRefProvider
           : Object.values(analysis.fnMap)
               .map(({ ast }) => ast)
               .concat(analysis.state.rezAst ? [analysis.state.rezAst] : []);
-        asts.forEach((ast) => {
-          ast &&
+        if (asts.every((ast) => ast != null)) {
+          asts.forEach((ast) => {
             visitReferences(
               analysis.state,
-              ast,
+              ast!,
               id.name,
               results,
               (node) => {
@@ -125,7 +126,8 @@ export class MonkeyCRenameRefProvider
               null,
               analysis.typeMap
             );
-        });
+          });
+        }
         return edits;
       })
       .catch(() => null);
@@ -141,44 +143,69 @@ export class MonkeyCRenameRefProvider
       ({ node, results, analysis }) => {
         if (node && results) {
           const references: vscode.Location[] = [];
-          const asts = results.every(
+          const isLocal = results.every(
             ({ parent }) =>
               parent &&
               (parent.type === "BlockStatement" ||
                 parent.type === "FunctionDeclaration")
-          )
+          );
+          const asts = isLocal
             ? [analysis.fnMap[normalize(document.uri.fsPath)].ast]
             : Object.values(analysis.fnMap)
                 .map(({ ast }) => ast)
                 .concat(analysis.state.rezAst ? [analysis.state.rezAst] : []);
-          asts.every((ast) => ast != null) &&
-            asts.forEach((ast) => {
-              visitReferences(
-                analysis.state,
-                ast!,
-                node.name,
-                results,
-                (node) => {
-                  const n = visitorNode(node);
-                  const loc = n.loc!;
-                  references.push(
-                    new vscode.Location(
-                      vscode.Uri.file(loc.source!),
-                      new vscode.Range(
-                        loc.start.line - 1,
-                        loc.start.column - 1,
-                        loc.end.line - 1,
-                        loc.end.column - 1
-                      )
+          const defns = isLocal
+            ? results
+            : results.map((defn) => {
+                return {
+                  parent: defn.parent,
+                  results: defn.results.flatMap((sn) => {
+                    if (isStateNode(sn)) {
+                      const name = sn.name;
+                      const owner = sn.stack?.at(-1);
+                      if (
+                        name &&
+                        owner?.sn.type === "ClassDeclaration" &&
+                        owner.sn.superClass
+                      ) {
+                        const superClasses = getSuperClasses(owner.sn);
+                        return Array.from(superClasses ?? [])
+                          .flatMap((klass) => klass.decls?.[sn.name] ?? [])
+                          .concat(sn);
+                      }
+                    }
+                    return sn;
+                  }),
+                };
+              });
+          asts.forEach((ast) => {
+            if (!ast) return;
+            visitReferences(
+              analysis.state,
+              ast,
+              node.name,
+              defns,
+              (node) => {
+                const n = visitorNode(node);
+                const loc = n.loc!;
+                references.push(
+                  new vscode.Location(
+                    vscode.Uri.file(loc.source!),
+                    new vscode.Range(
+                      loc.start.line - 1,
+                      loc.start.column - 1,
+                      loc.end.line - 1,
+                      loc.end.column - 1
                     )
-                  );
-                  return undefined;
-                },
-                false,
-                null,
-                analysis.typeMap
-              );
-            });
+                  )
+                );
+                return undefined;
+              },
+              false,
+              null,
+              analysis.typeMap
+            );
+          });
           return references;
         }
         return null;
