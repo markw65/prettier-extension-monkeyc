@@ -74,7 +74,7 @@ export class OptimizedMonkeyCDebugConfigProvider
           const disposable = vscode.tasks.onDidEndTaskProcess((e) => {
             if (e.execution.task.definition === definition) {
               disposable.dispose();
-              if (e.exitCode == 0) {
+              if (e.exitCode === 0) {
                 resolve();
               } else {
                 reject(e.exitCode);

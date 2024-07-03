@@ -65,7 +65,7 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
         (node, lookupDefns) => {
           if (
             !node.loc ||
-            lookupDefns.length != 1 ||
+            lookupDefns.length !== 1 ||
             lookupDefns[0].results.length !== 1
           ) {
             return undefined;

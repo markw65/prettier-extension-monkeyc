@@ -92,7 +92,7 @@ export class MonkeyCRenameRefProvider
         const asts = results.every(
           ({ parent }) =>
             parent &&
-            (parent.type == "BlockStatement" ||
+            (parent.type === "BlockStatement" ||
               parent.type === "FunctionDeclaration")
         )
           ? [analysis.fnMap[normalize(document.uri.fsPath)].ast]
@@ -144,7 +144,7 @@ export class MonkeyCRenameRefProvider
           const asts = results.every(
             ({ parent }) =>
               parent &&
-              (parent.type == "BlockStatement" ||
+              (parent.type === "BlockStatement" ||
                 parent.type === "FunctionDeclaration")
           )
             ? [analysis.fnMap[normalize(document.uri.fsPath)].ast]

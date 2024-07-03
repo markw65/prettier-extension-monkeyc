@@ -108,7 +108,7 @@ function findCallByRange(
     (i, argument, index) =>
       argument.loc &&
       (argument.loc.end.line <= position.line ||
-        (argument.loc.end.line == position.line + 1 &&
+        (argument.loc.end.line === position.line + 1 &&
           argument.loc.end.column <= position.character + 1))
         ? index + 1
         : i,

@@ -221,7 +221,7 @@ export class MonkeyCSymbolProvider
           case "VariableDeclarator":
             elm.symbol = symbol(
               variableDeclarationName(node.id),
-              node.kind == "const"
+              node.kind === "const"
                 ? vscode.SymbolKind.Constant
                 : vscode.SymbolKind.Variable,
               node,

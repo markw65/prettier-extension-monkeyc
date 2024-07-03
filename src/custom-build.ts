@@ -190,7 +190,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
     const { returnCommand } = this.options;
     return this.getBuildFunction(logger)
       .then((buildFn) =>
-        buildFn(device == "export" || device == "generate" ? null : device, {
+        buildFn(device === "export" || device === "generate" ? null : device, {
           ...this.options,
           returnCommand: true,
         })
@@ -311,7 +311,7 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
         if (result === 0) {
           returnCommand ||
             logger(
-              `${device == "export" ? "Export" : "Build"} ${
+              `${device === "export" ? "Export" : "Build"} ${
                 result !== 0
                   ? `failed with error code ${result}`
                   : "completed successfully"

@@ -717,14 +717,14 @@ export function skipToPosition(
   // skip over nodes that end before the range begins
   if (
     node.loc.end.line <= position.line ||
-    (node.loc.end.line == position.line + 1 &&
+    (node.loc.end.line === position.line + 1 &&
       node.loc.end.column <= position.character)
   ) {
     return false;
   }
   return (
     node.loc.start.line <= position.line ||
-    (node.loc.start.line == position.line + 1 &&
+    (node.loc.start.line === position.line + 1 &&
       node.loc.start.column <= position.character + 1)
   );
 }
