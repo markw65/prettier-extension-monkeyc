@@ -2,6 +2,16 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.97
+
+- Update to [@markw65/monkeyc-optimizer@1.1.67](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1167)
+
+  - Use the type of a variable, when known, if its the base of a lookup (fixes #35)
+  - Add strictTypeCheck option
+  - Make getProjectAnalysis more forgiving when there are syntax errors (fixes #17)
+
+- Reference provider should find references to symbols in subclasses
+
 #### 2.0.96
 
 - Update to [@markw65/monkeyc-optimizer@1.1.66](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1166)
