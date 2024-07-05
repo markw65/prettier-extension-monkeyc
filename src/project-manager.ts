@@ -380,7 +380,20 @@ export class Project implements vscode.Disposable {
     if (!this.buildRuleDependencies) return;
     const analysis: PreAnalysis | null = this.currentAnalysis;
     files.forEach(({ file, content }) => {
-      if (hasProperty(this.resources, file)) {
+      if (
+        !content &&
+        /\.(barrel|jungle)$/i.test(file) &&
+        Object.entries(this.buildRuleDependencies).some(([k, v]) => {
+          if (v !== true) return false;
+          return (
+            file.startsWith(k) &&
+            file.length > k.length &&
+            file[k.length] === "/"
+          );
+        })
+      ) {
+        this.buildRuleDependencies[file] = true;
+      } else if (hasProperty(this.resources, file)) {
         if (content) {
           const rez = this.resources[file];
           if (!rez || rez.source === content) {
