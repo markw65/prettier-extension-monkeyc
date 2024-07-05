@@ -185,12 +185,12 @@ export class Project implements vscode.Disposable {
   }
 
   diagnosticFromError(e: Error, filepath: string) {
-    interface PeggyError extends Error {
-      location: mctree.Node["loc"];
-    }
-    const error = e as Error | PeggyError;
+    const error = e as Error & {
+      location?: mctree.Node["loc"];
+      source?: string;
+    };
     let range;
-    if ("location" in error && error.location) {
+    if (error.location) {
       range = new vscode.Range(
         error.location.start.line - 1,
         error.location.start.column - 1,
@@ -202,6 +202,9 @@ export class Project implements vscode.Disposable {
       }
     } else {
       range = new vscode.Range(0, 0, 0, 0);
+      if (error.source) {
+        filepath = error.source;
+      }
     }
     const diagnostic = new vscode.Diagnostic(
       range,
@@ -256,7 +259,14 @@ export class Project implements vscode.Disposable {
         this.addExtraWatchers();
         if (e instanceof Error) {
           this.diagnosticCollection.clear();
-          this.diagnosticFromError(e, this.options.jungleFiles || "");
+          this.diagnosticFromError(
+            e,
+            this.options
+              .jungleFiles!.split(";")
+              .map((file) =>
+                normalize(path.resolve(this.options!.workspace!, file))
+              )[0] || "<Unknown>"
+          );
           return;
         }
         throw e;
