@@ -2,6 +2,16 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### 2.0.98
+
+- Update to [@markw65/monkeyc-optimizer@1.1.68](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1168)
+  - Fix a race between removing and creating outputPath that could potentially cause a build to fail
+  - Only ignore jungle paths that resolve to `prettierMonkeyC.outputPath` if the pattern is the default, `**.mc`
+  - Ignore jungle paths that resolve to `prettierMonkeyC.outputPath`, rather than `bin`.
+  - Prevent infinite recursion with cyclic Class graphs. Now gives sensible error messages, and doesn't crash
+  - Record barrel paths in build dependencies, so that rebuilding a barrel will cause a re-run of the live analysis
+  - Add the jungle as the source file for "unresolved barrel" errors. Lets you know which project caused the error.
+
 #### 2.0.97
 
 - Update to [@markw65/monkeyc-optimizer@1.1.67](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1167)
