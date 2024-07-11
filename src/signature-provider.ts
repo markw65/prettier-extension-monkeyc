@@ -49,35 +49,64 @@ export class MonkeyCSignatureProvider implements vscode.SignatureHelpProvider {
         );
         const arg = result[1];
         return functionDocumentation.then((docinfo) =>
-          findDefinition(document, calleePosition, false).then((result) =>
+          findDefinition(document, calleePosition, false).then((results) =>
             Promise.all(
-              result.results.flatMap((lookupDef) =>
-                lookupDef.results.map(async (decl) => {
-                  if (decl.type !== "FunctionDeclaration") return null;
-                  const body = decl.node.body;
-                  decl.node.body = null;
-                  const sig = new vscode.SignatureInformation(
-                    await formatAstLongLines(decl.node)
-                  );
-                  decl.node.body = body;
-                  sig.parameters = decl.node.params.map(
-                    (param) =>
-                      new vscode.ParameterInformation(
-                        variableDeclarationName(param)
-                      )
-                  );
-                  const doc = docinfo?.get(decl.fullName);
-                  if (doc) {
-                    sig.documentation = new vscode.MarkdownString(doc);
-                  }
-                  return sig;
-                })
+              results.flatMap((result) =>
+                Promise.all(
+                  result.results.flatMap((lookupDef) =>
+                    lookupDef.results.map(async (decl) => {
+                      if (decl.type !== "FunctionDeclaration") return null;
+                      const node = { ...decl.node };
+                      node.body = null;
+                      const sig = new vscode.SignatureInformation(
+                        await formatAstLongLines(node)
+                      );
+                      sig.parameters = decl.node.params.map(
+                        (param) =>
+                          new vscode.ParameterInformation(
+                            variableDeclarationName(param)
+                          )
+                      );
+                      const doc = docinfo?.get(decl.fullName);
+                      if (doc) {
+                        sig.documentation = new vscode.MarkdownString(doc);
+                      }
+                      return sig;
+                    })
+                  )
+                )
               )
             ).then((signatures) => {
+              const compare = (
+                sig1: vscode.SignatureInformation,
+                sig2: vscode.SignatureInformation
+              ) => {
+                if (sig1.label < sig2.label) return -1;
+                if (sig1.label > sig2.label) return 1;
+                if (sig1.parameters.length !== sig2.parameters.length) {
+                  return sig1.parameters.length - sig2.parameters.length;
+                }
+                for (let i = 0; i < sig1.parameters.length; i++) {
+                  const p1 = sig1.parameters[i];
+                  const p2 = sig2.parameters[i];
+                  if (p1.label < p2.label) return -1;
+                  if (p1.label > p2.label) return 1;
+                  const diff =
+                    (p1.documentation?.toString().length ?? 0) -
+                    (p2.documentation?.toString().length ?? 0);
+                  if (diff) return diff;
+                }
+                return (
+                  (sig1.documentation?.toString().length ?? 0) -
+                  (sig2.documentation?.toString().length ?? 0)
+                );
+              };
               const help = new vscode.SignatureHelp();
-              help.signatures = signatures.filter(
-                (s): s is vscode.SignatureInformation => s != null
-              );
+              help.signatures = signatures
+                .flat()
+                .filter((s): s is vscode.SignatureInformation => s != null)
+                .sort(compare)
+                .filter((s, i, arr) => !i || compare(s, arr[i - 1]));
               help.activeParameter = arg;
               return help;
             })

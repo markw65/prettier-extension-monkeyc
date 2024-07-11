@@ -679,23 +679,35 @@ export class Project implements vscode.Disposable {
 const projects: Record<string, Project> = {};
 // Given a URI, find or construct the corresponding
 // MonkeyC project.
-export function findProject(entity: vscode.Uri) {
+export function findRelatedProjects(entity: vscode.Uri) {
+  // barrel files will often be outside the workspace of the file
+  // that's using them; in that case, search the projects to see
+  // if this is one of those files.
+  const fsPath = normalize(entity.fsPath);
+  const relatedProjects = Object.entries(projects).filter(([, p]) =>
+    p.isWatching(fsPath)
+  );
   const workspace = vscode.workspace.getWorkspaceFolder(entity);
-  if (!workspace) {
-    // barrel files will often be outside the workspace of the file
-    // that's using them; in that case, search the projects to see
-    // if this is one of those files.
-    const fsPath = normalize(entity.fsPath);
-    return Object.values(projects).find((p) => p.isWatching(fsPath));
+  if (workspace) {
+    const key = workspace.uri.toString();
+    if (!relatedProjects.find(([k]) => k === key)) {
+      if (hasProperty(projects, key)) {
+        relatedProjects.push([key, projects[key]]);
+      } else {
+        const project = Project.create(workspace);
+        if (project) {
+          projects[key] = project;
+          relatedProjects.unshift([key, project]);
+        }
+      }
+    }
   }
-  const key = workspace.uri.toString();
-  if (hasProperty(projects, key)) {
-    return projects[key];
-  }
-  const project = Project.create(workspace);
-  if (!project) return null;
-  projects[key] = project;
-  return project;
+  return relatedProjects.map(([, v]) => v);
+}
+
+export function findProject(entity: vscode.Uri) {
+  const related = findRelatedProjects(entity);
+  return related[0] ?? null;
 }
 
 export function initializeProjectManager(): vscode.Disposable[] {
@@ -832,19 +844,19 @@ function findItemsByRange(
   }
 }
 
-export function findAnalysis<T>(
-  document: vscode.TextDocument,
-  callback: (
-    analysis: Analysis,
-    ast: mctree.Program,
-    fileName: string,
-    isLastGood: boolean,
-    project: Project
-  ) => T,
+type AnalysisInfo = {
+  analysis: Analysis;
+  ast: mctree.Program;
+  fileName: string;
+  isLastGood: boolean;
+  project: Project;
+};
+
+function analysisForProject(
+  project: Project,
+  filePath: string,
   useLastGood = false
-): Promise<Awaited<T>> {
-  const project = findProject(document.uri);
-  if (!project) return Promise.reject("No project found");
+): Promise<AnalysisInfo> {
   return project.getAnalysis().then((analysisIn) => {
     let analysis: Analysis | null = null;
     let isLastGood = false;
@@ -863,7 +875,7 @@ export function findAnalysis<T>(
       analysis = project.lastGoodAnalysis;
       isLastGood = true;
     }
-    const fileName = normalize(document.uri.fsPath);
+    const fileName = normalize(filePath);
     const ast = hasProperty(analysis.fnMap, fileName)
       ? analysis.fnMap[fileName]?.ast
       : (hasProperty(project.resources, fileName) ||
@@ -876,10 +888,58 @@ export function findAnalysis<T>(
           : "Document ${document.uri.fsPath} not found in project"
       );
     }
-    return Promise.resolve(
-      callback(analysis, ast, fileName, isLastGood, project)
-    );
+    return { analysis, ast, fileName, isLastGood, project };
   });
+}
+
+export function findAnalysis<T>(
+  document: vscode.TextDocument,
+  callback: (
+    analysis: Analysis,
+    ast: mctree.Program,
+    fileName: string,
+    isLastGood: boolean,
+    project: Project
+  ) => T,
+  useLastGood = false
+): Promise<Awaited<T>> {
+  const project = findProject(document.uri);
+  if (!project) return Promise.reject("No project found");
+  return analysisForProject(project, document.uri.fsPath, useLastGood).then(
+    ({ analysis, ast, fileName, isLastGood, project }) =>
+      Promise.resolve(callback(analysis, ast, fileName, isLastGood, project))
+  );
+}
+
+export function findAnalyses(
+  document: vscode.TextDocument,
+  useLastGood = false
+): Promise<AnalysisInfo[]> {
+  const projects = findRelatedProjects(document.uri);
+  return Promise.all(
+    projects.map((project) =>
+      analysisForProject(project, document.uri.fsPath, useLastGood)
+    )
+  );
+}
+
+function compareLocations(r1: vscode.Location, r2: vscode.Location) {
+  const s1 = r1.uri.toString();
+  const s2 = r2.uri.toString();
+  if (s1 < s2) return -1;
+  if (s1 > s2) return 1;
+  return (
+    r1.range.start.compareTo(r2.range.start) ||
+    r2.range.end.compareTo(r1.range.end)
+  );
+}
+
+export function filterLocations(locations: vscode.Location[]) {
+  return locations
+    .sort(compareLocations)
+    .filter(
+      (cur, index, arr) => !index || compareLocations(cur, arr[index - 1])
+    );
 }
 
 export function findDefinition(
@@ -887,75 +947,77 @@ export function findDefinition(
   position: vscode.Position,
   findSingleDefinition: boolean
 ) {
-  return findAnalysis(document, (analysis, ast, fileName) => {
-    const result = findItemsByRange(
-      analysis.state,
-      ast,
-      fileName,
-      position,
-      analysis.typeMap,
-      findSingleDefinition
-    );
-    if (!result) {
-      throw new Error("No symbol found");
-    }
-    const node = visitorNode(result.node);
-    if (node.type !== "Identifier") {
-      throw new Error(`Unexpected node type '${node.type}'`);
-    }
-    let results = result.results;
-    if (!result.singleDef) {
-      const newResults = new Map<StateNode | null, Set<StateNodeDecl>>();
-      const klassMap = new Map<ClassStateNode, Set<ClassStateNode>>();
-      const getSubClasses = (cls: ClassStateNode) => {
-        const subClasses = klassMap.get(cls) ?? new Set<ClassStateNode>();
-        if (subClasses.size) return subClasses;
-        subClasses.add(cls);
-        analysis.state.allClasses.forEach(
-          (c) => getSuperClasses(c)?.has(cls) && subClasses.add(c)
-        );
-        return subClasses;
-      };
-      results.forEach((lookupDefn) => {
-        lookupDefn.results.forEach((sn) => {
-          if (isStateNode(sn)) {
-            const name = sn.name;
-            const owner = sn.stack?.at(-1);
-            if (name && owner?.sn.type === "ClassDeclaration") {
-              const subClasses = getSubClasses(owner.sn);
-              subClasses.forEach((sc) => {
-                const decls = sc.decls?.[name];
-                if (decls?.length) {
-                  const r = newResults.get(sc);
-                  if (r) {
-                    decls.forEach((d) => r.add(d));
-                  } else {
-                    newResults.set(sc, new Set(decls));
+  return findAnalyses(document).then((results) =>
+    results.map(({ analysis, ast, fileName }) => {
+      const result = findItemsByRange(
+        analysis.state,
+        ast,
+        fileName,
+        position,
+        analysis.typeMap,
+        findSingleDefinition
+      );
+      if (!result) {
+        throw new Error("No symbol found");
+      }
+      const node = visitorNode(result.node);
+      if (node.type !== "Identifier") {
+        throw new Error(`Unexpected node type '${node.type}'`);
+      }
+      let results = result.results;
+      if (!result.singleDef) {
+        const newResults = new Map<StateNode | null, Set<StateNodeDecl>>();
+        const klassMap = new Map<ClassStateNode, Set<ClassStateNode>>();
+        const getSubClasses = (cls: ClassStateNode) => {
+          const subClasses = klassMap.get(cls) ?? new Set<ClassStateNode>();
+          if (subClasses.size) return subClasses;
+          subClasses.add(cls);
+          analysis.state.allClasses.forEach(
+            (c) => getSuperClasses(c)?.has(cls) && subClasses.add(c)
+          );
+          return subClasses;
+        };
+        results.forEach((lookupDefn) => {
+          lookupDefn.results.forEach((sn) => {
+            if (isStateNode(sn)) {
+              const name = sn.name;
+              const owner = sn.stack?.at(-1);
+              if (name && owner?.sn.type === "ClassDeclaration") {
+                const subClasses = getSubClasses(owner.sn);
+                subClasses.forEach((sc) => {
+                  const decls = sc.decls?.[name];
+                  if (decls?.length) {
+                    const r = newResults.get(sc);
+                    if (r) {
+                      decls.forEach((d) => r.add(d));
+                    } else {
+                      newResults.set(sc, new Set(decls));
+                    }
                   }
-                }
-              });
-              return;
+                });
+                return;
+              }
             }
-          }
-          const r = newResults.get(lookupDefn.parent);
-          if (r) {
-            r.add(sn);
-          } else {
-            newResults.set(lookupDefn.parent, new Set([sn]));
-          }
+            const r = newResults.get(lookupDefn.parent);
+            if (r) {
+              r.add(sn);
+            } else {
+              newResults.set(lookupDefn.parent, new Set([sn]));
+            }
+          });
         });
-      });
-      results = Array.from(newResults).map(([parent, results]) => ({
-        parent,
-        results: Array.from(results),
-      }));
-    }
-    return {
-      node,
-      results,
-      analysis,
-    };
-  });
+        results = Array.from(newResults).map(([parent, results]) => ({
+          parent,
+          results: Array.from(results),
+        }));
+      }
+      return {
+        node,
+        results,
+        analysis,
+      };
+    })
+  );
 }
 
 export function currentWorkspace(

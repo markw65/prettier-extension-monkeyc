@@ -6,7 +6,11 @@ import {
   visitorNode,
 } from "@markw65/monkeyc-optimizer/api.js";
 import * as vscode from "vscode";
-import { findDefinition, normalize } from "./project-manager.js";
+import {
+  filterLocations,
+  findDefinition,
+  normalize,
+} from "./project-manager.js";
 
 export class MonkeyCRenameRefProvider
   implements vscode.RenameProvider, vscode.ReferenceProvider
@@ -15,54 +19,58 @@ export class MonkeyCRenameRefProvider
     document: vscode.TextDocument,
     position: vscode.Position
   ) {
-    return findDefinition(document, position, false).then(
-      ({ node, results, analysis }) => {
-        if (node && results) {
-          if (
-            !results.every(({ parent, results }) => {
-              if (
-                (isStateNode(results[0]) ? results[0].node : results[0])?.loc
-                  ?.source === "api.mir"
-              ) {
-                return false;
-              }
-              // - Anything other than a var/const, func or enum value can be
-              //   renamed wherever its declared.
-              // - an identifier defined in a block (a local) or function
-              //   (a parameter) can always be renamed.
-              // - an identifier defined in a module can be renamed unless
-              //   the program uses its symbol in unknown ways.
-              return (
-                !results.some(
-                  (r) =>
-                    r.type === "VariableDeclarator" ||
-                    r.type === "EnumStringMember" ||
-                    r.type === "TypedefDeclaration" ||
-                    r.type === "FunctionDeclaration"
-                ) ||
-                (parent &&
-                  (parent.type === "BlockStatement" ||
-                    parent.type === "FunctionDeclaration")) ||
-                ((!parent ||
-                  parent.type === "ModuleDeclaration" ||
-                  parent.type === "Program") &&
-                  !hasProperty(analysis.state.exposed, node.name))
+    return findDefinition(document, position, false).then((results) =>
+      Promise.all(
+        results.map(({ node, results, analysis }) => {
+          if (node && results) {
+            if (
+              !results.every(({ parent, results }) => {
+                if (
+                  (isStateNode(results[0]) ? results[0].node : results[0])?.loc
+                    ?.source === "api.mir"
+                ) {
+                  return false;
+                }
+                // - Anything other than a var/const, func or enum value can be
+                //   renamed wherever its declared.
+                // - an identifier defined in a block (a local) or function
+                //   (a parameter) can always be renamed.
+                // - an identifier defined in a module can be renamed unless
+                //   the program uses its symbol in unknown ways.
+                return (
+                  !results.some(
+                    (r) =>
+                      r.type === "VariableDeclarator" ||
+                      r.type === "EnumStringMember" ||
+                      r.type === "TypedefDeclaration" ||
+                      r.type === "FunctionDeclaration"
+                  ) ||
+                  (parent &&
+                    (parent.type === "BlockStatement" ||
+                      parent.type === "FunctionDeclaration")) ||
+                  ((!parent ||
+                    parent.type === "ModuleDeclaration" ||
+                    parent.type === "Program") &&
+                    !hasProperty(analysis.state.exposed, node.name))
+                );
+              })
+            ) {
+              return Promise.reject(new Error(`Unable to rename ${node.name}`));
+            }
+            if (node.name === "$") {
+              return Promise.reject(
+                new Error(`Can't rename the global module`)
               );
-            })
-          ) {
-            return Promise.reject(`Unable to rename ${node.name}`);
+            }
+            return {
+              id: node,
+              results,
+              analysis,
+            };
           }
-          if (node.name === "$") {
-            return Promise.reject(`Can't rename the global module`);
-          }
-          return {
-            id: node,
-            results,
-            analysis,
-          };
-        }
-        return Promise.reject("No renamable symbol found");
-      }
+          return Promise.reject(new Error("No renamable symbol found"));
+        })
+      )
     );
   }
 
@@ -71,14 +79,31 @@ export class MonkeyCRenameRefProvider
     position: vscode.Position,
     _cancellationToken: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Range> {
-    return this.getRenameInfo(document, position).then(({ id }) => {
-      return new vscode.Range(
-        id.loc!.start.line - 1,
-        id.loc!.start.column - 1,
-        id.loc!.end.line - 1,
-        id.loc!.end.column - 1
-      );
-    });
+    return this.getRenameInfo(document, position)
+      .then((results) =>
+        results.filter(({ id }, i, arr) => {
+          if (!i) return true;
+          const prev = arr[i - 1].id;
+          if (prev.name !== id.name) return true;
+          if (prev.loc?.start.offset !== id.loc?.start.offset) return true;
+          if (prev.loc?.end.offset !== id.loc?.end.offset) return true;
+          return false;
+        })
+      )
+      .then((results) => {
+        if (results.length !== 1) {
+          return Promise.reject(
+            new Error("Inconsistent rename info across different projects")
+          );
+        }
+        const [{ id }] = results;
+        return new vscode.Range(
+          id.loc!.start.line - 1,
+          id.loc!.start.column - 1,
+          id.loc!.end.line - 1,
+          id.loc!.end.column - 1
+        );
+      });
   }
 
   provideRenameEdits(
@@ -88,46 +113,53 @@ export class MonkeyCRenameRefProvider
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.WorkspaceEdit> {
     return this.getRenameInfo(document, position)
-      .then(({ id, results, analysis }) => {
+      .then((renames) => {
+        const locations: vscode.Location[] = [];
+        renames.forEach(({ id, results, analysis }) => {
+          const asts = results.every(
+            ({ parent }) =>
+              parent &&
+              (parent.type === "BlockStatement" ||
+                parent.type === "FunctionDeclaration")
+          )
+            ? [analysis.fnMap[normalize(document.uri.fsPath)].ast]
+            : Object.values(analysis.fnMap)
+                .map(({ ast }) => ast)
+                .concat(analysis.state.rezAst ? [analysis.state.rezAst] : []);
+          if (asts.every((ast) => ast != null)) {
+            asts.forEach((ast) => {
+              visitReferences(
+                analysis.state,
+                ast!,
+                id.name,
+                results,
+                (node) => {
+                  const n = visitorNode(node);
+                  const loc = n.loc!;
+                  locations.push(
+                    new vscode.Location(
+                      vscode.Uri.file(loc.source!),
+                      new vscode.Range(
+                        loc.start.line - 1,
+                        loc.start.column - 1,
+                        loc.end.line - 1,
+                        loc.end.column - 1
+                      )
+                    )
+                  );
+                  return undefined;
+                },
+                true,
+                null,
+                analysis.typeMap
+              );
+            });
+          }
+        });
         const edits = new vscode.WorkspaceEdit();
-        const asts = results.every(
-          ({ parent }) =>
-            parent &&
-            (parent.type === "BlockStatement" ||
-              parent.type === "FunctionDeclaration")
-        )
-          ? [analysis.fnMap[normalize(document.uri.fsPath)].ast]
-          : Object.values(analysis.fnMap)
-              .map(({ ast }) => ast)
-              .concat(analysis.state.rezAst ? [analysis.state.rezAst] : []);
-        if (asts.every((ast) => ast != null)) {
-          asts.forEach((ast) => {
-            visitReferences(
-              analysis.state,
-              ast!,
-              id.name,
-              results,
-              (node) => {
-                const n = visitorNode(node);
-                const loc = n.loc!;
-                edits.replace(
-                  vscode.Uri.file(loc.source!),
-                  new vscode.Range(
-                    loc.start.line - 1,
-                    loc.start.column - 1,
-                    loc.end.line - 1,
-                    loc.end.column - 1
-                  ),
-                  newName
-                );
-                return undefined;
-              },
-              true,
-              null,
-              analysis.typeMap
-            );
-          });
-        }
+        filterLocations(locations).forEach((loc) =>
+          edits.replace(loc.uri, loc.range, newName)
+        );
         return edits;
       })
       .catch(() => null);
@@ -139,10 +171,10 @@ export class MonkeyCRenameRefProvider
     _context: vscode.ReferenceContext,
     _token: vscode.CancellationToken
   ): vscode.ProviderResult<vscode.Location[]> {
-    return findDefinition(document, position, false).then(
-      ({ node, results, analysis }) => {
+    return findDefinition(document, position, false).then((definitions) => {
+      const references: vscode.Location[] = [];
+      definitions.forEach(({ node, results, analysis }) => {
         if (node && results) {
-          const references: vscode.Location[] = [];
           const isLocal = results.every(
             ({ parent }) =>
               parent &&
@@ -206,10 +238,9 @@ export class MonkeyCRenameRefProvider
               analysis.typeMap
             );
           });
-          return references;
         }
-        return null;
-      }
-    );
+      });
+      return filterLocations(references);
+    });
   }
 }
