@@ -182,7 +182,7 @@ const startEndPlugin = {
 };
 
 const cjsConfig = {
-  entryPoints: ["src/extension.js"],
+  entryPoints: ["src/extension.ts", "test/suite/*.test.ts"],
   bundle: true,
   platform: "node",
   outdir: `${cjsDir}`,

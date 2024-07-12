@@ -11,8 +11,8 @@
       "path": "../monkeyc-optimizer/test/OptimizerTests"
     },
     {
-      "name": "IntegrationTestsXX",
-      "path": "test/IntegrationTests"
+      "name": "IntegrationTests",
+      "path": "test/IntegrationTests/Project1"
     },
     {
       "path": "../prettier-plugin-monkeyc"

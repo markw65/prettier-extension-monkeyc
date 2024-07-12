@@ -1,4 +1,5 @@
 import Toybox.Lang;
+import Toybox.Application;
 
 function foo(a as String?) as String {
   var foo = a != null ? foo(null) : "Hello";
@@ -17,4 +18,8 @@ function buz() as Number {
     }
     return 0;
   }
+}
+
+function barrel_string() as String {
+    return Application.loadResource(BarrelTest.Rez.Strings.TestString) as String;
 }

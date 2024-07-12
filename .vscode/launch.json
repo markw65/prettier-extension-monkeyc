@@ -29,8 +29,9 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/test/suite/index",
-        "${workspaceFolder}/test/IntegrationTests"
-      ]
+        "${workspaceFolder}/test/IntegrationTests/IntegrationTests.code-workspace"
+      ],
+      "outFiles": ["${workspaceFolder}/**/*.(m|c|)js", "!**/node_modules/**"]
     },
     {
       "name": "Extension Tests (runTests)",

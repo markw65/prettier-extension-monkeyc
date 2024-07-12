@@ -42,7 +42,13 @@ async function main() {
       extensionDevelopmentPath,
       extensionTestsPath,
       vscodeExecutablePath,
-      launchArgs: [path.resolve(__dirname, "IntegrationTests")],
+      launchArgs: [
+        path.resolve(
+          __dirname,
+          "IntegrationTests",
+          "IntegrationTests.code-workspace"
+        ),
+      ],
     });
   } catch (err) {
     console.error("Failed to run tests");

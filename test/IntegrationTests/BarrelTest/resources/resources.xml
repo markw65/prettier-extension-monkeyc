@@ -1,0 +1,8 @@
+<resources>
+    <strings>
+        <string id="TestString">TestString</string>
+    </strings>
+    <layout id="TestLayout">
+        <label id="TestLabel" text="@BarrelTest.Strings.TestString" x="0" y="0"/>
+    </layout>
+</resources>

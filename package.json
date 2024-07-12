@@ -33,7 +33,7 @@
     "onCommand:prettiermonkeyc.getTargetDevice",
     "onCommand:vscode.executeDocumentSymbolProvider"
   ],
-  "main": "./build/extension.js",
+  "main": "./build/src/extension.js",
   "contributes": {
     "commands": [
       {

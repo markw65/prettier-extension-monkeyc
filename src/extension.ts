@@ -33,7 +33,7 @@ export async function activate(context: vscode.ExtensionContext) {
     "Installing @markw65/prettier-plugin-monkeyc into the esbenp.prettier-vscode extension!"
   );
 
-  const our_extension_dir = path.resolve(__dirname, "..");
+  const our_extension_dir = path.resolve(__dirname, "..", "..");
   const prettier_dir = vscode.extensions.getExtension(
     "esbenp.prettier-vscode"
   )?.extensionPath;

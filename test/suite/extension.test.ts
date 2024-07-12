@@ -1,59 +1,66 @@
-const assert = require("assert");
-const path = require("path");
+import assert from "assert";
+import * as path from "node:path";
 
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
-const vscode = require("vscode");
+import * as vscode from "vscode";
 //const myExtension = require("../build/extension");
 
 suite("Extension Test Suite", function () {
   vscode.window.showInformationMessage("Start all tests.");
 
-  const dir = path.resolve(__dirname, "..", "IntegrationTests", "source");
+  const dir = path.resolve(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "test",
+    "IntegrationTests",
+    "Project1",
+    "source"
+  );
   this.timeout(0);
   this.slow(2500);
 
   suiteSetup(function () {
     this.slow(10000);
     console.log("Running suite setup");
-    return getSymbols(path.resolve(dir, "IntegrationTestsSource.mc")).then(() =>
+    return getSymbols(path.resolve(dir, "Project1Source.mc")).then(() =>
       vscode.commands.executeCommand("workbench.action.closeAllEditors")
     );
   });
 
-  const getRefs = async (docSym) => {
+  const getRefsEx = async (
+    uri: vscode.Uri,
+    pos: vscode.Position,
+    name: string
+  ) => {
     const refs = await vscode.commands.executeCommand(
       "vscode.executeReferenceProvider",
-      docSym.location.uri,
-      new vscode.Position(
-        docSym.selectionRange.start.line,
-        docSym.selectionRange.start.character
-      )
+      uri,
+      pos
     );
-    assert(
-      Array.isArray(refs),
-      `Expected an array of references to ${docSym.name}`
-    );
+    assert(Array.isArray(refs), `Expected an array of references to ${name}`);
     return refs;
   };
-  const getDefs = async (docSym) => {
+
+  const getDefsEx = async (
+    uri: vscode.Uri,
+    pos: vscode.Position,
+    name: string
+  ) => {
     const defs = await vscode.commands.executeCommand(
       "vscode.executeDefinitionProvider",
-      docSym.location.uri,
-      new vscode.Position(
-        docSym.selectionRange.start.line,
-        docSym.selectionRange.start.character
-      )
+      uri,
+      pos
     );
-    assert(
-      Array.isArray(defs),
-      `Expected an array of references to ${docSym.name}`
-    );
+    assert(Array.isArray(defs), `Expected an array of references to ${name}`);
     return defs;
   };
 
-  let symbols;
-  const getSymbols = async (source) => {
+  type VSSymbol = vscode.DocumentSymbol & { location?: vscode.Location };
+  let symbols: VSSymbol[] | null = null;
+  const getSymbols = async (source: string) => {
     for (let i = 0; !symbols && i < 10; i++) {
       symbols = await vscode.workspace
         .openTextDocument(source)
@@ -65,33 +72,37 @@ suite("Extension Test Suite", function () {
           )
         );
       if (symbols) return;
-      await new Promise((resolve) => setTimeout(() => resolve(), 200));
+      await new Promise<void>((resolve) => setTimeout(() => resolve(), 200));
     }
     if (!symbols) assert.fail(`Unable to get symbols for ${source}`);
   };
-  const findSymbol = async (source, path, kind) => {
+  const findSymbol = async (
+    source: string,
+    path: string[],
+    kind: keyof typeof vscode.SymbolKind
+  ) => {
     await getSymbols(source);
     const symbol = path.reduce((current, name, i) => {
-      const symbol = (current ? current.children : symbols).find(
+      const symbol = (current?.children ?? symbols)?.find(
         (symbol) => symbol.name === name
       );
       if (!symbol) {
         assert.fail(`Failed to find ${path.slice(0, i + 1).join(":")}`);
       }
       return symbol;
-    }, null);
+    }, null as VSSymbol | null);
+    assert(symbol);
     assert.equal(symbol.kind, vscode.SymbolKind[kind], `Expected a ${kind}`);
     return symbol;
   };
-  const checkSymbolRefsEx = async (
-    source,
-    path,
-    kind,
-    refsCount,
-    defsCount
+  const checkRefsEx = async (
+    uri: vscode.Uri,
+    pos: vscode.Position,
+    name: string,
+    refsCount: number,
+    defsCount: number
   ) => {
-    const symbol = await findSymbol(source, path, kind);
-    const refs = await getRefs(symbol);
+    const refs = await getRefsEx(uri, pos, name);
     assert.equal(
       refs.length,
       refsCount,
@@ -99,7 +110,7 @@ suite("Extension Test Suite", function () {
         refs.length
       }`
     );
-    const defs = await getDefs(symbol);
+    const defs = await getDefsEx(uri, pos, name);
     assert.equal(
       defs.length,
       defsCount,
@@ -107,15 +118,42 @@ suite("Extension Test Suite", function () {
         defs.length
       }`
     );
+    return { uri, pos, refs, defs };
+  };
+
+  const checkSymbolRefsEx = async (
+    source: string,
+    path: string[],
+    kind: keyof typeof vscode.SymbolKind,
+    refsCount: number,
+    defsCount: number
+  ) => {
+    const symbol = await findSymbol(source, path, kind);
+    const { refs, defs } = await checkRefsEx(
+      symbol.location!.uri,
+      new vscode.Position(
+        symbol.selectionRange.start.line,
+        symbol.selectionRange.start.character
+      ),
+      symbol.name,
+      refsCount,
+      defsCount
+    );
     return { symbol, refs, defs };
   };
-  const checkSymbolRefs = (source, path, kind, refsCount, defsCount) =>
+  const checkSymbolRefs = (
+    source: string,
+    path: string[],
+    kind: keyof typeof vscode.SymbolKind,
+    refsCount: number,
+    defsCount: number
+  ) =>
     checkSymbolRefsEx(source, path, kind, refsCount, defsCount).then(
       (result) => result.symbol
     );
 
-  const checkFoo = async (funcName, varName) => {
-    const testsSource = path.resolve(dir, "IntegrationTestsSource.mc");
+  const checkFoo = async (funcName: string, varName: string) => {
+    const testsSource = path.resolve(dir, "Project1Source.mc");
     const fooFunc = await checkSymbolRefs(
       testsSource,
       [funcName],
@@ -133,19 +171,30 @@ suite("Extension Test Suite", function () {
     return [fooFunc, fooVar];
   };
 
-  const doRename = async (docSym, newName) => {
-    const renameEdits = await vscode.commands.executeCommand(
+  const doRenameEx = async (
+    uri: vscode.Uri,
+    pos: vscode.Position,
+    newName: string
+  ) => {
+    const renameEdits = (await vscode.commands.executeCommand(
       "vscode.executeDocumentRenameProvider",
-      docSym.location.uri,
+      uri,
+      pos,
+      newName
+    )) as vscode.WorkspaceEdit;
+    await vscode.workspace.applyEdit(renameEdits);
+    symbols = null;
+  };
+
+  const doRename = async (docSym: VSSymbol, newName: string) =>
+    doRenameEx(
+      docSym.location!.uri,
       new vscode.Position(
         docSym.selectionRange.start.line,
         docSym.selectionRange.start.character
       ),
       newName
     );
-    await vscode.workspace.applyEdit(renameEdits);
-    symbols = null;
-  };
 
   const revertAll = () =>
     vscode.workspace.textDocuments
@@ -158,7 +207,7 @@ suite("Extension Test Suite", function () {
           );
       }, Promise.resolve());
 
-  let serializer = Promise.resolve();
+  let serializer = Promise.resolve<unknown>(null);
   test("Test Refs and Renames - locals vs functions", function () {
     const result = serializer
       .then(() => {
@@ -175,7 +224,7 @@ suite("Extension Test Suite", function () {
   });
 
   test("Test Refs and Renames - catch variables", function () {
-    const testsSource = path.resolve(dir, "IntegrationTestsSource.mc");
+    const testsSource = path.resolve(dir, "Project1Source.mc");
     const result = serializer
       .then(() => {
         symbols = null;
@@ -196,14 +245,12 @@ suite("Extension Test Suite", function () {
   });
 
   test("Test Refs and Renames - classes", function () {
-    const testsSource = path.resolve(dir, "IntegrationTestsView.mc");
+    const testsSource = path.resolve(dir, "Project1View.mc");
     const result = serializer
       .then(() => {
         symbols = null;
       })
-      .then(() =>
-        checkSymbolRefs(testsSource, ["IntegrationTestsView"], "Class", 1, 1)
-      )
+      .then(() => checkSymbolRefs(testsSource, ["Project1View"], "Class", 1, 1))
       .then((symbol) => doRename(symbol, "SomeOtherView"))
       .then(() =>
         checkSymbolRefs(testsSource, ["SomeOtherView"], "Class", 1, 1)
@@ -242,8 +289,60 @@ suite("Extension Test Suite", function () {
     return result;
   });
 
+  const checkRefsTargetString = (
+    source: string,
+    target: string,
+    name: string,
+    refs: number,
+    defs: number
+  ) => {
+    return vscode.workspace
+      .openTextDocument(source)
+      .then((doc) => vscode.window.showTextDocument(doc).then(() => doc))
+      .then((doc) => {
+        const text = doc.getText();
+        const index = text.indexOf(target);
+        assert(index >= 0, `Expected to find ${target} in ${source}`);
+        return checkRefsEx(
+          doc.uri,
+          doc.positionAt(index + target.length - name.length),
+          name,
+          refs,
+          defs
+        );
+      });
+  };
+
+  test("Test Refs and Renames - barrels", function () {
+    const testsSource = path.resolve(dir, "Project1Source.mc");
+    const result = serializer
+      .then(() =>
+        checkRefsTargetString(
+          testsSource,
+          "BarrelTest.Rez.Strings.TestString",
+          "TestString",
+          3,
+          1
+        )
+      )
+      .then(({ uri, pos }) =>
+        doRenameEx(uri, pos, "ChangedString").then(() =>
+          checkRefsTargetString(
+            testsSource,
+            "BarrelTest.Rez.Strings.ChangedString",
+            "ChangedString",
+            3,
+            1
+          )
+        )
+      )
+      .finally(revertAll);
+    serializer = result.catch(() => null);
+    return result;
+  });
+
   test("Test References and inheritance", function () {
-    const testsSource = path.resolve(dir, "IntegrationTestsInheritance.mc");
+    const testsSource = path.resolve(dir, "Project1Inheritance.mc");
     const result = serializer
       .then(() => {
         symbols = null;

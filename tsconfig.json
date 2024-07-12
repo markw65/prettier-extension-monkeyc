@@ -16,6 +16,6 @@
     "noEmit": true,
     "emitDeclarationOnly": false
   },
-  "include": ["src"],
+  "include": ["src", "test/suite/**/*.test.ts"],
   "exclude": ["node_modules", "build"]
 }
