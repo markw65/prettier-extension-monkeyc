@@ -29,6 +29,7 @@
     "onLanguage:mss",
     "onLanguage:jungle",
     "onLanguage:manifest",
+    "onLanguage:xml",
     "onCommand:workbench.action.tasks.runTask",
     "onCommand:prettiermonkeyc.getTargetDevice",
     "onCommand:vscode.executeDocumentSymbolProvider"

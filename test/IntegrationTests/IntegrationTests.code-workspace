@@ -5,6 +5,10 @@
 		},
 		{
 			"path": "BarrelTest"
+		},
+		{
+			"name": "Project2",
+			"path": "Project2"
 		}
 	],
 	"settings": {}

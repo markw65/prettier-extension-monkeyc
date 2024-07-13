@@ -922,18 +922,6 @@ export function findAnalysis<T>(
   );
 }
 
-export function findAnalyses(
-  document: vscode.TextDocument,
-  useLastGood = false
-): Promise<AnalysisInfo[]> {
-  const projects = findRelatedProjects(document.uri);
-  return Promise.all(
-    projects.map((project) =>
-      analysisForProject(project, document.uri.fsPath, useLastGood)
-    )
-  );
-}
-
 function compareLocations(r1: vscode.Location, r2: vscode.Location) {
   const s1 = r1.uri.toString();
   const s2 = r2.uri.toString();
@@ -953,13 +941,16 @@ export function filterLocations(locations: vscode.Location[]) {
     );
 }
 
-export function findDefinition(
-  document: vscode.TextDocument,
+function findDefinitionForProjects(
+  filePath: string,
   position: vscode.Position,
-  findSingleDefinition: boolean
+  findSingleDefinition: boolean,
+  projects: Project[]
 ) {
-  return findAnalyses(document).then((results) =>
-    results.map(({ analysis, ast, fileName }) => {
+  return Promise.all(
+    projects.map((project) => analysisForProject(project, filePath))
+  ).then((results) =>
+    results.map(({ analysis, ast, fileName, project }) => {
       const result = findItemsByRange(
         analysis.state,
         ast,
@@ -1026,8 +1017,97 @@ export function findDefinition(
         node,
         results,
         analysis,
+        project,
       };
     })
+  );
+}
+
+function findDefinitionHelper(
+  filePath: string,
+  position: vscode.Position,
+  findSingleDefinition: boolean,
+  projects: Project[]
+) {
+  return findDefinitionForProjects(
+    filePath,
+    position,
+    findSingleDefinition,
+    projects
+  ).then(async (results): Promise<typeof results> => {
+    // we found all the projects that contain the file whose symbol we're
+    // looking up, but if any of the definitions are in a shared file (eg a
+    // barrel), there may be yet more projects involved.
+    const defns = new Map<string, Set<string>>();
+    results.forEach((result) =>
+      result.results.forEach((lookupDef) =>
+        lookupDef.results.forEach((sn) => {
+          const root = isStateNode(sn) ? sn.node : sn;
+          if (!root) return;
+          const id = "id" in root ? root.id : root;
+          const node = id?.type === "BinaryExpression" ? id.left : id;
+          const source = node?.loc?.source;
+          if (source) {
+            const posSet = defns.get(source);
+            const pos = `${node.loc?.start.line ?? 0}:${
+              node.loc?.start.column ?? 0
+            }`;
+            if (posSet) {
+              posSet.add(pos);
+            } else {
+              defns.set(source, new Set([pos]));
+            }
+          }
+        })
+      )
+    );
+
+    const handledProjects = new Set(results.map((result) => result.project));
+    const projectsToProcess = new Map<Project, Set<string>>();
+    defns.forEach((posSet, filePath) => {
+      findRelatedProjects(vscode.Uri.file(filePath)).forEach((project) => {
+        if (handledProjects.has(project)) return;
+        let existingPos = projectsToProcess.get(project);
+        if (!existingPos) {
+          existingPos = new Set();
+          projectsToProcess.set(project, existingPos);
+        }
+        posSet.forEach((pos) => existingPos!.add(`${filePath}:${pos}`));
+      });
+    });
+    const newResults = await Promise.all(
+      Array.from(projectsToProcess).map(([project, fileSet]) =>
+        Promise.all(
+          Array.from(fileSet).map((fileWithPos) => {
+            const match = fileWithPos.match(/^(.*):(\d+):(\d+)$/);
+            if (!match) return Promise.resolve([]);
+            return findDefinitionForProjects(
+              match[1],
+              new vscode.Position(
+                parseInt(match[2]) - 1,
+                parseInt(match[3]) - 1
+              ),
+              findSingleDefinition,
+              [project]
+            ).catch(() => []);
+          })
+        )
+      )
+    );
+    return results.concat(newResults.flat(2));
+  });
+}
+
+export function findDefinition(
+  document: vscode.TextDocument,
+  position: vscode.Position,
+  findSingleDefinition: boolean
+) {
+  return findDefinitionHelper(
+    document.uri.fsPath,
+    position,
+    findSingleDefinition,
+    findRelatedProjects(document.uri)
   );
 }
 

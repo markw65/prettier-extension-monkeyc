@@ -85,8 +85,6 @@ export class MonkeyCRenameRefProvider
           if (!i) return true;
           const prev = arr[i - 1].id;
           if (prev.name !== id.name) return true;
-          if (prev.loc?.start.offset !== id.loc?.start.offset) return true;
-          if (prev.loc?.end.offset !== id.loc?.end.offset) return true;
           return false;
         })
       )

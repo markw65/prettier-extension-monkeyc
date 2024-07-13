@@ -9,23 +9,24 @@ import * as vscode from "vscode";
 suite("Extension Test Suite", function () {
   vscode.window.showInformationMessage("Start all tests.");
 
-  const dir = path.resolve(
+  const rootDir = path.resolve(
     __dirname,
     "..",
     "..",
     "..",
     "test",
-    "IntegrationTests",
-    "Project1",
-    "source"
+    "IntegrationTests"
   );
+
+  const project1Dir = path.resolve(rootDir, "Project1", "source");
   this.timeout(0);
   this.slow(2500);
 
   suiteSetup(function () {
     this.slow(10000);
     console.log("Running suite setup");
-    return getSymbols(path.resolve(dir, "Project1Source.mc")).then(() =>
+    // make sure that both app projects are activated
+    return getSymbols(path.resolve(project1Dir, "Project1App.mc")).then(() =>
       vscode.commands.executeCommand("workbench.action.closeAllEditors")
     );
   });
@@ -153,7 +154,7 @@ suite("Extension Test Suite", function () {
     );
 
   const checkFoo = async (funcName: string, varName: string) => {
-    const testsSource = path.resolve(dir, "Project1Source.mc");
+    const testsSource = path.resolve(project1Dir, "Project1Source.mc");
     const fooFunc = await checkSymbolRefs(
       testsSource,
       [funcName],
@@ -224,7 +225,7 @@ suite("Extension Test Suite", function () {
   });
 
   test("Test Refs and Renames - catch variables", function () {
-    const testsSource = path.resolve(dir, "Project1Source.mc");
+    const testsSource = path.resolve(project1Dir, "Project1Source.mc");
     const result = serializer
       .then(() => {
         symbols = null;
@@ -245,7 +246,7 @@ suite("Extension Test Suite", function () {
   });
 
   test("Test Refs and Renames - classes", function () {
-    const testsSource = path.resolve(dir, "Project1View.mc");
+    const testsSource = path.resolve(project1Dir, "Project1View.mc");
     const result = serializer
       .then(() => {
         symbols = null;
@@ -314,14 +315,14 @@ suite("Extension Test Suite", function () {
   };
 
   test("Test Refs and Renames - barrels", function () {
-    const testsSource = path.resolve(dir, "Project1Source.mc");
+    const testsSource = path.resolve(project1Dir, "Project1Source.mc");
     const result = serializer
       .then(() =>
         checkRefsTargetString(
           testsSource,
           "BarrelTest.Rez.Strings.TestString",
           "TestString",
-          3,
+          4,
           1
         )
       )
@@ -331,7 +332,7 @@ suite("Extension Test Suite", function () {
             testsSource,
             "BarrelTest.Rez.Strings.ChangedString",
             "ChangedString",
-            3,
+            4,
             1
           )
         )
@@ -342,7 +343,7 @@ suite("Extension Test Suite", function () {
   });
 
   test("Test References and inheritance", function () {
-    const testsSource = path.resolve(dir, "Project1Inheritance.mc");
+    const testsSource = path.resolve(project1Dir, "Project1Inheritance.mc");
     const result = serializer
       .then(() => {
         symbols = null;
