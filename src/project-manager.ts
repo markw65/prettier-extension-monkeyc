@@ -719,9 +719,19 @@ export function initializeProjectManager(): vscode.Disposable[] {
       project.onFilesUpdate([{ file: normalize(uri.fsPath), content }])
     );
   };
+  const deleteProjects = () => {
+    Object.entries(projects).forEach(([key, project]) => {
+      delete projects[key];
+      project.dispose();
+    });
+  };
 
   const fileSystemWatcher = vscode.workspace.createFileSystemWatcher("**/*");
 
+  deleteProjects();
+  vscode.workspace.workspaceFolders?.forEach((workspaceFolder) =>
+    findProject(workspaceFolder.uri)
+  );
   return [
     vscode.workspace.onDidChangeWorkspaceFolders((e) => {
       e.removed.forEach((w) => {
@@ -741,6 +751,7 @@ export function initializeProjectManager(): vscode.Disposable[] {
     fileSystemWatcher.onDidChange((e) => fileChange(e, null)),
     fileSystemWatcher.onDidCreate((e) => fileChange(e, null)),
     fileSystemWatcher.onDidDelete((e) => fileChange(e, false)),
+    new vscode.Disposable(deleteProjects),
   ];
 }
 
