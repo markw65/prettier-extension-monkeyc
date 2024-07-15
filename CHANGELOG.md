@@ -2,6 +2,15 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.99
+
+- Update to [@markw65/monkeyc-optimizer@1.1.69](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1169)
+
+  - Make sure barrel resource references are found.
+
+- Automatically open all projects in the workspace when the extension activates
+- Refs and renames now work across multiple projects. eg `Find references` for a definition in a Barrel project will find all references in all projects in the workspace that use that barrel.
+
 #### 2.0.98
 
 - Update to [@markw65/monkeyc-optimizer@1.1.68](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1168)
