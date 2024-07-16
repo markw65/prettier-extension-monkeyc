@@ -314,6 +314,65 @@ suite("Extension Test Suite", function () {
       });
   };
 
+  test("Test Refs and Renames - types", function () {
+    const testsSource = path.resolve(project1Dir, "Project1Source.mc");
+    const result = serializer
+      .then(() =>
+        checkRefsTargetString(testsSource, "value as Type", "Type", 2, 1)
+      )
+      .then(({ uri, pos }) =>
+        doRenameEx(uri, pos, "RenamedType").then(() =>
+          checkRefsTargetString(
+            testsSource,
+            "value as RenamedType",
+            "RenamedType",
+            2,
+            1
+          )
+        )
+      )
+      .finally(revertAll)
+      .then(() =>
+        checkRefsTargetString(
+          testsSource,
+          "as AnotherType",
+          "AnotherType",
+          1,
+          1
+        )
+      )
+      .then(({ uri, pos }) =>
+        doRenameEx(uri, pos, "RenamedType").then(() =>
+          checkRefsTargetString(
+            testsSource,
+            "as RenamedType",
+            "RenamedType",
+            1,
+            1
+          )
+        )
+      )
+      .finally(revertAll)
+      .then(() =>
+        checkRefsTargetString(testsSource, "or TestEnum", "TestEnum", 1, 1)
+      )
+      .then(({ uri, pos }) =>
+        doRenameEx(uri, pos, "RenamedEnum").then(() =>
+          checkRefsTargetString(
+            testsSource,
+            "or RenamedEnum",
+            "RenamedEnum",
+            1,
+            1
+          )
+        )
+      )
+      .finally(revertAll);
+
+    serializer = result.catch(() => null);
+    return result;
+  });
+
   test("Test Refs and Renames - barrels", function () {
     const testsSource = path.resolve(project1Dir, "Project1Source.mc");
     const result = serializer
