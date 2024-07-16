@@ -788,6 +788,7 @@ function findItemsByRange(
   findSingleDefinition: boolean
 ) {
   const singleDef = (node: mctree.Node, results: LookupDefinition[]) => {
+    if (state.inType) return true;
     if (node.type === "Identifier") {
       return results.every((r) =>
         r.results.every(
