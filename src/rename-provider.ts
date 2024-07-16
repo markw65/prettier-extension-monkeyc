@@ -42,7 +42,6 @@ export class MonkeyCRenameRefProvider
                     (r) =>
                       r.type === "VariableDeclarator" ||
                       r.type === "EnumStringMember" ||
-                      r.type === "TypedefDeclaration" ||
                       r.type === "FunctionDeclaration"
                   ) ||
                   (parent &&
