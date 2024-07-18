@@ -14,11 +14,8 @@ class Project1App extends Application.AppBase {
     function onStop(state as Dictionary?) as Void {}
 
     // Return the initial view of your application here
-    function getInitialView() as Array<Views or InputDelegates>? {
-        return (
-            [new Project1View(), new Project1Delegate()] as
-            Array<Views or InputDelegates>
-        );
+    function getInitialView() {
+        return [new Project1View(), new Project1Delegate()];
     }
 }
 

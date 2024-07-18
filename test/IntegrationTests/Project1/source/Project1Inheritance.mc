@@ -15,7 +15,7 @@ class Derived extends Base {
         Base.initialize();
     }
 
-    function use_f2() {
+    function use_f2() as Void {
         f2();
     }
 
