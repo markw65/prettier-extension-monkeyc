@@ -26,8 +26,14 @@ export class MonkeyCRenameRefProvider
             if (
               !results.every(({ parent, results }) => {
                 if (
-                  (isStateNode(results[0]) ? results[0].node : results[0])?.loc
-                    ?.source === "api.mir"
+                  results.some((result) =>
+                    result.type === "ModuleDeclaration"
+                      ? Array.from(result.nodes.keys()).some(
+                          (node) => node.loc?.source === "api.mir"
+                        )
+                      : (isStateNode(result) ? result.node : result)?.loc
+                          ?.source === "api.mir"
+                  )
                 ) {
                   return false;
                 }

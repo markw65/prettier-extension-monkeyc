@@ -245,6 +245,22 @@ suite("Extension Test Suite", function () {
     return result;
   });
 
+  test("Test Refs and Renames - modules", function () {
+    const testsSource = path.resolve(project1Dir, "Project1Source.mc");
+    const result = serializer
+      .then(() => {
+        symbols = null;
+      })
+      .then(() => checkSymbolRefs(testsSource, ["MyModule"], "Module", 2, 2))
+      .then((symbol) => doRename(symbol, "SomeOtherModule"))
+      .then(() =>
+        checkSymbolRefs(testsSource, ["SomeOtherModule"], "Module", 2, 2)
+      )
+      .finally(() => revertAll());
+    serializer = result.catch(() => null);
+    return result;
+  });
+
   test("Test Refs and Renames - classes", function () {
     const testsSource = path.resolve(project1Dir, "Project1View.mc");
     const result = serializer
@@ -407,11 +423,19 @@ suite("Extension Test Suite", function () {
       .then(() => {
         symbols = null;
       })
-      .then(() => checkSymbolRefs(testsSource, ["Base", "f1"], "Method", 1, 1))
+      .then(() =>
+        checkSymbolRefs(testsSource, ["MyModule", "Base", "f1"], "Method", 1, 1)
+      )
       .then(() => {
         // When we lookup references to Base.f2, via the definition, we should only
         // find 2, because one of the calls to f2 must go to Derived.f2...
-        return checkSymbolRefsEx(testsSource, ["Base", "f2"], "Method", 2, 1);
+        return checkSymbolRefsEx(
+          testsSource,
+          ["MyModule", "Base", "f2"],
+          "Method",
+          2,
+          1
+        );
       })
       .then(({ refs }) =>
         Promise.all([

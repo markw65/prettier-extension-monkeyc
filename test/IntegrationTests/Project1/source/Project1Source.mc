@@ -20,10 +20,13 @@ function buz() as Number {
     }
 }
 
-function barrel_string() as String {
-    return (
-        Application.loadResource(BarrelTest.Rez.Strings.TestString) as String
-    );
+module MyModule {
+    function barrel_string() as String {
+        return (
+            Application.loadResource(BarrelTest.Rez.Strings.TestString) as
+            String
+        );
+    }
 }
 
 class TestClass {
@@ -34,6 +37,8 @@ class TestClass {
     enum TestEnum {
         VALUE,
     }
+
+    const str = MyModule.barrel_string();
 
     function initialize(value as Type, anotherValue as AnotherType) {}
 }
