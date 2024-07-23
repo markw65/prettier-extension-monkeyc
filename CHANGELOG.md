@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.101
+
+- Update to [@markw65/monkeyc-optimizer@1.1.72](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1172)
+  - Make `evaluate` skip everything except the `body` when processing class, module or function declarations.
+  - Always fully evaluate expressions in enum initializers.
+
 #### v2.0.100
 
 - Update to [@markw65/monkeyc-optimizer@1.1.71](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1171)
