@@ -2,6 +2,16 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.100
+
+- Update to [@markw65/monkeyc-optimizer@1.1.71](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1171)
+
+  - Rewrite of live analysis pass for more precise const/enum types.
+
+- Fix goto definition for modules (now finds every declaration of the module)
+- Fix goto defiition for types
+- Allow renaming of typedefs
+
 #### v2.0.99
 
 - Update to [@markw65/monkeyc-optimizer@1.1.69](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1169)
