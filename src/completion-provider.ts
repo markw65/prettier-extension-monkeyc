@@ -242,11 +242,9 @@ async function completionDetail(
       case "ClassDeclaration":
       case "FunctionDeclaration":
       case "EnumDeclaration": {
-        const body = decl.node.body;
-        decl.node.body = null;
-        const detail = formatAstLongLines(decl.node);
-        decl.node.body = body;
-        return detail;
+        const node = { ...decl.node };
+        node.body = null;
+        return formatAstLongLines(node);
       }
       case "TypedefDeclaration":
       case "VariableDeclarator":

@@ -57,13 +57,12 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
                   if (decl.type !== "FunctionDeclaration") {
                     return null;
                   }
-                  const body = decl.node.body;
-                  decl.node.body = null;
+                  const node = { ...decl.node };
+                  node.body = null;
                   const result =
                     (decl.stack
                       ? decl.stack[decl.stack.length - 1].sn.fullName + ": "
-                      : "") + (await formatAstLongLines(decl.node));
-                  decl.node.body = body;
+                      : "") + (await formatAstLongLines(node));
                   const doc = docinfo?.get(decl.fullName);
                   return doc ? `${result}\n\n${doc}` : result;
                 })
