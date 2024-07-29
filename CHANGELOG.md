@@ -2,6 +2,14 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.102
+
+- Update to [@markw65/monkeyc-optimizer@1.1.73](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1173)
+
+  - Fix an issue formatting body-less class/module/program nodes.
+
+- Fix an issue where the analyzer would report more and more missing symbols
+
 #### v2.0.101
 
 - Update to [@markw65/monkeyc-optimizer@1.1.72](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1172)
