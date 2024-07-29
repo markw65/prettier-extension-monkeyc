@@ -19,6 +19,7 @@ suite("Extension Test Suite", function () {
   );
 
   const project1Dir = path.resolve(rootDir, "Project1", "source");
+  const barrelDir = path.resolve(rootDir, "BarrelTest");
   this.timeout(0);
   this.slow(2500);
 
@@ -470,6 +471,25 @@ suite("Extension Test Suite", function () {
         // explicit call to Base.f2. When we fix that, this needs changing.
         return checkSymbolRefs(testsSource, ["Derived", "f2"], "Method", 3, 1);
       });
+    serializer = result.catch(() => null);
+    return result;
+  });
+
+  test("Test Refs in resources", function () {
+    const testsSource = path.resolve(barrelDir, "resources", "resources.xml");
+    const result = serializer
+      .then(() =>
+        checkRefsTargetString(testsSource, 'drawable id="Other', "Other", 1, 1)
+      )
+      .then(() =>
+        checkRefsTargetString(
+          testsSource,
+          'drawable id="Background',
+          "Background",
+          1,
+          1
+        )
+      );
     serializer = result.catch(() => null);
     return result;
   });

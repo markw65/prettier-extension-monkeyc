@@ -3,6 +3,22 @@
         <string id="TestString">TestString</string>
     </strings>
     <layout id="TestLayout">
-        <label id="TestLabel" text="@BarrelTest.Strings.TestString" x="0" y="0"/>
+        <label id="TestLabel" text="@BarrelTest.Strings.TestString" x="0" y="0" />
+    </layout>
+    <drawables>
+        <drawable-list id="Other">
+            <shape type="rectangle" x="left" y="top" width="fill" height="fill"
+                color="Graphics.COLOR_RED" />
+        </drawable-list>
+    </drawables>
+    <drawable-list id="Background">
+        <shape type="rectangle" x="left" y="top" width="fill" height="fill"
+            color="Graphics.COLOR_GREEN" />
+    </drawable-list>
+    <layout id="Layout1">
+        <drawable id="Other" />
+    </layout>
+    <layout id="Layout2">
+        <drawable id="Background" />
     </layout>
 </resources>
