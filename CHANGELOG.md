@@ -2,6 +2,13 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.103
+
+- Update to [@markw65/monkeyc-optimizer@1.1.74](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1174)
+  - Add refs from drawable-ids to the corresponding drawable (Fixes prettier-extension-monkeyc#20)
+  - Fix handling of 'identifier' params in resource files (Fixes prettier-extension-monkeyc#21)
+  - Fix a bug filtering out generated files on Windows (Fixes #45)
+
 #### v2.0.102
 
 - Update to [@markw65/monkeyc-optimizer@1.1.73](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1173)
