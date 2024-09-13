@@ -108,17 +108,13 @@ suite("Extension Test Suite", function () {
     assert.equal(
       refs.length,
       refsCount,
-      `Expected ${path.join(".")} to have ${refsCount} references, but got ${
-        refs.length
-      }`
+      `Expected ${name} to have ${refsCount} references, but got ${refs.length}`
     );
     const defs = await getDefsEx(uri, pos, name);
     assert.equal(
       defs.length,
       defsCount,
-      `Expected ${path.join(".")} to have ${defsCount} definitions, but got ${
-        defs.length
-      }`
+      `Expected ${name} to have ${defsCount} definitions, but got ${defs.length}`
     );
     return { uri, pos, refs, defs };
   };
