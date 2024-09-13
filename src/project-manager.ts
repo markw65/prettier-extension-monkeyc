@@ -779,6 +779,12 @@ export function skipToPosition(
   );
 }
 
+function hasLocations(lookupDefs: LookupDefinition[]) {
+  return lookupDefs.some((r) =>
+    r.results.some((sn) => (isStateNode(sn) ? sn.node : sn)?.loc)
+  );
+}
+
 function findItemsByRange(
   state: ProgramStateAnalysis,
   ast: mctree.Program,
@@ -846,11 +852,26 @@ function findItemsByRange(
   while (true) {
     const res = result.pop();
     if (!res) return null;
+    const next = result[result.length - 1];
+    // check to see if we're looking at a new expression, which should
+    // actually refer to an initialize definition, rather than the class
+    // itself.
     if (
-      res.results.some((r) =>
-        r.results.some((sn) => (isStateNode(sn) ? sn.node : sn)?.loc)
-      )
+      next &&
+      res.results.every((r) =>
+        r.results.every((sn) => sn.type === "ClassDeclaration")
+      ) &&
+      next.results.every((r) =>
+        r.results.every(
+          (sn) => sn.type === "FunctionDeclaration" && sn.name === "initialize"
+        )
+      ) &&
+      hasLocations(next.results)
     ) {
+      next.singleDef = true;
+      return next;
+    }
+    if (hasLocations(res.results)) {
       return res;
     }
   }

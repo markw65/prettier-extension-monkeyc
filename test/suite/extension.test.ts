@@ -414,6 +414,19 @@ suite("Extension Test Suite", function () {
     return result;
   });
 
+  test("Test Refs and Renames - constructors", function () {
+    const testsSource = path.resolve(project1Dir, "Project1Source.mc");
+    const result = serializer
+      .then(() =>
+        checkRefsTargetString(testsSource, "class TestClass", "TestClass", 2, 1)
+      )
+      .then(() =>
+        checkRefsTargetString(testsSource, "new TestClass", "TestClass", 1, 1)
+      );
+    serializer = result.catch(() => null);
+    return result;
+  });
+
   test("Test References and inheritance", function () {
     const testsSource = path.resolve(project1Dir, "Project1Inheritance.mc");
     const result = serializer

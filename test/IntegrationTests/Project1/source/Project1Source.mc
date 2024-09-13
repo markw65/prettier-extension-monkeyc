@@ -27,6 +27,10 @@ module MyModule {
             String
         );
     }
+
+    function createTestClass() {
+        return new TestClass(42, TestClass.VALUE);
+    }
 }
 
 class TestClass {
