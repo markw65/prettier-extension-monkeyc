@@ -206,27 +206,21 @@ suite("Extension Test Suite", function () {
       }, Promise.resolve());
 
   let serializer = Promise.resolve<unknown>(null);
+  const serialize = () =>
+    serializer.catch(() => null).then(() => (symbols = null));
   test("Test Refs and Renames - locals vs functions", function () {
-    const result = serializer
-      .then(() => {
-        symbols = null;
-      })
+    return (serializer = serialize()
       .then(() => checkFoo("foo", "foo"))
       .then(([fooFunc]) => doRename(fooFunc, "bar"))
       .then(() => checkFoo("bar", "foo"))
       .then(([, fooVar]) => doRename(fooVar, "baz"))
       .then(() => checkFoo("bar", "baz"))
-      .finally(() => revertAll());
-    serializer = result.catch(() => null);
-    return result;
+      .finally(() => revertAll()));
   });
 
   test("Test Refs and Renames - catch variables", function () {
     const testsSource = path.resolve(project1Dir, "Project1Source.mc");
-    const result = serializer
-      .then(() => {
-        symbols = null;
-      })
+    return (serializer = serialize()
       .then(() => checkSymbolRefs(testsSource, ["buz", "ex"], "Variable", 1, 1))
       .then((symbol) => doRename(symbol, "ex2"))
       .then(() =>
@@ -237,14 +231,12 @@ suite("Extension Test Suite", function () {
           checkSymbolRefs(testsSource, ["buz", "ex2"], "Variable", 1, 1),
         ])
       )
-      .finally(() => revertAll());
-    serializer = result.catch(() => null);
-    return result;
+      .finally(() => revertAll()));
   });
 
   test("Test Refs and Renames - modules", function () {
     const testsSource = path.resolve(project1Dir, "Project1Source.mc");
-    const result = serializer
+    return (serializer = serialize()
       .then(() => {
         symbols = null;
       })
@@ -253,14 +245,12 @@ suite("Extension Test Suite", function () {
       .then(() =>
         checkSymbolRefs(testsSource, ["SomeOtherModule"], "Module", 2, 2)
       )
-      .finally(() => revertAll());
-    serializer = result.catch(() => null);
-    return result;
+      .finally(() => revertAll()));
   });
 
   test("Test Refs and Renames - classes", function () {
     const testsSource = path.resolve(project1Dir, "Project1View.mc");
-    const result = serializer
+    return (serializer = serialize()
       .then(() => {
         symbols = null;
       })
@@ -298,9 +288,7 @@ suite("Extension Test Suite", function () {
           1
         )
       )
-      .finally(() => revertAll());
-    serializer = result.catch(() => null);
-    return result;
+      .finally(() => revertAll()));
   });
 
   const checkRefsTargetString = (
@@ -329,7 +317,7 @@ suite("Extension Test Suite", function () {
 
   test("Test Refs and Renames - types", function () {
     const testsSource = path.resolve(project1Dir, "Project1Source.mc");
-    const result = serializer
+    return (serializer = serialize()
       .then(() =>
         checkRefsTargetString(testsSource, "value as Type", "Type", 2, 1)
       )
@@ -380,15 +368,12 @@ suite("Extension Test Suite", function () {
           )
         )
       )
-      .finally(revertAll);
-
-    serializer = result.catch(() => null);
-    return result;
+      .finally(revertAll));
   });
 
   test("Test Refs and Renames - barrels", function () {
     const testsSource = path.resolve(project1Dir, "Project1Source.mc");
-    const result = serializer
+    return (serializer = serialize()
       .then(() =>
         checkRefsTargetString(
           testsSource,
@@ -409,27 +394,23 @@ suite("Extension Test Suite", function () {
           )
         )
       )
-      .finally(revertAll);
-    serializer = result.catch(() => null);
-    return result;
+      .finally(revertAll));
   });
 
   test("Test Refs and Renames - constructors", function () {
     const testsSource = path.resolve(project1Dir, "Project1Source.mc");
-    const result = serializer
+    return (serializer = serialize()
       .then(() =>
         checkRefsTargetString(testsSource, "class TestClass", "TestClass", 2, 1)
       )
       .then(() =>
         checkRefsTargetString(testsSource, "new TestClass", "TestClass", 1, 1)
-      );
-    serializer = result.catch(() => null);
-    return result;
+      ));
   });
 
   test("Test References and inheritance", function () {
     const testsSource = path.resolve(project1Dir, "Project1Inheritance.mc");
-    const result = serializer
+    return (serializer = serialize()
       .then(() => {
         symbols = null;
       })
@@ -479,14 +460,12 @@ suite("Extension Test Suite", function () {
         // We currently expect 3 refs for Derived.f2, but one of them is an
         // explicit call to Base.f2. When we fix that, this needs changing.
         return checkSymbolRefs(testsSource, ["Derived", "f2"], "Method", 3, 1);
-      });
-    serializer = result.catch(() => null);
-    return result;
+      }));
   });
 
   test("Test Refs in resources", function () {
     const testsSource = path.resolve(barrelDir, "resources", "resources.xml");
-    const result = serializer
+    return (serializer = serialize()
       .then(() =>
         checkRefsTargetString(testsSource, 'drawable id="Other', "Other", 1, 1)
       )
@@ -498,9 +477,7 @@ suite("Extension Test Suite", function () {
           1,
           1
         )
-      );
-    serializer = result.catch(() => null);
-    return result;
+      ));
   });
 
   test("Pause after tests", function () {
