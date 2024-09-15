@@ -2,6 +2,15 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.104
+
+- Update to [@markw65/monkeyc-optimizer@1.1.75](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1175)
+  - Fix issues using personality files from barrels
+  - Fix issues with enums values as the base of member expressions
+  - Handle `new` expressions as references to the `initialize` method
+  - Classes without an explicit `initialize` method get an implicit, empty `initialize`, rather than inheriting the parent's
+  - Fix `subtypeOf` for function types.
+
 #### v2.0.103
 
 - Update to [@markw65/monkeyc-optimizer@1.1.74](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1174)
