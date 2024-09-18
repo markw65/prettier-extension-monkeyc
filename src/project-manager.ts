@@ -995,6 +995,7 @@ function findDefinitionForProjects(
         const getSubClasses = (cls: ClassStateNode) => {
           const subClasses = klassMap.get(cls) ?? new Set<ClassStateNode>();
           if (subClasses.size) return subClasses;
+          klassMap.set(cls, subClasses);
           subClasses.add(cls);
           analysis.state.allClasses.forEach(
             (c) => getSuperClasses(c)?.has(cls) && subClasses.add(c)
