@@ -6,6 +6,10 @@ module MyModule {
             Base.f2();
         }
 
+        function f0(b as Base) {
+            b.f2();
+        }
+
         function f1() as Void {}
 
         function f2() as Void {}

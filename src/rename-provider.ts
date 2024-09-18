@@ -1,7 +1,9 @@
 import {
+  declKey,
   getSuperClasses,
   hasProperty,
   isStateNode,
+  lookupWithType,
   visitReferences,
   visitorNode,
 } from "@markw65/monkeyc-optimizer/api.js";
@@ -189,38 +191,65 @@ export class MonkeyCRenameRefProvider
             : Object.values(analysis.fnMap)
                 .map(({ ast }) => ast)
                 .concat(analysis.state.rezAst ? [analysis.state.rezAst] : []);
-          const defns = isLocal
-            ? results
-            : results.map((defn) => {
-                return {
-                  parent: defn.parent,
-                  results: defn.results.flatMap((sn) => {
-                    if (isStateNode(sn)) {
-                      const name = sn.name;
-                      const owner = sn.stack?.at(-1);
-                      if (
-                        name &&
-                        owner?.sn.type === "ClassDeclaration" &&
-                        owner.sn.superClass
-                      ) {
-                        const superClasses = getSuperClasses(owner.sn);
-                        return Array.from(superClasses ?? [])
-                          .flatMap((klass) => klass.decls?.[sn.name] ?? [])
-                          .concat(sn);
-                      }
-                    }
-                    return sn;
-                  }),
-                };
-              });
+          const defnSet = new Set(
+            results.flatMap((r) => r.results.map((sn) => declKey(sn)))
+          );
+          const superSet: typeof defnSet = new Set();
+          results.forEach((result) =>
+            result.results.forEach((sn) => {
+              if (isStateNode(sn)) {
+                const name = sn.name;
+                const owner = sn.stack?.at(-1);
+                if (
+                  name &&
+                  owner?.sn.type === "ClassDeclaration" &&
+                  owner.sn.superClass
+                ) {
+                  getSuperClasses(owner.sn)?.forEach((klass) =>
+                    klass.decls?.[name]?.forEach((d) =>
+                      superSet.add(declKey(d))
+                    )
+                  );
+                }
+              }
+            })
+          );
           asts.forEach((ast) => {
             if (!ast) return;
             visitReferences(
               analysis.state,
               ast,
               node.name,
-              defns,
-              (node) => {
+              null,
+              (node, results) => {
+                if (
+                  !results.some((r) =>
+                    r.results.some((result) => {
+                      const key = declKey(result);
+                      // if the node matches one of the definitions, its a reference
+                      if (defnSet.has(key)) return true;
+                      // if it doesn't match a definition in a superclass, it can't be
+                      // a reference to the defns of interest
+                      if (!superSet.has(key)) return false;
+                      // if its not a MemberExpression, it's not restricted, so it might
+                      // be a reference
+                      if (node.type !== "MemberExpression") return true;
+                      const [, base] = lookupWithType(
+                        analysis.state,
+                        node.object,
+                        analysis.typeMap
+                      );
+                      if (!base) return true;
+                      return !base.every((lookupDef) =>
+                        lookupDef.results.every(
+                          (sn) => sn.type === "ClassDeclaration"
+                        )
+                      );
+                    })
+                  )
+                ) {
+                  return;
+                }
                 const n = visitorNode(node);
                 const loc = n.loc!;
                 references.push(

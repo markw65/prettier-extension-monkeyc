@@ -237,9 +237,6 @@ suite("Extension Test Suite", function () {
   test("Test Refs and Renames - modules", function () {
     const testsSource = path.resolve(project1Dir, "Project1Source.mc");
     return (serializer = serialize()
-      .then(() => {
-        symbols = null;
-      })
       .then(() => checkSymbolRefs(testsSource, ["MyModule"], "Module", 2, 2))
       .then((symbol) => doRename(symbol, "SomeOtherModule"))
       .then(() =>
@@ -251,9 +248,6 @@ suite("Extension Test Suite", function () {
   test("Test Refs and Renames - classes", function () {
     const testsSource = path.resolve(project1Dir, "Project1View.mc");
     return (serializer = serialize()
-      .then(() => {
-        symbols = null;
-      })
       .then(() => checkSymbolRefs(testsSource, ["Project1View"], "Class", 1, 1))
       .then((symbol) => doRename(symbol, "SomeOtherView"))
       .then(() =>
@@ -411,9 +405,6 @@ suite("Extension Test Suite", function () {
   test("Test References and inheritance", function () {
     const testsSource = path.resolve(project1Dir, "Project1Inheritance.mc");
     return (serializer = serialize()
-      .then(() => {
-        symbols = null;
-      })
       .then(() =>
         checkSymbolRefs(testsSource, ["MyModule", "Base", "f1"], "Method", 1, 1)
       )
@@ -424,7 +415,7 @@ suite("Extension Test Suite", function () {
           testsSource,
           ["MyModule", "Base", "f2"],
           "Method",
-          2,
+          3,
           1
         );
       })
@@ -440,25 +431,43 @@ suite("Extension Test Suite", function () {
             refs[0].uri,
             refs[0].range.start
           ),
+          vscode.commands.executeCommand(
+            "vscode.executeReferenceProvider",
+            refs[1].uri,
+            refs[1].range.start
+          ),
+          vscode.commands.executeCommand(
+            "vscode.executeDefinitionProvider",
+            refs[1].uri,
+            refs[1].range.start
+          ),
         ])
       )
-      .then(([refs, defs]) => {
-        // ...but when we lookup references to Base.f2, via a reference in Base,
+      .then(([refs, defs, refsBase, defsBase]) => {
+        // ...but when we lookup references to f2, via a call in a Base method,
         // we should find 3, because that reference could call either Base.f2 or
         // Derived.f2
         assert(
-          Array.isArray(refs) && refs.length === 3,
-          `Expected an array of 2 references to 'Base.f2'`
+          Array.isArray(refs) && refs.length === 4,
+          `Expected an array of 4 references to 'f2' as called from Base`
         );
         // Similarly looking up a call to f2() in Base should find two possible defs
         assert(
           Array.isArray(defs) && defs.length === 2,
-          `Expected an array of 2 definitions for 'f2'`
+          `Expected an array of 2 definitions for 'f2' as called from Base`
+        );
+
+        assert(
+          Array.isArray(refsBase) && refsBase.length === 3,
+          `Expected an array of 3 references to 'Base.f2' as called from Base`
+        );
+        // Similarly looking up a call to f2() in Base should find two possible defs
+        assert(
+          Array.isArray(defsBase) && defsBase.length === 1,
+          `Expected an array of 1 definitions for 'Base.f2' as called from Base`
         );
       })
       .then(() => {
-        // We currently expect 3 refs for Derived.f2, but one of them is an
-        // explicit call to Base.f2. When we fix that, this needs changing.
         return checkSymbolRefs(testsSource, ["Derived", "f2"], "Method", 3, 1);
       }));
   });
