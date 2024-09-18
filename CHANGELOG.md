@@ -2,6 +2,15 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.105
+
+- Update to [@markw65/monkeyc-optimizer@1.1.76](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1176)
+
+  - Fix member expression lookup when base type is exact
+  - Fix path-resolution inside locals in jungle files
+
+- Make the reference provider aware of qualified nodes that cannot refer to sub-class entities
+
 #### v2.0.104
 
 - Update to [@markw65/monkeyc-optimizer@1.1.75](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1175)
