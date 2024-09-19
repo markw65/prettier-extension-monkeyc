@@ -469,6 +469,15 @@ suite("Extension Test Suite", function () {
       })
       .then(() => {
         return checkSymbolRefs(testsSource, ["Derived", "f2"], "Method", 3, 1);
+      })
+      .then(() => {
+        return checkSymbolRefs(
+          testsSource,
+          ["Derived", "initialize"],
+          "Constructor",
+          1,
+          1
+        );
       }));
   });
 

@@ -14,6 +14,11 @@ module MyModule {
 
         function f2() as Void {}
     }
+
+    function getBase() {
+        new Base();
+        return new Derived();
+    }
 }
 
 class Derived extends MyModule.Base {

@@ -228,6 +228,9 @@ export class MonkeyCRenameRefProvider
                       const key = declKey(result);
                       // if the node matches one of the definitions, its a reference
                       if (defnSet.has(key)) return true;
+                      // if its a NewExpression, the type was exact, so definitely not
+                      // a match
+                      if (node.type === "NewExpression") return false;
                       // if it doesn't match a definition in a superclass, it can't be
                       // a reference to the defns of interest
                       if (!superSet.has(key)) return false;
