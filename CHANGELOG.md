@@ -2,6 +2,10 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.106
+
+- Make sure that new expressions are treated as exact
+
 #### v2.0.105
 
 - Update to [@markw65/monkeyc-optimizer@1.1.76](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1176)
