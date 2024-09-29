@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.107
+
+- Update to [@markw65/monkeyc-optimizer@1.1.77](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1177)
+  - Fix an infinite recursion issue with nested classes
+  - Fix a problem analyzing 'instanceof Boolean'
+
 #### v2.0.106
 
 - Make sure that new expressions are treated as exact
