@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.108
+
+- Update to [@markw65/monkeyc-optimizer@1.1.78](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1178)
+  - Consistently use the name of the project directory to name the prg file
+  - Fix a bug that reported errors for conversions between enums of different types
+
 #### v2.0.107
 
 - Update to [@markw65/monkeyc-optimizer@1.1.77](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1177)
