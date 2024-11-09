@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.109
+
+- Update to [@markw65/monkeyc-optimizer@1.1.79](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1179)
+  - Keep better track of enum value types in unions of distinct enums
+  - Fix an issue that could cause huge amounts of wasted memory, and time, when intersecting class, module or function types.
+
 #### v2.0.108
 
 - Update to [@markw65/monkeyc-optimizer@1.1.78](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1178)
