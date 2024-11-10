@@ -2,6 +2,11 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.110
+
+- Update to [@markw65/monkeyc-optimizer@1.1.80](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1180)
+  - Proper fix for union of distinct enum values (the fix in 1.1.79 didn't always work)
+
 #### v2.0.109
 
 - Update to [@markw65/monkeyc-optimizer@1.1.79](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1179)
