@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.111
+
+- Update to [@markw65/monkeyc-optimizer@1.1.81](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1181)
+  - Make computed lookups in modules smarter (Fixes #51)
+  - Fix parsing of filenames with a colon (Fixes #52)
+
 #### v2.0.110
 
 - Update to [@markw65/monkeyc-optimizer@1.1.80](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1180)
