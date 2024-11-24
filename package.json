@@ -240,6 +240,12 @@
             "default": "YES",
             "scope": "resource"
           },
+          "prettierMonkeyC.extraReferenceTypeChecks": {
+            "type": "boolean",
+            "description": "Whether to warn about [unsafe operations on Arrays and Dictionaries](https://github.com/markw65/monkeyc-optimizer/wiki/Extra-Reference-Type-Checks-(prettierMonkeyC.extraReferenceTypeChecks)) that Garmin's compiler allows",
+            "default": true,
+            "scope": "resource"
+          },
           "prettierMonkeyC.compilerLookupRules": {
             "type": "string",
             "description": "Whether to perform lookups as compiler1, compiler2, or based on the currently selected sdk",
@@ -605,6 +611,10 @@
               "Do Relaxed type checking",
               "Do Strict type checking iff typeCheckLevel is Strict"
             ]
+          },
+          "extraReferenceTypeChecks": {
+            "type": "boolean",
+            "description": "Whether to warn about [unsafe operations on Arrays and Dictionaries](https://github.com/markw65/monkeyc-optimizer/wiki/Extra-Reference-Type-Checks-(prettierMonkeyC.extraReferenceTypeChecks)) that Garmin's compiler allows"
           }
         }
       }
@@ -846,6 +856,10 @@
                   "Do Relaxed type checking",
                   "Do Strict type checking iff typeCheckLevel is Strict"
                 ]
+              },
+              "extraReferenceTypeChecks": {
+                "type": "boolean",
+                "description": "Whether to warn about [unsafe operations on Arrays and Dictionaries](https://github.com/markw65/monkeyc-optimizer/wiki/Extra-Reference-Type-Checks-(prettierMonkeyC.extraReferenceTypeChecks)) that Garmin's compiler allows"
               }
             }
           }
