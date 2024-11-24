@@ -2,6 +2,13 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.112
+
+- Update to [@markw65/monkeyc-optimizer@1.1.82](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1182)
+  - Fix type for resource ids that contain refs (Fixes #53)
+  - Properly represent unions of tuples (Fixes #47)
+- Add [extraReferenceTypeChecks](<https://github.com/markw65/monkeyc-optimizer/wiki/Extra-Reference-Type-Checks-(prettierMonkeyC.extraReferenceTypeChecks)>) option.
+
 #### v2.0.111
 
 - Update to [@markw65/monkeyc-optimizer@1.1.81](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1181)
