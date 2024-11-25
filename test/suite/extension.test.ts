@@ -498,6 +498,30 @@ suite("Extension Test Suite", function () {
       ));
   });
 
+  test("Test qualified personality refs in resources", function () {
+    const resource = path.resolve(
+      rootDir,
+      "Project2",
+      "resources",
+      "layouts",
+      "layout.xml"
+    );
+    const personality = path.resolve(barrelDir, "resources", "personality.mss");
+    return (serializer = serialize()
+      .then(() =>
+        checkRefsTargetString(
+          resource,
+          "BarrelTest:barrel_style",
+          "barrel_style",
+          1,
+          1
+        )
+      )
+      .then(() =>
+        checkRefsTargetString(personality, "barrel_style", "barrel_style", 1, 1)
+      ));
+  });
+
   test("Pause after tests", function () {
     console.log("Pause");
     // return new Promise((resolve) => setTimeout(() => resolve(), 10000));
