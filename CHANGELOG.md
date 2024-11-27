@@ -2,6 +2,13 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.113
+
+- Update to [@markw65/monkeyc-optimizer@1.1.83](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1183)
+  - Rewrite enums to handle arbitrary unions (Fixes #48)
+  - Clear typedef cache when an enum is converted to a typedef
+  - Support barrel qualifiers in personality references (Fixes #54)
+
 #### v2.0.112
 
 - Update to [@markw65/monkeyc-optimizer@1.1.82](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1182)
