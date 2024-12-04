@@ -2,6 +2,15 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.114
+
+- Update to [@markw65/monkeyc-optimizer@1.1.84](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1184)
+  - Refactor `extraReferenceTypeChecks` and take account of type constraints (fixes #56)
+  - Clear const and enum caches when an enum is resolved (Fixes #59)
+  - Apply `extraReferenceTypeChecks` to assignments and return value
+  - Fix description of extraReferenceTypeChecks in settings (shows a named link, rather than the text of the link)
+  - Convert enum expressions as array indices to their underlying type (Fixes #55)
+
 #### v2.0.113
 
 - Update to [@markw65/monkeyc-optimizer@1.1.83](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1183)
