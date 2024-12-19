@@ -2,6 +2,11 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.116
+
+- Update to [@markw65/monkeyc-optimizer@1.1.87](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1187)
+  - Update post build optimizer to work with sdk-7.4.3. The manifest file was changed a little with this release, so I had to update the optimizer to match.
+
 #### v2.0.115
 
 - Update to [@markw65/monkeyc-optimizer@1.1.86](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1186)
