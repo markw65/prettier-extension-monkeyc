@@ -4,6 +4,14 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 
 #### v2.0.116
 
+- Update to [@markw65/monkeyc-optimizer@1.1.88](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1188)
+
+  - Fix output of cft-font-info
+  - Update to [@markw65/prettier-plugin-monkeyc@1.0.61](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1061)
+  - Fix a crash when no valid products are found in the manifest (Fixes [prettier-extension-monkeyc#19](https://github.com/markw65/prettier-extension-monkeyc/issues/19))
+  - Fix various issues with tests so that they pass with 7.4.3, and on windows
+  - Sdk 7.4.3 started signing `.iq` files with SHA256 in addition to SHA1. For now, the store still accepts files that are only signed with SHA1, but this adds the SHA256 for future proofing.
+
 - Update to [@markw65/monkeyc-optimizer@1.1.87](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1187)
   - Update post build optimizer to work with sdk-7.4.3. The manifest file was changed a little with this release, so I had to update the optimizer to match.
 
