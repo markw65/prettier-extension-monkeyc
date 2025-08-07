@@ -914,7 +914,7 @@
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
     "@vscode/test-electron": "^2.3.9",
-    "esbuild": "^0.20.0",
+    "esbuild": "^0.25.8",
     "eslint": "^8.9.0",
     "fast-glob": "^3.2.12",
     "glob": "^8.0.3",
