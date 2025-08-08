@@ -2,6 +2,13 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.119
+
+- Update to [@markw65/monkeyc-optimizer@1.1.90](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1190)
+
+  - Fix a bug that could result in infinite recursion when computing the union or intersection of two types involving typedefs
+  - Fix a bug where the inferred type of `[ null ]` was tuple containing `Object?`.
+
 #### v2.0.118
 
 - Update to [@markw65/monkeyc-optimizer@1.1.89](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1189)
