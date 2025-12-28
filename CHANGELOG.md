@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.120
+
+- Update to [@markw65/monkeyc-optimizer@1.1.91](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1191)
+  - Update the post build optimizer to use 7zip to unpack `.iq` files for compatibility with sdk-8.4.0
+  - More fixes for the bug that could result in infinite recursion when computing the union or intersection of two types involving typedefs
+
 #### v2.0.119
 
 - Update to [@markw65/monkeyc-optimizer@1.1.90](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1190)
