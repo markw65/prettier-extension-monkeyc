@@ -1,15 +1,18 @@
 {
-	"folders": [
-		{
-			"path": "Project1"
-		},
-		{
-			"path": "BarrelTest"
-		},
-		{
-			"name": "Project2",
-			"path": "Project2"
-		}
-	],
-	"settings": {}
+  "folders": [
+    {
+      "path": "Project1"
+    },
+    {
+      "path": "BarrelTest"
+    },
+    {
+      "name": "Project2",
+      "path": "Project2"
+    }
+  ],
+  "settings": {
+    "extensions.autoCheckUpdates": false,
+    "extensions.autoUpdate": "none"
+  }
 }

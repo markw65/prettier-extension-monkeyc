@@ -26,7 +26,7 @@ async function main() {
         ...args,
         "--force",
         "--install-extension",
-        "garmin.monkey-c",
+        "garmin.monkey-c@1.0.11",
         "--install-extension",
         "esbenp.prettier-vscode",
       ],
