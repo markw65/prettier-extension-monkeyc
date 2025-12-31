@@ -84,7 +84,7 @@ suite("Extension Test Suite", function () {
     kind: keyof typeof vscode.SymbolKind
   ) => {
     await getSymbols(source);
-    const symbol = path.reduce((current, name, i) => {
+    const symbol = path.reduce<VSSymbol | null>((current, name, i) => {
       const symbol = (current?.children ?? symbols)?.find(
         (symbol) => symbol.name === name
       );
@@ -92,7 +92,7 @@ suite("Extension Test Suite", function () {
         assert.fail(`Failed to find ${path.slice(0, i + 1).join(":")}`);
       }
       return symbol;
-    }, null as VSSymbol | null);
+    }, null);
     assert(symbol);
     assert.equal(symbol.kind, vscode.SymbolKind[kind], `Expected a ${kind}`);
     return symbol;
