@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.121
+
+- Update to [@markw65/monkeyc-optimizer@1.1.92](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1192)
+  - Get rid of yazl, yauzl and extract-zip, and uze 7z-wasm instead.
+  - Fix some issues causing 7z-wasm to fail on Windows.
+
 #### v2.0.120
 
 - Update to [@markw65/monkeyc-optimizer@1.1.91](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1191)
