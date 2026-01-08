@@ -34,6 +34,8 @@
     "onCommand:prettiermonkeyc.getTargetDevice",
     "onCommand:vscode.executeDocumentSymbolProvider"
   ],
+  "author": "markw65",
+  "license": "MIT",
   "main": "./build/src/extension.js",
   "contributes": {
     "commands": [
