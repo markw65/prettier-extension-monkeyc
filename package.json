@@ -900,7 +900,7 @@
     "build-release": "node esbuild.mjs --release",
     "mc-package": "npm install; npm install @markw65/monkeyc-optimizer; git commit -am \"Update to $(npm list @markw65/monkeyc-optimizer | sed -ne 's/^.*\\(@markw65\\/monkeyc\\)/\\1/p')\"",
     "mc-live": "test -z \"$(git status --untracked-files=no --porcelain || echo dirty)\" && npm install ../monkeyc-optimizer && npm install && git commit -am 'monkeyc-optimizer-live'",
-    "prettier-package": "npm install; npm install @markw65/prettier-plugin-monkeyc; git commit -am \"Update to $(npm list @markw65/prettier-plugin-monkeyc | sed -ne 's/^.*\\(@markw65\\/prettier-plugin-monkeyc\\)/\\1/p')\"",
+    "prettier-package": "npm install; npm install @markw65/prettier-plugin-monkeyc; git commit -am \"Update to $(npm list @markw65/prettier-plugin-monkeyc | sed -n '/^.*\\(@markw65\\/prettier-plugin-monkeyc[@0-9.]*\\).*/ {s//\\1/p; q;}')\"",
     "prettier-live": "test -z \"$(git status --untracked-files=no --porcelain || echo dirty)\" && npm install ../prettier-plugin-monkeyc && npm install && git commit -am 'prettier-plugin-monkeyc-live'",
     "vscode:uninstall": "node ./uninstall.js",
     "vscode:prepublish": "rm -rf build; npm run build-release",
