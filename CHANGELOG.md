@@ -2,6 +2,12 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.122
+
+- Update to [@markw65/prettier-plugin-monkeyc@1.0.62](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1062)
+  - Fixes issues with `prettier@3.7` and later
+- Implement a formatter in the extension itself, rather than relying on `esbenp.prettier-vscode` for formatting.
+
 #### v2.0.121
 
 - Update to [@markw65/monkeyc-optimizer@1.1.92](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1192)
