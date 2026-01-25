@@ -1,7 +1,7 @@
 # prettier-extension-monkeyc README
 
 This extension adds a source-to-source optimizer for Monkey C, and also a Monkey C formatter, via
-the [@markw65/prettier-plugin-monkeyc](https://www.npmjs.com/package/@markw65/prettier-plugin-monkeyc) prettier plugin and the [VSCode Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode).
+the [@markw65/prettier-plugin-monkeyc](https://www.npmjs.com/package/@markw65/prettier-plugin-monkeyc) prettier plugin.
 
 ## Features
 
@@ -105,7 +105,7 @@ You can provide more control over the build via `tasks.json` and `launch.json`. 
 
 ## Requirements
 
-This extension depends on the [VSCode Prettier extension](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode), and the [Garmin MonkeyC extension](https://marketplace.visualstudio.com/items?itemName=garmin.monkey-c). They will automatically be installed if necessary when you install this extension.
+This extension depends on the [Garmin MonkeyC extension](https://marketplace.visualstudio.com/items?itemName=garmin.monkey-c). It will automatically be installed if necessary when you install this extension.
 
 ## Extension Settings
 

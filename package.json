@@ -902,7 +902,6 @@
     "mc-live": "test -z \"$(git status --untracked-files=no --porcelain || echo dirty)\" && npm install ../monkeyc-optimizer && npm install && git commit -am 'monkeyc-optimizer-live'",
     "prettier-package": "npm install; npm install @markw65/prettier-plugin-monkeyc; git commit -am \"Update to $(npm list @markw65/prettier-plugin-monkeyc | sed -n '/^.*\\(@markw65\\/prettier-plugin-monkeyc[@0-9.]*\\).*/ {s//\\1/p; q;}')\"",
     "prettier-live": "test -z \"$(git status --untracked-files=no --porcelain || echo dirty)\" && npm install ../prettier-plugin-monkeyc && npm install && git commit -am 'prettier-plugin-monkeyc-live'",
-    "vscode:uninstall": "node ./uninstall.js",
     "vscode:prepublish": "rm -rf build; npm run build-release",
     "lint": "eslint .",
     "pretest": "npm run lint"
@@ -925,7 +924,6 @@
     "typescript": "^5.9.3"
   },
   "extensionDependencies": [
-    "esbenp.prettier-vscode",
     "garmin.monkey-c"
   ],
   "repository": {

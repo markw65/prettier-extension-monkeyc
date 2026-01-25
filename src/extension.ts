@@ -1,25 +1,26 @@
-import { BuildConfig, copyRecursiveAsNeeded } from "@markw65/monkeyc-optimizer";
+import { BuildConfig } from "@markw65/monkeyc-optimizer";
+import * as fs from "fs/promises";
 import * as path from "path";
 import * as vscode from "vscode";
-import * as fs from "fs/promises";
+import { MonkeyCCompletionItemProvider } from "./completion-provider";
 import {
   baseDebugConfig,
   OptimizedMonkeyCDebugConfigProvider,
 } from "./debug-config-provider";
 import { MonkeyCDefinitionProvider } from "./definition-provider";
-import { MonkeyCRenameRefProvider } from "./rename-provider";
-import { MonkeyCSymbolProvider } from "./symbol-provider";
+import { MonkeyCFomattingEditProvider } from "./format-provider";
+import { MonkeyCHoverProvider } from "./hover-provider";
 import { MonkeyCLinkProvider } from "./link-provider";
-import { OptimizedMonkeyCBuildTaskProvider } from "./task-provider";
 import {
   currentWorkspace,
   findProject,
   getOptimizerBaseConfig,
   initializeProjectManager,
 } from "./project-manager";
+import { MonkeyCRenameRefProvider } from "./rename-provider";
 import { MonkeyCSignatureProvider } from "./signature-provider";
-import { MonkeyCCompletionItemProvider } from "./completion-provider";
-import { MonkeyCHoverProvider } from "./hover-provider";
+import { MonkeyCSymbolProvider } from "./symbol-provider";
+import { OptimizedMonkeyCBuildTaskProvider } from "./task-provider";
 
 export let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 export let extensionVersion: string | null = null;
@@ -28,31 +29,6 @@ export let extensionVersion: string | null = null;
 // which (as currently configured) is the first time a .mc file is opened.
 export async function activate(context: vscode.ExtensionContext) {
   extensionVersion = context.extension.packageJSON.version;
-
-  console.log(
-    "Installing @markw65/prettier-plugin-monkeyc into the esbenp.prettier-vscode extension!"
-  );
-
-  const our_extension_dir = path.resolve(__dirname, "..", "..");
-  const prettier_dir = vscode.extensions.getExtension(
-    "esbenp.prettier-vscode"
-  )?.extensionPath;
-
-  if (prettier_dir) {
-    const target_dir = `${prettier_dir}/node_modules/@markw65/prettier-plugin-monkeyc`;
-    try {
-      await copyRecursiveAsNeeded(
-        `${our_extension_dir}/node_modules/@markw65/prettier-plugin-monkeyc`,
-        target_dir,
-        (src) => {
-          const base = path.basename(src);
-          return base !== "node_modules" && !base.startsWith(".");
-        }
-      );
-    } catch (e) {
-      console.log(`Failed: ${e}`);
-    }
-  }
 
   const renameRefProvider = new MonkeyCRenameRefProvider();
   const symbolProvider = new MonkeyCSymbolProvider();
@@ -191,6 +167,10 @@ export async function activate(context: vscode.ExtensionContext) {
     vscode.languages.registerDocumentLinkProvider(
       projectFiles,
       new MonkeyCLinkProvider()
+    ),
+    vscode.languages.registerDocumentFormattingEditProvider(
+      "monkeyc",
+      new MonkeyCFomattingEditProvider()
     ),
     ...initializeProjectManager()
   );
