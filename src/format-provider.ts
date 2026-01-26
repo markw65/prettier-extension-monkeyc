@@ -8,7 +8,11 @@ async function formatCode(
   vscodeOptions: vscode.FormattingOptions
 ) {
   try {
-    const options = (await Prettier.resolveConfig(filepath)) ?? {};
+    const options =
+      (await Prettier.resolveConfig(filepath, {
+        editorconfig: true,
+        useCache: false,
+      })) ?? {};
     if (!options.plugins) {
       options.plugins = [];
     }
