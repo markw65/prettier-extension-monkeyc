@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@markw65/monkeyc-optimizer": "^1.1.92",
-    "@markw65/prettier-plugin-monkeyc": "^1.0.62"
+    "@markw65/prettier-plugin-monkeyc": "^1.0.62",
+    "prettier": "^3.8.1"
   },
   "categories": [
     "Programming Languages",
@@ -910,7 +911,6 @@
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^25.0.3",
-    "@types/prettier": "^2.6.1",
     "@types/vscode": "^1.65.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
     "@typescript-eslint/parser": "^5.45.0",
@@ -926,6 +926,9 @@
   "extensionDependencies": [
     "garmin.monkey-c"
   ],
+  "prettier": {
+    "trailingComma": "es5"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/markw65/prettier-extension-monkeyc.git"

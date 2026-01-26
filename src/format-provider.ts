@@ -15,8 +15,11 @@ async function formatCode(
     const pmc =
       __dirname + "/../../node_modules/@markw65/prettier-plugin-monkeyc";
 
-    if (!options.plugins.includes(pmc)) {
-      options.plugins.push(pmc);
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const plugin = require(pmc);
+
+    if (!options.plugins.includes(plugin)) {
+      options.plugins.push(plugin);
     }
 
     const formattedCode = await Prettier.format(sourceCode, {
