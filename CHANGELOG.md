@@ -2,11 +2,24 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
-#### v2.0.122
+#### v2.0.124
+
+- Update to [@markw65/monkeyc-optimizer@1.1.93](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1193)
+  - Update to [@markw65/prettier-plugin-monkeyc@1.0.64](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1064)
+    - Fixes incompatibilities with `prettier@3.7.0` and later
+  - Update to prettier3.x for testing/development purposes, since that's what's in use almost everywhere now
+  - Add support for Extended Code Spaces in the post build optimizer.
+    - This just fixes some assertions, and makes sure that various tables get updated correctly. It doesn't yet optimize the code in the Extended Code Space.
+- Read `.editorconfig` if present
+- Don't cache `.editorconfig` or `.prettierrc`, so that changes to those files take effect without restarting the extensions.
+
+#### v2.0.123
 
 - Update to [@markw65/prettier-plugin-monkeyc@1.0.62](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1062)
   - Fixes issues with `prettier@3.7` and later
 - Implement a formatter in the extension itself, rather than relying on `esbenp.prettier-vscode` for formatting.
+
+#### v2.0.122 (skipped)
 
 #### v2.0.121
 
@@ -23,20 +36,17 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### v2.0.119
 
 - Update to [@markw65/monkeyc-optimizer@1.1.90](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1190)
-
   - Fix a bug that could result in infinite recursion when computing the union or intersection of two types involving typedefs
   - Fix a bug where the inferred type of `[ null ]` was tuple containing `Object?`.
 
 #### v2.0.118
 
 - Update to [@markw65/monkeyc-optimizer@1.1.89](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1189)
-
   - Fix error determining whether or not to generate a SHA256 signature, so that things start working with sdk-8.2.2 again
 
 #### v2.0.117
 
 - Update to [@markw65/monkeyc-optimizer@1.1.88](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1188)
-
   - Fix output of cft-font-info
   - Update to [@markw65/prettier-plugin-monkeyc@1.0.61](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1061)
   - Fix a crash when no valid products are found in the manifest (Fixes [prettier-extension-monkeyc#19](https://github.com/markw65/prettier-extension-monkeyc/issues/19))
@@ -116,7 +126,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### v2.0.105
 
 - Update to [@markw65/monkeyc-optimizer@1.1.76](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1176)
-
   - Fix member expression lookup when base type is exact
   - Fix path-resolution inside locals in jungle files
 
@@ -141,7 +150,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### v2.0.102
 
 - Update to [@markw65/monkeyc-optimizer@1.1.73](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1173)
-
   - Fix an issue formatting body-less class/module/program nodes.
 
 - Fix an issue where the analyzer would report more and more missing symbols
@@ -155,7 +163,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### v2.0.100
 
 - Update to [@markw65/monkeyc-optimizer@1.1.71](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1171)
-
   - Rewrite of live analysis pass for more precise const/enum types.
 
 - Fix goto definition for modules (now finds every declaration of the module)
@@ -165,7 +172,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### v2.0.99
 
 - Update to [@markw65/monkeyc-optimizer@1.1.69](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1169)
-
   - Make sure barrel resource references are found.
 
 - Automatically open all projects in the workspace when the extension activates
@@ -184,7 +190,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.97
 
 - Update to [@markw65/monkeyc-optimizer@1.1.67](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1167)
-
   - Use the type of a variable, when known, if its the base of a lookup (fixes #35)
   - Add strictTypeCheck option
   - Make getProjectAnalysis more forgiving when there are syntax errors (fixes #17)
@@ -232,7 +237,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.91
 
 - Update to [@markw65/monkeyc-optimizer@1.1.61](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1161)
-
   - Disable more post-build optimizations to allow apps to verify.
   - Add an `allowForbiddenOpts` option to re-enable the optimizations in simulator or device build mode.
 
@@ -301,7 +305,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.81
 
 - Update to [@markw65/monkeyc-optimizer@1.1.51](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1151)
-
   - Fix a bug where a call with mismatched arguments could be marked as side-effect free, and then removed.
   - Don't inline functions with mis-matched arguments, and issue a diagnostic.
 
@@ -325,7 +328,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.78
 
 - Update to [@markw65/monkeyc-optimizer@1.1.46](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1146)
-
   - Needed for the new `extraExcludes` option
 
 - Adds support for [extraExcludes](https://github.com/markw65/monkeyc-optimizer/wiki/The-extraExcludes-Option).
@@ -364,7 +366,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.72 (not released)
 
 - Update to [@markw65/monkeyc-optimizer@1.1.37](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1137).
-
   - Diagnostics for operators with incorrect types
   - Proper tracking of object literal types (`{ :foo => String, 42 => Array<Number> }` for example).
   - `Graphics.ColorValue`s are converted to hex numbers.
@@ -380,7 +381,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.70
 
 - Update to [@markw65/monkeyc-optimizer@1.1.35](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1135).
-
   - Minor improvements to the type checker
   - Significant speed up in the .xml parser
 
@@ -402,7 +402,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.67
 
 - Update to [@markw65/monkeyc-optimizer@1.1.32](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1132).
-
   - Minor bug fixes, and tweaks for sdk-6.2.x
 
 - Update to README.md and package.json to describe more of the extension's features
@@ -459,7 +458,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.58
 
 - Update to [@markw65/monkeyc-optimizer@1.1.22](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1122).
-
   - Fixes [#8](https://github.com/markw65/prettier-extension-monkeyc/issues/8)
   - Adds some new post build optimizations
 
@@ -491,7 +489,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.53
 
 - Update to [@markw65/monkeyc-optimizer@1.1.16](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1116).
-
   - Improvements to the post build optimizer
 
 - When `useLocalOptimizer` is set, use the locally installed `@markw65/monkeyc-optimizer` for both the source-to-source optimizer, and the post-build optimizer, to ensure repeatable builds.
@@ -521,7 +518,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.48
 
 - Update to [@markw65/monkeyc-optimizer@1.1.11](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1111).
-
   - various bug fixes, and adds the new Single Use Copy Prop pass
 
 - Adds options for [Minimize Locals](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#minimize-locals) and [Single Use Copy Prop](https://github.com/markw65/monkeyc-optimizer/wiki/Local-variable-elimination#single-use-copy-propagation)
@@ -529,7 +525,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.47
 
 - Update to [@markw65/monkeyc-optimizer@1.1.10](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1110).
-
   - Fixes various minor bugs
 
 - Adds a `HoverProvider` to provide info about calls and variables when you point the mouse at them.
@@ -543,7 +538,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.45
 
 - Update to [@markw65/monkeyc-optimizer@1.1.8](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#118).
-
   - Fixes a type checker warning where the type checker incorrectly deduced that a variable could be null
   - Adds various features to support the new `SignatureHelpProvider` and `CompletionItemProvider`
 
@@ -599,7 +593,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.36
 
 - Update to [@markw65/monkeyc-optimizer@1.0.43](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1043). Amongst other things:
-
   - Fixes a couple of windows issues, introduced in 2.0.35
   - Fixes some issues jumping between refs and defs
   - Propagates `:typecheck(false)` when inlining
@@ -616,7 +609,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.34
 
 - Update to [@markw65/monkeyc-optimizer@1.0.41](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1041). Amongst other things:
-
   - Fixes a bug that could cause `and` and `or` to be incorrectly optimized
   - Fixes a bug that could prevent `has` from being optimized to false
   - Updates symbol lookup to match the current sdk (by default, but you can explicitly force compiler1 or compiler2)
@@ -663,7 +655,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.28
 
 - Update to [@markw65/monkeyc-optimizer@1.0.34](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1034).
-
   - Optimized files use prettier options when formatting
 
 - Update to [@markw65/prettier-plugin-monkeyc@1.0.34](https://github.com/markw65/prettier-plugin-monkeyc#1034).
@@ -717,7 +708,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.20
 
 - Update to `@markw65/monkeyc-optimizer@1.0.25`
-
   - Fixes bug reporting missing symbols for Method parameters
 
 - Don't allow renaming of class methods (because we can't find all the references)
@@ -725,7 +715,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.19
 
 - Update to `@markw65/monkeyc-optimizer@1.0.22`
-
   - Major update to the lookup system to match what the device actually does (rather than what the type checker incorrectly thinks it does)
   - Added diagnostics for missing symbols (updated as you type)
   - Reversed the sense of `inline_foo`, so now it inlines when foo is _not_ declared as an excludeAnnotation
@@ -748,7 +737,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.16
 
 - Update to `@markw65/monkeyc-optimizer@1.0.19`
-
   - Adds support for statement-level inlining in assignment and return contexts
   - Adds some minor optimizations, mostly to clean up code generated by the inliner
 
@@ -764,7 +752,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.14
 
 - Update to `@markw65/monkeyc-optimizer@1.0.16`
-
   - Fixes a type lookup bug that cause some links to the api docs to go missing.
   - Adds support for inlining functions whose return value is unused.
   - Optimizes away side-effect free expression statements, such as `0;x;foo.bar;a+b`
@@ -796,7 +783,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### 2.0.11
 
 - Bug fixes
-
   - Only create a project if a jungle file is found
   - Stop returning definitions from api.mir
   - Handle device selection properly in multi-folder workspaces
@@ -804,7 +790,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
   - Fix type of task/launch option 'compilerWarnings'
 
 - Code cleanup
-
   - Move the task provider and debug config provider out of extension.ts
   - Add vscode:prepublish script so we don't package/publish a stale build
   - strict type checking
@@ -861,7 +846,6 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open source projects.
 
 - Improvements
-
   - Update to `@markw65/prettier-plugin-monkeyc:1.0.14`
   - Parse and respect \<build\> instructions in resource files
   - Add minimal barrel support
@@ -869,7 +853,6 @@ Upgrade to `@markw65/monkeyc-optimizer:1.0.8` to fix more issues found via open 
   - Rename locals which would be marked re-declaring
 
 - Bug Fixes
-
   - Generate the default jungle dynamically, since sdk/bin/default.jungle is generated lazily, and may not exist in newly installed sdks, or may be out of date after device installations.
   - Fix a bug generating language settings in optimized jungle
   - Fix a bug introduced by pick-one: don't modify a shared array
