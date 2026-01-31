@@ -2,6 +2,16 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.125
+
+- Update to [@markw65/monkeyc-optimizer@1.1.94](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1194)
+  - Update to [@markw65/prettier-plugin-monkeyc@1.0.65](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1065)
+    - Fix an issue that prevented a blank line after a catch block being preserved
+    - Replace a horribly inefficient regex with a loop to avoid stack overflows when `@markw65/monkeyc-optimizer` tries to write large files.
+
+  - Compute and use FunctionInfo during analysis pass
+  - Better interference analysis for computed MemberDeclarations
+
 #### v2.0.124
 
 - Update to [@markw65/monkeyc-optimizer@1.1.93](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1193)
