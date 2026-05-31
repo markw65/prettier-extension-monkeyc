@@ -2,10 +2,21 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.131
+
+- Update to [@markw65/monkeyc-optimizer@1.1.100](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#11100)
+  - Update to [@markw65/prettier-plugin-monkeyc@1.0.68](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1068)
+    - Fix a bug where comments in a class declaration would get duplicated when the class was formatted.
+
+  - Add an option to hide `debug` info when generating human readable types. Used by the extension for generating hover text.
+
+- Properly quote `<` and `>` in hover text to make sure that Array types are displayed
+- Don't include known property values in the 'type' of an `Object`
+
 #### v2.0.130
 
 - Update to [@markw65/monkeyc-optimizer@1.1.99](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#1199)
-  - Update to [@markw65/prettier-plugin-monkeyc@1.0.66](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1066)
+  - Update to [@markw65/prettier-plugin-monkeyc@1.0.67](https://github.com/markw65/prettier-plugin-monkeyc/blob/main/CHANGELOG.md#1067)
     - Fix a bug where `function f() as /* comment */ T` could get formatted as `function f() as (/* comment */ T)`, which doesn't parse.
     - Fix [Issue #8](https://github.com/markw65/prettier-plugin-monkeyc/issues/8)
       - Wrap `class E extends T {` if it exceeds the line length by indenting `extends T` on a new line, and breaking again before `{`
