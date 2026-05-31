@@ -52,9 +52,10 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
         const [self, parent] = result;
         return functionDocumentation.then((docinfo) => {
           const hoverTexts: Promise<[string, string] | string | null>[] = [];
-          const typeString = self.type
-            ? display(self.type).replace(/[<>]/g, "\\$&")
-            : null;
+          const quote = (s: string) => s.replace(/[<>]/g, "\\$&");
+          const typeString = self.type ? quote(display(self.type)) : null;
+          const format = (node: mctree.Node) =>
+            formatAstLongLines(node).then((s) => quote(s));
           if (parent && parent.node.type === "CallExpression") {
             if (self.node === parent.node.callee) {
               hoverTexts.push(
@@ -67,7 +68,7 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
                   const result =
                     (decl.stack
                       ? decl.stack[decl.stack.length - 1].sn.fullName + ": "
-                      : "") + (await formatAstLongLines(node));
+                      : "") + (await format(node));
                   const doc = docinfo?.get(decl.fullName);
                   return doc ? `${result}\n\n${doc}` : result;
                 })
@@ -78,7 +79,7 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
               );
               if (arg >= 0) {
                 hoverTexts.push(
-                  Promise.resolve(formatAstLongLines(parent.node.callee)).then(
+                  format(parent.node.callee).then(
                     (callee) =>
                       `${callee}  \nargument (${arg + 1})${
                         typeString ? `: ${typeString}` : ""
@@ -102,7 +103,7 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
                   }
                   doc = docinfo?.get(decl.fullName);
                 } else {
-                  result += await formatAstLongLines(self.node);
+                  result += await format(self.node);
                 }
                 if (!doc) {
                   const md = (await project.getMarkdownFor(decl)) || undefined;
