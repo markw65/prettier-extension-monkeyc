@@ -53,7 +53,7 @@ export class MonkeyCHoverProvider implements vscode.HoverProvider {
         return functionDocumentation.then((docinfo) => {
           const hoverTexts: Promise<[string, string] | string | null>[] = [];
           const quote = (s: string) => s.replace(/[<>]/g, "\\$&");
-          const typeString = self.type ? quote(display(self.type)) : null;
+          const typeString = self.type ? quote(display(self.type, true)) : null;
           const format = (node: mctree.Node) =>
             formatAstLongLines(node).then((s) => quote(s));
           if (parent && parent.node.type === "CallExpression") {
