@@ -2,6 +2,14 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.133
+
+- Update to [@markw65/monkeyc-optimizer@1.1.103](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#11103)
+  - Fix an issue where PRE could insert a local assignment after a bytecode that could throw, even though the local might be used in the catch block.
+  - Include the .prg Header in the result of readPrg, so that the extension can report glance and background sizes.
+- Force a release build if the compilerOptions contain '-r'
+- Display glance and background sizes when appropriate
+
 #### v2.0.132
 
 - Update to [@markw65/monkeyc-optimizer@1.1.101](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#11101)
