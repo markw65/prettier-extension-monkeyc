@@ -248,14 +248,42 @@ export class CustomBuildTaskTerminal implements vscode.Pseudoterminal {
           program && /\.prg$/i.test(program)
             ? readPrg(program)
                 .then((info) => {
-                  logger(
-                    `\r\n> Sizes for ${path.basename(
+                  const strings = [
+                    `Sizes for ${path.basename(
                       program,
                       ".prg"
                     )}-${product}: code: ${info[SectionKinds.TEXT]} data: ${
                       info[SectionKinds.DATA]
-                    } <\r\n`
-                  );
+                    }`,
+                  ];
+                  if (
+                    info.header?.glanceOffsets.code ||
+                    info.header?.glanceOffsets.data
+                  ) {
+                    strings.push(
+                      `\r\n  >> glance     -- code: ${info.header.glanceOffsets.code} data: ${
+                        info.header.glanceOffsets.data
+                      }`
+                    );
+                  }
+                  if (
+                    info.header?.backgroundOffsets.code ||
+                    info.header?.backgroundOffsets.data
+                  ) {
+                    strings.push(
+                      `\r\n  >> background -- code: ${info.header.backgroundOffsets.code} data: ${
+                        info.header.backgroundOffsets.data
+                      }`
+                    );
+                  }
+                  if (strings.length === 1) {
+                    strings.unshift("\r\n> ");
+                    strings.push(" <\r\n");
+                  } else {
+                    strings.unshift("\r\n---\r\n");
+                    strings.push("\r\n---\r\n");
+                  }
+                  logger(strings.join(""));
                 })
                 .catch(() => {
                   /* empty */
