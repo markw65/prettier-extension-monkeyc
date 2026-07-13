@@ -104,7 +104,7 @@ export class Project implements vscode.Disposable {
       return Promise.resolve(availableDevices[0]);
     }
 
-    return getDeviceInfo()
+    return getDeviceInfo(this.options)
       .then((deviceInfo) => {
         const quickPickItems: { label: string; description: string }[] = [];
         availableDevices.forEach((device) => {
@@ -599,7 +599,7 @@ export class Project implements vscode.Disposable {
 
   getFunctionDocumentation() {
     if (!this.functionDocumentation) {
-      this.functionDocumentation = getFunctionDocumentation().then(
+      this.functionDocumentation = getFunctionDocumentation(this.options).then(
         (doc) => doc && createDocumentationMap(doc)
       );
     }

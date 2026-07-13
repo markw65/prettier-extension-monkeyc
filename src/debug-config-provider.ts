@@ -1,4 +1,4 @@
-import { launchSimulator } from "@markw65/monkeyc-optimizer";
+import { BuildConfig, launchSimulator } from "@markw65/monkeyc-optimizer";
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -103,7 +103,7 @@ export class OptimizedMonkeyCDebugConfigProvider
     if (await fs.stat(settingsFile).catch(() => null)) {
       config.settingsJson = settingsFile;
     }
-    await launchSimulator(!config.runTests);
+    await launchSimulator(!config.runTests, config as BuildConfig);
     return config;
   }
 }
