@@ -20,7 +20,7 @@ export class MonkeyCSignatureProvider implements vscode.SignatureHelpProvider {
     if (
       vscode.workspace
         .getConfiguration("prettierMonkeyC", document)
-        .get("disableSignature") === true
+        .get("disableSignatures") === true
     ) {
       return null;
     }
