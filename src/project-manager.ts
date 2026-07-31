@@ -1,8 +1,11 @@
 import {
   Analysis,
   BuildConfig,
-  getProjectAnalysis,
+  buildConfigDescription,
+  ClassStateNode,
   get_jungle,
+  getProjectAnalysis,
+  isApplicationManifest,
   JungleBuildDependencies,
   JungleError,
   JungleResourceMap,
@@ -12,17 +15,16 @@ import {
   ProgramState,
   ProgramStateAnalysis,
   ResolvedJungle,
-  TypeMap,
-  StateNodeDecl,
-  buildConfigDescription,
   StateNode,
-  ClassStateNode,
+  StateNodeDecl,
+  TypeMap,
 } from "@markw65/monkeyc-optimizer";
 import {
   createDocumentationMap,
   getSuperClasses,
   hasProperty,
   isStateNode,
+  lookupWithType,
   makeToyboxLink,
   visitorNode,
   visitReferences,
@@ -35,12 +37,11 @@ import {
 } from "@markw65/monkeyc-optimizer/sdk-util.js";
 import { mctree } from "@markw65/prettier-plugin-monkeyc";
 import { existsSync } from "fs";
+import { HTMLElement, NodeType, parse } from "node-html-parser";
 import { readFile } from "node:fs/promises";
 import * as path from "path";
 import * as vscode from "vscode";
 import { extensionVersion } from "./extension";
-import { HTMLElement, NodeType, parse } from "node-html-parser";
-import { lookupWithType } from "@markw65/monkeyc-optimizer/api.js";
 
 type UpdateElem = { file: string; content: string | null | false };
 
@@ -67,6 +68,7 @@ export class Project implements vscode.Disposable {
     null;
   private documentXml: Map<string, Promise<HTMLElement>> | null = null;
   private disableAnalysis = false;
+  private jungleEditsInProgress = new Map<string, string | false>();
 
   static create(workspaceFolder: vscode.WorkspaceFolder) {
     const options = getOptimizerBaseConfig(workspaceFolder);
@@ -317,6 +319,125 @@ export class Project implements vscode.Disposable {
       });
   }
 
+  private checkJungleSourcePath() {
+    if (
+      !this.jungleResult ||
+      !isApplicationManifest(this.jungleResult.xml) ||
+      !this.currentAnalysis ||
+      vscode.workspace
+        .getConfiguration("prettierMonkeyC", this.workspaceFolder)
+        .get("disableJungleFixes") === true
+    ) {
+      return;
+    }
+    const { recommendedBaseSourcePath } = this.currentAnalysis;
+    const first = this.options.jungleFiles?.split(";")[0];
+    if (!first) return;
+    const junglePath = path.resolve(this.options!.workspace!, first);
+
+    const outputDir = this.options.outputPath ?? "bin/optimized";
+    if (
+      recommendedBaseSourcePath == null ||
+      this.jungleEditsInProgress.get(junglePath) === recommendedBaseSourcePath
+    ) {
+      return;
+    }
+    this.jungleEditsInProgress.set(junglePath, recommendedBaseSourcePath);
+    const jungleUri = vscode.Uri.file(junglePath);
+    Promise.resolve(
+      recommendedBaseSourcePath === false
+        ? vscode.window.showInformationMessage(
+            `Your monkey.jungle file includes "${outputDir}", which will contain generated sources. This will cause errors for non-optimized Garmin builds. It looks like you're already configuring *.sourcePath - please update your monkey.jungle to ensure that you're excluding the optimized files`,
+            "Edit monkey.jungle",
+            "Ignore",
+            "Don't ask again"
+          )
+        : vscode.window.showInformationMessage(
+            `Your monkey.jungle file includes "${outputDir}", which will contain generated sources. This will cause errors for non-optimized Garmin builds. Would you like to review the fixes to exclude the generated files?`,
+            "Review Changes",
+            "Ignore",
+            "Don't ask again"
+          )
+    )
+      .finally(() => this.jungleEditsInProgress.delete(junglePath))
+      .then((selection): unknown => {
+        if (selection === "Don't ask again") {
+          return vscode.workspace
+            .getConfiguration("prettierMonkeyC", this.workspaceFolder)
+            .update(
+              "disableJungleFixes",
+              true,
+              vscode.ConfigurationTarget.WorkspaceFolder
+            );
+        }
+        if (
+          recommendedBaseSourcePath !==
+          this.currentAnalysis?.recommendedBaseSourcePath
+        ) {
+          return;
+        }
+        if (selection === "Edit monkey.jungle") {
+          return vscode.workspace
+            .openTextDocument(jungleUri)
+            .then((doc) =>
+              vscode.window.showTextDocument(doc, { preview: true })
+            );
+        }
+        if (selection === "Review Changes") {
+          return vscode.workspace.openTextDocument(jungleUri).then((doc) => {
+            const content = doc.getText();
+
+            const workspaceEdit = new vscode.WorkspaceEdit();
+
+            let targetRange: [number, number];
+
+            let rep = `base.sourcePath = "${recommendedBaseSourcePath}"`;
+            let match = content.match(/^[ \t]*base.sourcePath.*$/m);
+            if (match) {
+              const index = match.index ?? 0;
+              targetRange = [index, index + match[0].length];
+            } else {
+              match = content.match(/([\s\S]*^\s*project.*)$/m);
+              const offset = match
+                ? (match.index ?? 0) + match[0].length + 1
+                : content.length;
+              targetRange = [offset, offset];
+              rep = `\n${rep}\n\n`;
+            }
+            workspaceEdit.replace(
+              jungleUri,
+              new vscode.Range(
+                doc.positionAt(targetRange[0]),
+                doc.positionAt(targetRange[1])
+              ),
+              rep,
+              {
+                label: "Apply Jungle Fixes",
+                needsConfirmation: false,
+              }
+            );
+            workspaceEdit.replace(
+              jungleUri,
+              new vscode.Range(
+                doc.positionAt(content.length),
+                doc.positionAt(content.length)
+              ),
+              "",
+              {
+                label: "Apply Jungle Fixes",
+                needsConfirmation: true,
+              }
+            );
+            return vscode.workspace.applyEdit(workspaceEdit, {
+              isRefactoring: true,
+            });
+          });
+        }
+        return;
+      })
+      .catch(() => null);
+  }
+
   private runAnalysis(oldAnalysis: PreAnalysis | null) {
     this.currentAnalysis = null;
     this.clearExtraWatchers();
@@ -340,6 +461,8 @@ export class Project implements vscode.Disposable {
           vscode.workspace
             .getConfiguration("prettierMonkeyC", this.workspaceFolder)
             .get("disableLiveAnalysis") === true;
+
+        this.checkJungleSourcePath();
 
         disableLiveAnalysis ||
           Object.entries(resources).forEach(

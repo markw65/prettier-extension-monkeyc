@@ -390,6 +390,13 @@
             "markdownDescription": "Whether to disable the signature provider, which provides information about the arguments to a call as you type. Only applies when `#prettierMonkeyC.disableAnalysis#` is not set",
             "default": false,
             "scope": "resource"
+          },
+          "prettierMonkeyC.disableJungleFixes": {
+            "order": 7,
+            "type": "boolean",
+            "markdownDescription": "Whether to disable the check for `base.sourcePath` in `monkey.jungle` files. Only applies when `#prettierMonkeyC.disableAnalysis#` is not set",
+            "default": false,
+            "scope": "resource"
           }
         }
       }
