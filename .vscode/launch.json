@@ -9,7 +9,11 @@
       "name": "Run Extension",
       "type": "extensionHost",
       "request": "launch",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}"],
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--disable-extension=Continue.continue",
+        "--disable-extension=eamodio.gitlens"
+      ],
       "sourceMapPathOverrides": {
         "meteor://💻app/*": "${workspaceFolder}/*",
         "webpack:///./~/*": "${workspaceFolder}/node_modules/*",
@@ -29,7 +33,9 @@
       "args": [
         "--extensionDevelopmentPath=${workspaceFolder}",
         "--extensionTestsPath=${workspaceFolder}/test/suite/index",
-        "${workspaceFolder}/test/IntegrationTests/IntegrationTests.code-workspace"
+        "${workspaceFolder}/test/IntegrationTests/IntegrationTests.code-workspace",
+        "--disable-extension=Continue.continue",
+        "--disable-extension=eamodio.gitlens"
       ],
       "outFiles": ["${workspaceFolder}/**/*.(m|c|)js", "!**/node_modules/**"]
     },
