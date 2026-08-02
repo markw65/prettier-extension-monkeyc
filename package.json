@@ -943,9 +943,13 @@
     "lint": "eslint .",
     "pretest": "npm run lint"
   },
+  "overrides": {
+    "serialize-javascript": "^7.0.2",
+    "diff": "^8.0.3"
+  },
   "devDependencies": {
     "@types/glob": "^8.0.0",
-    "@types/mocha": "^10.0.0",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^25.0.3",
     "@types/vscode": "^1.65.0",
     "@typescript-eslint/eslint-plugin": "^5.45.0",
@@ -955,7 +959,7 @@
     "eslint": "^8.9.0",
     "fast-glob": "^3.2.12",
     "glob": "^8.0.3",
-    "mocha": "^10.1.0",
+    "mocha": "^11.7.6",
     "node-html-parser": "^6.1.12",
     "typescript": "^5.9.3"
   },
