@@ -2,6 +2,21 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.134
+
+- Update to [@markw65/monkeyc-optimizer@1.2.0](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#120)
+  - Adds `sdkPath` and `connectIQPath` to `BuildConfig`. Various exported methods (such as getSdkPath) get optional config parameters so they can access `sdkPath` and `connectIQPath`, but the API should be backward compatibile.
+
+- Update to [@markw65/monkeyc-optimizer@1.2.1](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#121)
+  - Add `recommendedBaseSourcePath` to analysis result, to indicate what needs changing to exclude the `bin/optimized` directory.
+
+- Update to [@markw65/monkeyc-optimizer@1.2.2](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#122)
+  - Add `isApplicationManifest` helper function.
+
+- Add support for the new sdkPath and connectIQPath options. They can be added in user, workspace or project setting, as well as per config in tasks.json and launch.json.
+- Add warnings if your monkey.jungle would include the generated file. In most cases will suggest changes to monkey.jungle so you can just accept/reject.
+- Add `Enable Garmin Analysis` and `Disable Garmin Analysis` commands. These enable/disable the Garmin Language Server by renaming the `.jar` file. Disabling it will prevent getting double entries for `Goto Definition` etc.
+
 #### v2.0.133
 
 - Update to [@markw65/monkeyc-optimizer@1.1.103](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#11103)
