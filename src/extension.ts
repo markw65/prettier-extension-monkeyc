@@ -1,4 +1,5 @@
 import { BuildConfig } from "@markw65/monkeyc-optimizer";
+import { connectiq } from "@markw65/monkeyc-optimizer/sdk-util.js";
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as vscode from "vscode";
@@ -9,6 +10,11 @@ import {
 } from "./debug-config-provider";
 import { MonkeyCDefinitionProvider } from "./definition-provider";
 import { MonkeyCFomattingEditProvider } from "./format-provider";
+import {
+  checkGarminAnalysisStatus,
+  enableGarminAnalysis,
+  GarminAnalysis,
+} from "./garmin-analysis";
 import { MonkeyCHoverProvider } from "./hover-provider";
 import { MonkeyCLinkProvider } from "./link-provider";
 import {
@@ -16,6 +22,7 @@ import {
   findProject,
   getOptimizerBaseConfig,
   initializeProjectManager,
+  onSdkChange,
 } from "./project-manager";
 import { MonkeyCRenameRefProvider } from "./rename-provider";
 import { MonkeyCSignatureProvider } from "./signature-provider";
@@ -68,6 +75,31 @@ export async function activate(context: vscode.ExtensionContext) {
     { scheme: "file", language: "manifest" },
     { scheme: "file", language: "mss" },
   ];
+
+  const watcher = vscode.workspace.createFileSystemWatcher(
+    new vscode.RelativePattern(connectiq, "current-sdk.cfg")
+  );
+
+  let garminStatus: GarminAnalysis = GarminAnalysis.Unavailable;
+  const setGarminStatus = (s: GarminAnalysis) => {
+    garminStatus = s;
+    vscode.commands.executeCommand(
+      "setContext",
+      "prettiermonkeyc.garminAnalysisState",
+      s
+    );
+  };
+  setGarminStatus(GarminAnalysis.Unavailable);
+  const changeGarminStatus = (status: GarminAnalysis) => {
+    return enableGarminAnalysis(status === GarminAnalysis.Enabled)
+      .then(() => setGarminStatus(status))
+      .catch((e: unknown) => {
+        vscode.window.showInformationMessage(
+          `Failed to change garmin analysis state: ${e instanceof Error ? e.message : e}`
+        );
+      });
+  };
+
   context.subscriptions.push(
     (diagnosticCollection =
       vscode.languages.createDiagnosticCollection("build")),
@@ -129,6 +161,14 @@ export async function activate(context: vscode.ExtensionContext) {
         return ws && findProject(ws.uri)?.getDeviceToBuild();
       }
     ),
+    vscode.commands.registerCommand(
+      "prettiermonkeyc.enableGarminAnalysis",
+      () => changeGarminStatus(GarminAnalysis.Enabled)
+    ),
+    vscode.commands.registerCommand(
+      "prettiermonkeyc.disableGarminAnalysis",
+      () => changeGarminStatus(GarminAnalysis.Disabled)
+    ),
     vscode.debug.registerDebugConfigurationProvider(
       "omonkeyc",
       new OptimizedMonkeyCDebugConfigProvider(),
@@ -172,8 +212,27 @@ export async function activate(context: vscode.ExtensionContext) {
       "monkeyc",
       new MonkeyCFomattingEditProvider()
     ),
+    watcher,
+    watcher.onDidChange(() => {
+      onSdkChange();
+      checkGarminAnalysisStatus().then((status) => {
+        if (
+          status === GarminAnalysis.Unavailable ||
+          garminStatus === GarminAnalysis.Unavailable
+        ) {
+          setGarminStatus(status);
+          return;
+        }
+        if (status === garminStatus) {
+          return;
+        }
+        return changeGarminStatus(garminStatus);
+      });
+    }),
     ...initializeProjectManager()
   );
+
+  checkGarminAnalysisStatus().then(setGarminStatus);
 }
 
 // this method is called when your extension is deactivated

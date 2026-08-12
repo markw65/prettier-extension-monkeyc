@@ -30,7 +30,6 @@ import {
   visitReferences,
 } from "@markw65/monkeyc-optimizer/api.js";
 import {
-  connectiq,
   getDeviceInfo,
   getFunctionDocumentation,
   xmlUtil,
@@ -132,10 +131,6 @@ export class Project implements vscode.Disposable {
     private workspaceFolder: vscode.WorkspaceFolder,
     private options: BuildConfig
   ) {
-    const watcher = vscode.workspace.createFileSystemWatcher(
-      new vscode.RelativePattern(connectiq, "current-sdk.cfg")
-    );
-
     const disableAnalysis = () =>
       vscode.workspace
         .getConfiguration("prettierMonkeyC", this.workspaceFolder)
@@ -162,13 +157,6 @@ export class Project implements vscode.Disposable {
             this.reloadJungles(this.currentAnalysis, this.resources);
           }
         }
-      }),
-      watcher,
-      watcher.onDidChange(() => {
-        this.reloadJungles(this.currentAnalysis, this.resources);
-        this.functionDocumentation = null;
-        this.documentXml = null;
-        this.getFunctionDocumentation();
       })
     );
 
@@ -184,6 +172,13 @@ export class Project implements vscode.Disposable {
   dispose() {
     this.disposables.forEach((item) => item.dispose());
     this.clearExtraWatchers();
+  }
+
+  onSdkChange() {
+    this.reloadJungles(this.currentAnalysis, this.resources);
+    this.functionDocumentation = null;
+    this.documentXml = null;
+    this.getFunctionDocumentation();
   }
 
   diagnosticFromError(e: Error, filepath: string) {
@@ -800,6 +795,11 @@ export class Project implements vscode.Disposable {
 }
 
 const projects: Record<string, Project> = {};
+
+export function onSdkChange() {
+  Object.values(projects).forEach((project) => project.onSdkChange());
+}
+
 // Given a URI, find or construct the corresponding
 // MonkeyC project.
 export function findRelatedProjects(entity: vscode.Uri) {

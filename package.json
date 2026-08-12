@@ -64,8 +64,30 @@
         "title": "Clean Optimized Build",
         "command": "prettiermonkeyc.cleanOptimizedBuild",
         "category": "Prettier Monkey C"
+      },
+      {
+        "command": "prettiermonkeyc.enableGarminAnalysis",
+        "title": "Enable Garmin Analysis",
+        "category": "Prettier Monkey C"
+      },
+      {
+        "command": "prettiermonkeyc.disableGarminAnalysis",
+        "title": "Disable Garmin Analysis",
+        "category": "Prettier Monkey C"
       }
     ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "prettiermonkeyc.enableGarminAnalysis",
+          "when": "prettiermonkeyc.garminAnalysisState == 1"
+        },
+        {
+          "command": "prettiermonkeyc.disableGarminAnalysis",
+          "when": "prettiermonkeyc.garminAnalysisState == 2"
+        }
+      ]
+    },
     "configuration": [
       {
         "title": "Optimizer",
