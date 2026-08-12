@@ -80,6 +80,7 @@ You can provide more control over the build via `tasks.json` and `launch.json`. 
 - Shows some type checker issues in the `Problems` tab as you type.
 - Provides context sensitive completions
 - Provides function and symbol info on hover
+- `Disable Garmin Analysis` and `Enable Garmin Analysis`. When both `Prettier Monkey C` and `Garmin Monkey C` extensions are providing the above features, the UI will often present two of everything. You can disable all the `Prettier Monkey C` features via settings, but Garmin doesn't provide any options to do so. These commands disable/enable the Garmin Language Server by renaming it's .jar file.
 
 ---
 
