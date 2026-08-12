@@ -10,7 +10,7 @@
     "vscode": "^1.65.0"
   },
   "dependencies": {
-    "@markw65/monkeyc-optimizer": "^1.1.103",
+    "@markw65/monkeyc-optimizer": "^1.2.1",
     "@markw65/prettier-plugin-monkeyc": "^1.0.69",
     "prettier": "^3.8.1"
   },
@@ -71,6 +71,18 @@
         "title": "Optimizer",
         "type": "object",
         "properties": {
+          "prettierMonkeyC.sdkPath": {
+            "order": 1,
+            "type": "string",
+            "description": "Path to the SDK to use (optional).",
+            "scope": "resource"
+          },
+          "prettierMonkeyC.connectIQPath": {
+            "order": 2,
+            "type": "string",
+            "description": "Path to the ConnectIQ directory - containing SDKS, Devices, Fonts and current-sdk.cfg (optional).",
+            "scope": "resource"
+          },
           "prettierMonkeyC.outputPath": {
             "type": "string",
             "description": "Path to where the optimized project should be generated.",
@@ -622,6 +634,14 @@
           "javaPath": {
             "type": "string",
             "description": "If present, overrides the corresponding `monkeyC' setting."
+          },
+          "connectIQPath": {
+            "type": "string",
+            "description": "Path to the ConnectIQ directory - containing SDKS, Devices, Fonts and current-sdk.cfg (optional)."
+          },
+          "sdkPath": {
+            "type": "string",
+            "description": "Path to the SDK to use (optional)."
           }
         }
       }
@@ -871,6 +891,14 @@
               "javaPath": {
                 "type": "string",
                 "description": "If present, overrides the corresponding `monkeyC' setting."
+              },
+              "connectIQPath": {
+                "type": "string",
+                "description": "Path to the ConnectIQ directory - containing SDKS, Devices, Fonts and current-sdk.cfg (optional)."
+              },
+              "sdkPath": {
+                "type": "string",
+                "description": "Path to the SDK to use (optional)."
               }
             }
           }
