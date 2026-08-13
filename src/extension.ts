@@ -28,6 +28,7 @@ import { MonkeyCRenameRefProvider } from "./rename-provider";
 import { MonkeyCSignatureProvider } from "./signature-provider";
 import { MonkeyCSymbolProvider } from "./symbol-provider";
 import { OptimizedMonkeyCBuildTaskProvider } from "./task-provider";
+import { registerBrowserProviders } from "./web-view-provider";
 
 export let diagnosticCollection: vscode.DiagnosticCollection | null = null;
 export let extensionVersion: string | null = null;
@@ -99,6 +100,8 @@ export async function activate(context: vscode.ExtensionContext) {
         );
       });
   };
+  const [openWebView, ...webviewSubscriptions] =
+    await registerBrowserProviders();
 
   context.subscriptions.push(
     (diagnosticCollection =
@@ -169,6 +172,31 @@ export async function activate(context: vscode.ExtensionContext) {
       "prettiermonkeyc.disableGarminAnalysis",
       () => changeGarminStatus(GarminAnalysis.Disabled)
     ),
+    vscode.commands.registerCommand(
+      "prettiermonkeyc.openDocumentLink",
+      async (url: string) => {
+        if (!url) return;
+
+        const ws =
+          vscode.window.activeTextEditor?.document ??
+          vscode.workspace.workspaceFolders?.[0];
+        const config = vscode.workspace.getConfiguration("prettierMonkeyC", ws);
+        const value = config.get("openDocumentLinks");
+        if (typeof value !== "string") return;
+        const str = value.toLowerCase();
+        switch (str) {
+          case "left":
+          case "right":
+          case "bottom":
+          case "tab":
+          case "split":
+            return openWebView(url, str);
+          case "browser":
+            return vscode.env.openExternal(vscode.Uri.parse(url));
+        }
+        return;
+      }
+    ),
     vscode.debug.registerDebugConfigurationProvider(
       "omonkeyc",
       new OptimizedMonkeyCDebugConfigProvider(),
@@ -229,6 +257,7 @@ export async function activate(context: vscode.ExtensionContext) {
         return changeGarminStatus(garminStatus);
       });
     }),
+    ...webviewSubscriptions,
     ...initializeProjectManager()
   );
 

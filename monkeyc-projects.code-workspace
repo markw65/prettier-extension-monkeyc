@@ -1,22 +1,22 @@
 {
   "folders": [
     {
-      "path": "."
+      "path": ".",
     },
     {
-      "path": "../monkeyc-optimizer"
+      "path": "../monkeyc-optimizer",
     },
     {
       "name": "OptimizerTests",
-      "path": "../monkeyc-optimizer/test/OptimizerTests"
+      "path": "../monkeyc-optimizer/test/OptimizerTests",
     },
     {
       "name": "IntegrationTests",
-      "path": "test/IntegrationTests/Project1"
+      "path": "test/IntegrationTests/Project1",
     },
     {
-      "path": "../prettier-plugin-monkeyc"
-    }
+      "path": "../prettier-plugin-monkeyc",
+    },
   ],
   "settings": {
     "javascript.validate.enable": true,
@@ -26,10 +26,11 @@
     "task.allowAutomaticTasks": "on",
     "debug.javascript.terminalOptions": {
       "sourceMapPathOverrides": {
-        "webpack://./*": "${workspaceFolder}/*"
-      }
+        "webpack://./*": "${workspaceFolder}/*",
+      },
     },
     "peggyLanguageServer.markInfo": false,
-    "prettier.documentSelectors": ["*.peggy", "*.mc"]
-  }
+    "prettier.documentSelectors": ["*.peggy", "*.mc"],
+    "js/ts.tsdk.path": "prettier-extension-monkeyc/node_modules/typescript/lib",
+  },
 }

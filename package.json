@@ -74,6 +74,10 @@
         "command": "prettiermonkeyc.disableGarminAnalysis",
         "title": "Disable Garmin Analysis",
         "category": "Prettier Monkey C"
+      },
+      {
+        "command": "prettiermonkeyc.openDocumentLink",
+        "title": "Open a Document Link"
       }
     ],
     "menus": {
@@ -85,6 +89,62 @@
         {
           "command": "prettiermonkeyc.disableGarminAnalysis",
           "when": "prettiermonkeyc.garminAnalysisState == 2"
+        },
+        {
+          "command": "prettiermonkeyc.openDocumentLink",
+          "when": "false"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "prettiermonkeyc-bottom-container",
+          "title": "MonkeyC API",
+          "icon": "$(globe)"
+        }
+      ],
+      "activitybar": [
+        {
+          "id": "prettiermonkeyc-left-container",
+          "title": "MonkeyC API",
+          "icon": "$(globe)"
+        }
+      ],
+      "secondarySidebar": [
+        {
+          "id": "prettiermonkeyc-right-container",
+          "title": "MonkeyC API",
+          "icon": "$(globe)"
+        }
+      ]
+    },
+    "views": {
+      "prettiermonkeyc-left-container": [
+        {
+          "type": "webview",
+          "id": "prettiermonkeyc.browser.left",
+          "name": "MonkeyC API",
+          "icon": "$(browser)",
+          "when": "prettiermonkeyc.browserLocation == left"
+        }
+      ],
+      "prettiermonkeyc-right-container": [
+        {
+          "type": "webview",
+          "id": "prettiermonkeyc.browser.right",
+          "name": "MonkeyC API",
+          "icon": "$(browser)",
+          "when": "prettiermonkeyc.browserLocation == right"
+        }
+      ],
+      "prettiermonkeyc-bottom-container": [
+        {
+          "type": "webview",
+          "id": "prettiermonkeyc.browser.bottom",
+          "name": "MonkeyC API",
+          "icon": "$(browser)",
+          "when": "prettiermonkeyc.browserLocation == bottom"
         }
       ]
     },
@@ -376,6 +436,29 @@
             "type": "boolean",
             "markdownDescription": "Whether to add https links for Toybox entries in .mc files. Only applies when `#prettierMonkeyC.disableAnalysis#` is not set",
             "default": true,
+            "scope": "resource"
+          },
+          "prettierMonkeyC.openDocumentLinks": {
+            "order": 1,
+            "type": "string",
+            "enum": [
+              "left",
+              "right",
+              "bottom",
+              "tab",
+              "split",
+              "browser"
+            ],
+            "enumDescriptions": [
+              "In the left panel",
+              "In the right panel",
+              "In the bottom panel",
+              "In the same tab group as the editor",
+              "In a different tab group",
+              "In the system browser"
+            ],
+            "markdownDescription": "Where document links should open.",
+            "default": "browser",
             "scope": "resource"
           },
           "prettierMonkeyC.findSingleDefinition": {
@@ -1008,5 +1091,8 @@
     "publisherDisplayName": "Mark W",
     "publisherId": "6cee78cc-f1ce-472e-b5e6-a69210aafbad",
     "isPreReleaseVersion": false
+  },
+  "allowScripts": {
+    "esbuild@0.25.8": true
   }
 }

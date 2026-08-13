@@ -53,7 +53,11 @@ export class MonkeyCLinkProvider implements vscode.DocumentLinkProvider {
               loc.end.line - 1,
               loc.end.column - 1
             ),
-            vscode.Uri.parse(link)
+            vscode.Uri.from({
+              scheme: "command",
+              path: "prettiermonkeyc.openDocumentLink",
+              query: JSON.stringify([link]),
+            })
           )
         );
       };
