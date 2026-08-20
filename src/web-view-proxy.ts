@@ -155,17 +155,19 @@ function getProxyUiControllerHtml(initialUrl: string): string {
                 }
                 .toolbar {
                     display:flex; padding:6px; gap:8px; height: 30px; align-items:center;
-                    background: var(--vscode-editorGroupHeader-tabsBackground);
+                    background-color: var(--vscode-tab-activeBackground);
                     border-bottom:1px solid var(--vscode-editorGroup-border);
                 }
                 .btn {
-                    border:none; padding:4px 12px; cursor:pointer; border-radius:2px;
+                    border:none; padding:0 6px; cursor:pointer; border-radius:4px;
                     height: 24px; font-weight:bold; white-space: nowrap;
                     font-size:inherit; font-family:inherit;
-                    background: var(--vscode-button-background);
-                    color: var(--vscode-button-foreground);
+                    background: transparent;
+                    color: var(--vscode-icon-foreground, var(--vscode-foreground));                }
+                .btn:hover {
+                    background: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, 0.31));
+                    color: var(--vscode-toolbar-activeForeground, var(--vscode-icon-foreground));
                 }
-                .btn:hover { background: var(--vscode-button-hoverBackground); }
                 .address-bar {
                     flex-grow:1; padding:4px 8px; border-radius:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
                     font-size:inherit; font-family:inherit;
@@ -179,8 +181,8 @@ function getProxyUiControllerHtml(initialUrl: string): string {
         </head>
         <body>
             <div class="toolbar">
-                <button class="btn" id="back-btn">◀ Back</button>
-                <button class="btn" id="fwd-btn">Forward ▶</button>
+                <button class="btn" id="back-btn">◀</button>
+                <button class="btn" id="fwd-btn">▶</button>
                 <div class="address-bar" id="addr-bar">${initialUrl}</div>
             </div>
 

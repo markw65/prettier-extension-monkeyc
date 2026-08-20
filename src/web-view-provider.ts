@@ -243,7 +243,7 @@ function configureWebview(webview: vscode.Webview, url: string) {
                 <iframe
                     id="ui-controller-frame"
                     src="${proxiedUrl}"
-                    style="width:100%;height:100%;border:none;background:white;position:absolute;top:0;left:0;"
+                    style="width:100%;height:100%;border:none;background:transparent;position:absolute;top:0;left:0;"
                     sandbox="allow-scripts allow-same-origin allow-forms allow-top-navigation-by-user-activation"
                 ></iframe>
             </div>
@@ -251,18 +251,79 @@ function configureWebview(webview: vscode.Webview, url: string) {
                 const vscode = acquireVsCodeApi();
                 vscode.setState({ url: "${url}" });
                 const uiFrame = document.getElementById("ui-controller-frame");
-                // Fetch vscode vars from this document, and pass them down to the iframe
+
+                function parseToRGB(colorStr) {
+                    const div = document.createElement('div');
+                    div.style.color = colorStr;
+                    document.body.appendChild(div);
+                    const computed = window.getComputedStyle(div).color;
+                    document.body.removeChild(div);
+                    const matches = computed.match(/\\d+/g);
+                    return matches ? matches.slice(0, 3).map(Number) : null;
+                }
+
+                function getLuminance([r, g, b]) {
+                    return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+                }
                 function sendStyleSheetText() {
                     if (!uiFrame || !uiFrame.contentWindow) return;
-                    const styles = window.getComputedStyle(document.documentElement);
+
+                    console.log("getting styles");
+                    const computedStyles = window.getComputedStyle(document.documentElement);
+                    const vsBg = parseToRGB(computedStyles.getPropertyValue('--vscode-editor-background').trim());
+                    const vsFg = parseToRGB(computedStyles.getPropertyValue('--vscode-foreground').trim());
+
+                    console.log("Got colors", vsBg, vsFg);
+
+                    // 1. Get equivalent gray points for the target theme (0 to 1 scale)
+                    const bgLum = getLuminance(vsBg);
+                    const fgLum = getLuminance(vsFg);
+
+                    let dynamicFilter = 'none';
+
+                    console.log("fg=", fgLum, " bg=", bgLum);
+                    if (fgLum > bgLum) {
+                        // ----------------------------------------------------
+                        // DARK MODE PRECISE MATHEMATICAL MAPPING
+                        // ----------------------------------------------------
+
+                        const brightnessValue = fgLum + bgLum;
+                        const invertValue = fgLum / brightnessValue;
+
+                        dynamicFilter = \`
+                            invert(\${invertValue.toFixed(4)})
+                            brightness(\${brightnessValue.toFixed(4)})
+                            hue-rotate(180deg)
+                        \`.replace(/\\s+/g, ' ').trim();
+                    } else {
+                        // ----------------------------------------------------
+                        // LIGHT MODE PRECISE MATHEMATICAL MAPPING
+                        // ----------------------------------------------------
+                        // For light mode, we squeeze the contrast and brightness windows
+                        // to map the website's pure white (#FFF) and black (#000) directly
+                        // into the boundaries of your active VS Code layout colors.
+                        const brightnessValue = fgLum + bgLum;
+                        const contrastValue = (bgLum - fgLum) / brightnessValue;
+
+                        dynamicFilter = \`
+                            contrast(\${contrastValue.toFixed(4)})
+                            brightness(\${brightnessValue.toFixed(4)})
+                        \`.replace(/\\s+/g, ' ').trim();
+                    }
+
+                    console.log("filter: ", dynamicFilter);
                     let cssText = ":root {\\n";
-                    for (let i = 0; i < styles.length; i++) {
-                        const prop = styles[i];
+                    for (let i = 0; i < computedStyles.length; i++) {
+                        const prop = computedStyles[i];
                         if (prop.startsWith('--vscode-')) {
-                            cssText += \`  \${prop}: \${styles.getPropertyValue(prop)};\\n\`;
+                            cssText += \`  \${prop}: \${computedStyles.getPropertyValue(prop)};\\n\`;
                         }
                     }
-                    cssText += "}";
+                    cssText += \`}\\n
+                        .frame-container {
+                            filter: \${dynamicFilter} !important;
+                        }
+                    \`;
                     uiFrame.contentWindow.postMessage({
                         type: 'vscode-css-payload',
                         cssString: cssText
