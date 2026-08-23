@@ -458,7 +458,7 @@
               "In the system browser"
             ],
             "markdownDescription": "Where document links should open.",
-            "default": "browser",
+            "default": "split",
             "scope": "resource"
           },
           "prettierMonkeyC.findSingleDefinition": {
