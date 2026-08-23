@@ -2,6 +2,17 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.135
+
+- Update to [@markw65/monkeyc-optimizer@1.2.3](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#123)
+  - Copy complications.json in the post build optimizer
+  - Fix links generated for [$.Toybox](https://developer.garmin.com/connect-iq/api-docs/index.html)
+  - Fix pred removal for blocks with duplicate edges to one successor
+  - Include all codegen-affecting options in the regeneration cache check
+  - Fix the build on Windows: spawn npx.cmd through a shell
+
+- Add an option to control where `Document Links` appear. By default they still appear in an external browser. By configuring `prettierMonkeyC.openDocumentLinks` you can also choose the `Left Sidebar`, the `Right Sidebar`, the `Bottom Panel`, an editor panel in the same group as your code or an editor panel in a separate group.
+
 #### v2.0.134
 
 - Update to [@markw65/monkeyc-optimizer@1.2.0](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#120)
