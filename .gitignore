@@ -7,3 +7,4 @@ bin/
 *.vsix
 /.vscode-test/
 /dist/
+/vscode-server/

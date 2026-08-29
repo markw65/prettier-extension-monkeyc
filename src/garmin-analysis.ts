@@ -74,20 +74,41 @@ export function checkGarminAnalysisStatus() {
 
 export function enableGarminAnalysis(flag: boolean) {
   const finishUp = () => {
-    const messages = ["Restart Extensions", "Dismiss"];
-    if (!flag) messages.unshift("Kill Server");
-    return vscode.window
-      .showInformationMessage(
-        flag
-          ? `Garmin Language Server has been enabled for future sessions. You can restart extensions to start it now`
-          : `Garmin Language Server has been disabled for future sessions. You can kill the server, or restart extensions to stop it now`,
-        ...messages
-      )
+    return Promise.resolve()
+      .then(() => vscode.commands.getCommands(true))
+      .then((list) => {
+        const restartExtensios = list.includes(
+          "workbench.action.restartExtensionHost"
+        );
+        const what = restartExtensios ? "extensions" : "the window";
+        const messages = [
+          restartExtensios ? "Restart Extensions" : "Restart Window",
+          "Dismiss",
+        ];
+        if (!flag) messages.unshift("Kill Server");
+        return vscode.window.showInformationMessage(
+          flag
+            ? `Garmin Language Server has been enabled for future sessions. You can restart ${
+                what
+              } to start it now`
+            : `Garmin Language Server has been disabled for future sessions. You can kill the server, or restart ${
+                what
+              } to stop it now`,
+          ...messages
+        );
+      })
       .then((selection): unknown => {
         switch (selection) {
+          case "Restart Window":
+            return Promise.resolve().then(() =>
+              vscode.commands.executeCommand("workbench.action.reloadWindow")
+            );
+
           case "Restart Extensions":
-            return vscode.commands.executeCommand(
-              "workbench.action.restartExtensionHost"
+            return Promise.resolve().then(() =>
+              vscode.commands.executeCommand(
+                "workbench.action.restartExtensionHost"
+              )
             );
           case "Kill Server":
             return killLanguageServerProcesses();

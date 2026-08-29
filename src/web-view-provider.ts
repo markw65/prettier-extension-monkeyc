@@ -86,7 +86,7 @@ export async function registerBrowserProviders() {
 
   let editorPanel: vscode.WebviewPanel | undefined;
 
-  const proxyServer = createProxyServer();
+  const proxyServer = vscode.env.remoteName ? null : createProxyServer();
 
   function initPanel(webviewPanel: vscode.WebviewPanel, url: string) {
     webviewPanel.webview.options = {
@@ -128,6 +128,10 @@ export async function registerBrowserProviders() {
     url: string,
     target: "left" | "right" | "bottom" | "tab" | "split"
   ) {
+    if (vscode.env.remoteName != null) {
+      await vscode.commands.executeCommand("simpleBrowser.show", url);
+      return;
+    }
     if (target !== "left") {
       await leftProvider.clear("toggleSidebarVisibility");
     }
@@ -182,28 +186,30 @@ export async function registerBrowserProviders() {
     );
   }
 
-  return [
-    openWebView,
-    vscode.window.registerWebviewViewProvider(
-      "prettiermonkeyc.browser.left",
-      leftProvider
-    ),
-    vscode.window.registerWebviewViewProvider(
-      "prettiermonkeyc.browser.right",
-      rightProvider
-    ),
-    vscode.window.registerWebviewViewProvider(
-      "prettiermonkeyc.browser.bottom",
-      bottomProvider
-    ),
-    vscode.window.registerWebviewPanelSerializer(
-      "monkeyCBrowser",
-      new BrowserTabSerializer()
-    ),
-    {
-      dispose: () => proxyServer.close(),
-    },
-  ] as const;
+  return proxyServer
+    ? ([
+        openWebView,
+        vscode.window.registerWebviewViewProvider(
+          "prettiermonkeyc.browser.left",
+          leftProvider
+        ),
+        vscode.window.registerWebviewViewProvider(
+          "prettiermonkeyc.browser.right",
+          rightProvider
+        ),
+        vscode.window.registerWebviewViewProvider(
+          "prettiermonkeyc.browser.bottom",
+          bottomProvider
+        ),
+        vscode.window.registerWebviewPanelSerializer(
+          "monkeyCBrowser",
+          new BrowserTabSerializer()
+        ),
+        {
+          dispose: () => proxyServer.close(),
+        },
+      ] as const)
+    : ([openWebView] as const);
 }
 
 function configureWebview(webview: vscode.Webview, url: string) {

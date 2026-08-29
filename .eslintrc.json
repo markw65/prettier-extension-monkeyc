@@ -13,7 +13,7 @@
     },
     "sourceType": "module"
   },
-  "ignorePatterns": "build/**/*",
+  "ignorePatterns": ["build/**/*", "vscode-server/**/*"],
   "rules": {
     "no-const-assign": "warn",
     "no-this-before-super": "warn",
