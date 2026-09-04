@@ -2,6 +2,23 @@
 
 All notable changes to the "prettier-extension-monkeyc" extension will be documented in this file.
 
+#### v2.0.136
+
+- Update to [@markw65/monkeyc-optimizer@1.2.4](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#124)
+  - Select the sizeBasedPRE cost model per device class (Fixes #90)
+  - Add preserveNullAssignments to keep explicit x = null releases (Fixes #91)
+
+- Update to [@markw65/monkeyc-optimizer@1.2.5](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#125)
+  - Add diagnostics for null dereferences in member expressions
+  - Fix the heuristics for insertion points, and improve call effect analysis in PRE (Fixes #94)
+
+- Update to [@markw65/monkeyc-optimizer@1.2.6](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#126)
+  - Fix parsing of utf BOM in xml files (Fixes [#9](https://github.com/markw65/prettier-plugin-monkeyc/issues/9))
+
+- When running against vscode-server, offer to reload the window, rather than restarting extensions after enabling or disabling Garmin's language server.
+- When running against vscode-server, don't try to open API documents in WebViews.
+- Open document links in a split view by default (set `prettierMonkeyC.openDocumentLinks` to `browser` to revert to the old behavior).
+
 #### v2.0.135
 
 - Update to [@markw65/monkeyc-optimizer@1.2.3](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#123)
