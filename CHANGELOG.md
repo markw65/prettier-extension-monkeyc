@@ -5,12 +5,12 @@ All notable changes to the "prettier-extension-monkeyc" extension will be docume
 #### v2.0.136
 
 - Update to [@markw65/monkeyc-optimizer@1.2.4](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#124)
-  - Select the sizeBasedPRE cost model per device class (Fixes #90)
-  - Add preserveNullAssignments to keep explicit x = null releases (Fixes #91)
+  - Select the sizeBasedPRE cost model per device class (Fixes [#90](https://github.com/markw65/monkeyc-optimizer/issues/90#top))
+  - Add preserveNullAssignments to keep explicit x = null releases (Fixes #[91](https://github.com/markw65/monkeyc-optimizer/issues/91#top))
 
 - Update to [@markw65/monkeyc-optimizer@1.2.5](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#125)
   - Add diagnostics for null dereferences in member expressions
-  - Fix the heuristics for insertion points, and improve call effect analysis in PRE (Fixes #94)
+  - Fix the heuristics for insertion points, and improve call effect analysis in PRE (Fixes [#94](https://github.com/markw65/monkeyc-optimizer/issues/94#top))
 
 - Update to [@markw65/monkeyc-optimizer@1.2.6](https://github.com/markw65/monkeyc-optimizer/blob/main/CHANGELOG.md#126)
   - Fix parsing of utf BOM in xml files (Fixes [#9](https://github.com/markw65/prettier-plugin-monkeyc/issues/9))
